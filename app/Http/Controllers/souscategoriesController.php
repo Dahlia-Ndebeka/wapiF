@@ -68,4 +68,13 @@ class souscategoriesController extends Controller
              return $souscategorie;
         }
     }
+
+
+    public function Etablissements($id){
+
+        return $etablissements = souscategories::find($id)->Etablissements;
+    }
+
+
+
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\utilisateursController;
 use App\Http\Controllers\authentificationsController;
 use App\Http\Controllers\categoriesController;
 use App\Http\Controllers\souscategoriesController;
+use App\Http\Controllers\etablissementsController;
 
 
 /*
@@ -39,14 +40,18 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateur']);
     Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);
     Route::get("utilisateur/{login}", [utilisateursController::class, 'researchUtilisateur']);
+    Route::get("utilisateurE/{id}", [utilisateursController::class, 'Etablissements']);
+    Route::put("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
+    Route::put("utilisateurPwd/{id}", [utilisateursController::class, 'putPassword']);
+    Route::post("utilisateurImg", [utilisateursController::class, 'imageUtilisateur']);
 
 
     //Routes concernanats les Categories 
 
-    Route::get('Categories', [categoriesController::class, 'Categories']);
-    Route::post('Categorie', [categoriesController::class, 'createCategorie']);
-    Route::get('Categorie/{id}', [categoriesController::class, 'Categorie']);
-    Route::put('Categorie/{id}', [categoriesController::class, 'putCategorie']);
+    Route::get('categories', [categoriesController::class, 'Categories']);
+    Route::post('categorie', [categoriesController::class, 'createCategorie']);
+    Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
+    Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
 
     //Routes concernanats les sous Categories 
 
@@ -54,14 +59,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('sousCategorie', [souscategoriesController::class, 'createSousCategorie']);
     Route::get('sousCategorie/{id}', [souscategoriesController::class, 'sousCategorie']);
     Route::put('sousCategorie/{id}', [souscategoriesController::class, 'putSousCategorie']);
-    Route::get('sousCategorieA/{id}', [souscategoriesController::class, 'getAnnuaire']);
+    Route::get('sousCategorieE/{id}', [souscategoriesController::class, 'Etablissements']);
 
 
-    //Routes concernanats les annuaires 
+    //Routes concernanats les etablissements
 
-    Route::get('Annuaires', [AnnuaireController::class, 'Annuaires']);
-    Route::post('Annuaire', [AnnuaireController::class, 'createAnnuaire']);
-    Route::get('Annuaire/{id}', [AnnuaireController::class, 'Annuaire']);
-    Route::get('AnnuaireSC/{id}', [AnnuaireController::class, 'SousCategories']);
+    Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
+    Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
+    Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
+    // Route::get('etablissementSC/{id}', [etablissementsController::class, 'SousCategories']);
 
 });
