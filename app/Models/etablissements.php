@@ -22,13 +22,9 @@ class etablissements extends Model
                             'site_web', 
                             'logo', 
                             'actif', 
-                            'pays', 
-                            'departement', 
-                            'ville', 
-                            'arrondissement', 
                             'latitude', 
                             'longitude', 
-                            'souscategories_id', 
+                            'arrondissements_id', 
                             'utilisateurs_id'];
 
 
@@ -41,5 +37,6 @@ class etablissements extends Model
     { 
         return $this->belongsTo(utilisateurs::class); 
     }
+
 
 }

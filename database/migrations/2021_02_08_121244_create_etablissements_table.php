@@ -26,17 +26,13 @@ class CreateEtablissementsTable extends Migration
             $table->string('site_web', 200);
             $table->string('logo', 200);
             $table->boolean('actif');
-            $table->string('pays', 200);
-            $table->string('departement', 200);
-            $table->string('ville', 200);
-            $table->string('arrondissement', 200);
             $table->float('latitude');
             $table->float('longitude');
-
-            $table->unsignedBigInteger('souscategories_id');
-            $table->foreign('souscategories_id')
+            
+            $table->unsignedBigInteger('arrondissements_id');
+            $table->foreign('arrondissements_id')
             ->references('id')
-            ->on('souscategories')
+            ->on('arrondissements')
             ->onDelete('restrict')
             ->onUpdate('restrict');
 

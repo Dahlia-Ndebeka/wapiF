@@ -7,6 +7,10 @@ use App\Http\Controllers\authentificationsController;
 use App\Http\Controllers\categoriesController;
 use App\Http\Controllers\souscategoriesController;
 use App\Http\Controllers\etablissementsController;
+use App\Http\Controllers\paysController;
+use App\Http\Controllers\departementsController;
+use App\Http\Controllers\villesController;
+use App\Http\Controllers\arrondissementsController;
 
 
 /*
@@ -60,6 +64,37 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('sousCategorie/{id}', [souscategoriesController::class, 'sousCategorie']);
     Route::put('sousCategorie/{id}', [souscategoriesController::class, 'putSousCategorie']);
     Route::get('sousCategorieE/{id}', [souscategoriesController::class, 'Etablissements']);
+
+
+    //Routes concernanats les pays
+
+    Route::get('pays', [paysController::class, 'Pays']);
+    Route::post('pays', [paysController::class, 'createPays']);
+    Route::get('pays/{id}', [paysController::class, 'getPays']);
+    Route::put('pays/{id}', [paysController::class, 'putPays']);
+
+
+    //Routes concernanats les departements
+
+    Route::get('departements', [departementsController::class, 'Departements']);
+    Route::post('departement', [departementsController::class, 'createDepartement']);
+    Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
+    Route::put('departement/{id}', [departementsController::class, 'putDepartement']);
+
+
+    //Routes concernanats les villes
+
+    Route::get('villes', [villesController::class, 'Villes']);
+    Route::post('ville', [villesController::class, 'createVille']);
+    Route::get('ville/{id}', [villesController::class, 'getVille']);
+    Route::put('ville/{id}', [villesController::class, 'putVille']);
+
+    //Routes concernanats les arrondissements
+
+    Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
+    Route::post('arrondissement', [arrondissementsController::class, 'createArrondissement']);
+    Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
+    Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
 
 
     //Routes concernanats les etablissements

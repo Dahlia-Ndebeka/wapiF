@@ -43,7 +43,27 @@ class etablissementsController extends Controller
 
         }else {
 
-            return etablissements::create($request->all());
+            $img = $request->file('logo');
+
+            if($request->hasFile('logo')){
+
+                $imageName = rand(11111, 99999) . '.' . $request->file('logo')->getClientOriginalExtension();
+
+                $img->move(public_path('/uploads/logos', $imageName));
+
+                $Utilisateur['logo'] = $imageName;
+
+                $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+
+                return utilisateurs::create($Utilisateur);
+
+            }else {
+
+                return etablissements::create($request->all());
+                
+            }
+
+            
             
         }
     }

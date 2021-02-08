@@ -67,7 +67,7 @@ class utilisateursController extends Controller
                     'email' => 'required|email|unique:utilisateurs',
                     'role' => 'required|max:50',
                     // 'photo' => 'required|unique:utilisateurs|image|mimes:jpeg,png,jpg,gif,svg',
-                    'photo' => 'required',
+                    'photo' => 'image|mimes:jpeg,png,jpg,gif,svg',
                     'actif' => 'required',
                     'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
                     'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
@@ -96,10 +96,13 @@ class utilisateursController extends Controller
                         $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
                         return utilisateurs::create($Utilisateur);
-                        // return response()->json($imageName);
 
                     }else {
-                        return response()->json('image nulle');
+
+                        $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+
+                        return utilisateurs::create($Utilisateur);
+
                     }
 
     
@@ -141,10 +144,12 @@ class utilisateursController extends Controller
                         $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
                         return utilisateurs::create($Utilisateur);
-                        // return response()->json($imageName);
 
                     }else {
-                        return response()->json('image nulle');
+                        
+                        $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+
+                        return utilisateurs::create($Utilisateur);
                     }
     
                 }
@@ -278,15 +283,15 @@ class utilisateursController extends Controller
 
             $img->move(public_path('/uploads/images', $imageName));
 
-            $Utilisateur['photo'] = $imageName;
-
-            $update = $donnees->update($Utilisateur);
-
-            return $update;
-
         }else {
             return response()->json('image nulle');
         }
+
+        $Utilisateur['photo'] = $imageName;
+
+        $update = $donnees->update($Utilisateur);
+
+        return $update;
 
     }
 
