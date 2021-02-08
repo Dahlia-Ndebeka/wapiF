@@ -11,13 +11,35 @@ class arrondissementsController extends Controller
     //
     public function Arrondissements(){
 
-        return arrondissements::all();
+        $arrondissement = arrondissements::all();
+
+        if ($arrondissement) {
+            
+            return 'Message : succes 200';
+            return $arrondissement;
+
+        }else {
+            
+            return 'Erreur 004 : Aucune information n\'existe, la table est vide';
+        }
+
     }
+
 
     public function getArrondissement($id){
 
-        return arrondissements::find($id);
+        $arrondissement = arrondissements::find($id);
+
+        if ($arrondissement) {
+            
+            return 'Message : succes 200';
+            return $arrondissement;
+        }else {
+            
+            return 'Message : l\'identifiant n\'existe pas';
+        }
     }
+
 
     public function createArrondissement(Request $request){
 
@@ -36,7 +58,17 @@ class arrondissementsController extends Controller
 
         }else {
 
-            return arrondissements::create($request->all());
+            $arrondissement = arrondissements::create($request->all());
+
+            if ($arrondissement) {
+                
+                return 'Message : succes 200';
+                return $arrondissement ;
+
+            }else {
+                
+                return 'Erreur 005 : echec ';
+            }
             
         }
 
@@ -46,23 +78,40 @@ class arrondissementsController extends Controller
 
         $arrondissement = arrondissements::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        if ($arrondissement) {
             
-            'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-            'villes_id' => 'required'
-        ]);
+            $validator = Validator::make($request->all(), [
+            
+                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                'villes_id' => 'required'
+            ]);
+    
+            if ($validator->fails()) {
+    
+                return response()->json($validator->errors(), 201);
+                return $validator->errors();
+    
+                // return $erreur = "Erreur : 001, lie au champs de saisie";
+    
+            }else {
+                
+                $modif = $arrondissement->update($request->all());
 
-        if ($validator->fails()) {
+                if ($modif) {
+                    
+                    return 'Message : succes 200';
+                    return $modif;
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
-
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+                }else {
+                    
+                    return 'Erreur 005 : Echec';
+                }
+                
+            }
 
         }else {
             
-            $arrondissement->update($request->all());
-            return $arrondissement;
+            return 'Erreur 004 : l\'identifiant n\'existe pas ';
             
         }
 

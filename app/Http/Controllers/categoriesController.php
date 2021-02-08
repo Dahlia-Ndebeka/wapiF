@@ -11,13 +11,37 @@ class categoriesController extends Controller
     //
     public function Categories(){
 
-        return categories::all();
+        $categorie = categories::all();
+
+        if ($categorie) {
+            
+            return 'Message : succes 200';
+            return $categorie;
+
+        }else {
+            
+            return 'Erreur 004, Aucune information existe, la table est vide';
+        }
+
     }
+
 
     public function Categorie($id){
 
-        return $Categorie = categories::find($id);
+        $Categorie = categories::find($id);
+
+        if ($Categorie) {
+            
+            return 'Message : succes 200';
+            return $Categorie;
+            
+        }else {
+            
+            return 'Erreur 004, l\'identifiant n\'existe pas';
+
+        }
     }
+
 
     public function createCategorie(Request $request){
 
@@ -35,33 +59,66 @@ class categoriesController extends Controller
 
         }else {
 
-            return categories::create($request->all());
+            $cat = categories::create($request->all());
+
+            if ($cat) {
+                
+                return 'Message : succes 200';
+                return $cat;
+            }else {
+                
+                return 'Erreur 005 : Echec';
+            }
             
         }
+
     }
+
+
 
     public function putCategorie(Request $request, $id)
     {
         //
         $categorie = categories::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        if ($categorie) {
             
-            'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
-        ]);
+            $validator = Validator::make($request->all(), [
+            
+                'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
+            ]);
+    
+            if ($validator->fails()) {
+    
+                // return response()->json($validator->errors(), 201);
+                // return $validator->errors();
+    
+                return $erreur = "Erreur : 001, lie au champs de saisie";
+    
+            }else {
+    
+                $modif = $categorie->update($request->all());
 
-        if ($validator->fails()) {
+                if ($modif) {
+                    
+                    return 'Message : succes 200';
+                    return $modif;
 
-            // return response()->json($validator->errors(), 201);
-            // return $validator->errors();
+                }else {
 
-            return $erreur = "Erreur : 001, lie au champs de saisie";
+                    return 'Erreur 005 : Echec';
+                    
+                }
+                
+            }
 
         }else {
-
-            $categorie->update($request->all());
-            return $categorie;
             
+            return 'Erreur 004, l\'identifiant n\'existe pas';
+
         }
+
+        
     }
+
 }

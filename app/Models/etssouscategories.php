@@ -9,7 +9,7 @@ class etssouscategories extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = ['user_id', 'stock_id'];
-    
+    protected $primaryKey = ['etablissements_id', 'souscategories_id'];
+
     public $incrementing = false;
 }

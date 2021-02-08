@@ -11,12 +11,31 @@ class paysController extends Controller
     //
     public function Pays(){
 
-        return pays::all();
+        $pays = pays::all();
+
+        if ($pays) {
+
+            return 'message: succes 200' . $pays;
+
+        }else {
+
+            return 'Erreur 004 : Pas d\'enregistrements, la table est vide';
+        }
     }
 
     public function getPays($id){
 
-        return pays::find($id);
+        $pays = pays::find($id);
+
+        if ($pays) {
+
+            return 'message: succes 200' . $pays;
+
+        }else {
+
+            return 'Erreur 004 : Aucune information ne correspond à votre demande';
+        }
+
     }
 
     public function createPays(Request $request){
@@ -29,13 +48,27 @@ class paysController extends Controller
         if ($validator->fails()) {
 
             return response()->json($validator->errors(), 201);
+
             return $validator->errors();
 
             // return $erreur = "Erreur : 001, lie au champs de saisie";
 
         }else {
 
-            return pays::create($request->all());
+            // return pays::create($request->all());
+
+            $pays = pays::create($request->all());
+
+            if ($pays) {
+
+                return 'message : succes 200 ' . $pays;
+
+            }else {
+
+                return 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement ';
+
+            }
+
             
         }
 
@@ -45,24 +78,43 @@ class paysController extends Controller
 
         $pays = pays::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        if($pays){
+
+            $validator = Validator::make($request->all(), [
             
-            'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-        ]);
+                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+            ]);
+    
+            if ($validator->fails()) {
+    
+                return response()->json($validator->errors(), 201);
+                return $validator->errors();
+    
+                // return $erreur = "Erreur : 001, lie au champs de saisie";
+    
+            }else {
+    
+               $modif = $pays->update($request->all());
 
-        if ($validator->fails()) {
+               if ($modif) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
+                return 'message : succes 200' . $pays;
 
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+               }else {
+                   
+                    return 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement ';
+
+               }
+                
+            }
 
         }else {
-            
-            $pays->update($request->all());
-            return $pays;
-            
+
+            return 'Erreur 004: Identifiant n\'existe pas';
+
         }
+
+        
 
     }
 
