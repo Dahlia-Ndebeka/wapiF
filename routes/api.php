@@ -31,6 +31,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('utilisateur', [utilisateursController::class, 'createUtilisateur']);
 Route::post("login", [authentificationsController::class, 'login']);
 Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
+// Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
+
 
 
 // Secure routes
