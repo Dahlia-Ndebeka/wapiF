@@ -8,23 +8,32 @@ use App\Models\arrondissements;
 
 class arrondissementsController extends Controller
 {
-    //
+    
+    //Afficher les arrondissements
+
     public function Arrondissements(){
 
         $arrondissement = arrondissements::all();
 
         if ($arrondissement) {
-            
-            return 'Message : succes 200';
-            return $arrondissement;
+
+            return response([
+                'message' => 'success',
+                'data' => $arrondissement
+            ], 200);
 
         }else {
-            
-            return 'Erreur 004 : Aucune information n\'existe, la table est vide';
+
+            return response([
+                'message' => 'Erreur 004 : Aucune information n\'existe, la table est vide',
+                'data' => 'Nul'
+            ], 201);
         }
 
     }
 
+
+    // Consulter ou afficher un arrondissement
 
     public function getArrondissement($id){
 
@@ -32,14 +41,23 @@ class arrondissementsController extends Controller
 
         if ($arrondissement) {
             
-            return 'Message : succes 200';
-            return $arrondissement;
+            return response([
+                'message' => 'success',
+                'data' => $arrondissement
+            ], 200);
+
         }else {
             
-            return 'Message : l\'identifiant n\'existe pas';
+            return response([
+                'message' => 'Erreur 004 : l\'identifiant n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
+
         }
     }
 
+
+    // Creer un arrondissement
 
     public function createArrondissement(Request $request){
 
@@ -51,10 +69,12 @@ class arrondissementsController extends Controller
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
-
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+            $erreur = $validator->errors();
+            
+            return response([
+                'message' => 'success',
+                'data' => $erreur
+            ], 200);
 
         }else {
 
@@ -62,17 +82,26 @@ class arrondissementsController extends Controller
 
             if ($arrondissement) {
                 
-                return 'Message : succes 200';
-                return $arrondissement ;
+                return response([
+                    'message' => 'success',
+                    'data' => $arrondissement
+                ], 200);
 
             }else {
                 
-                return 'Erreur 005 : echec ';
+                return response([
+                    'message' => 'Erreur 005 : Echec lors de la creation',
+                    'data' => 'Nul'
+                ], 201);
+
             }
             
         }
 
     }
+
+
+    // Modifier un arrondissement
 
     public function putArrondissement(Request $request, $id){
 
@@ -88,32 +117,45 @@ class arrondissementsController extends Controller
     
             if ($validator->fails()) {
     
-                return response()->json($validator->errors(), 201);
-                return $validator->errors();
-    
-                // return $erreur = "Erreur : 001, lie au champs de saisie";
+                $erreur = $validator->errors();
+            
+                return response([
+                    'message' => 'success',
+                    'data' => $erreur
+                ], 200);
     
             }else {
                 
                 $modif = $arrondissement->update($request->all());
 
                 if ($modif) {
-                    
-                    return 'Message : succes 200';
-                    return $modif;
+
+                    return response([
+                        'message' => 'success',
+                        'data' => $modif
+                    ], 200);
 
                 }else {
-                    
-                    return 'Erreur 005 : Echec';
+
+                    return response([
+                        'message' => 'Erreur 005 : Echec lors de la modification',
+                        'data' => 'Nul'
+                    ], 201);
+
                 }
                 
             }
 
         }else {
-            
-            return 'Erreur 004 : l\'identifiant n\'existe pas ';
-            
+
+            return response([
+                'message' => 'Erreur 004 : l\'identifiant n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
+
         }
 
     }
+
+
 }

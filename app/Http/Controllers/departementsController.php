@@ -9,20 +9,32 @@ use Illuminate\Support\Facades\Validator;
 
 class departementsController extends Controller
 {
-    //
+
+    //Afficher tous les departements
+
     public function Departements(){
 
         $departements = departements::all();
 
         if($departements){
 
-            return $departements;
+            return response([
+                'message' => 'success',
+                'data' => $departements
+            ], 200);
 
         }else {
 
-            return 'Erreur 004 : Pas d\'enregistrements, la table est vide';
+            return response([
+                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
+                'data' => 'Nul'
+            ], 201);
+
         }
     }
+
+
+    // Consulter ou afficher un departement
 
     public function getDepartement($id){
 
@@ -30,13 +42,24 @@ class departementsController extends Controller
 
         if($departements){
 
-            return $departements;
+            return $departements;return response([
+                'message' => 'success',
+                'data' => $departements
+            ], 200);
 
         }else {
-            return 'Erreur 004 : Aucune information ne correspond à votre demande';
+            
+            return response([
+                'message' => 'Erreur 004 : Aucune information ne correspond à votre demande',
+                'data' => 'Nul'
+            ], 201);
+
         }
        
     }
+
+
+    // Creer un departement
 
     public function createDepartement(Request $request){
 
@@ -48,10 +71,13 @@ class departementsController extends Controller
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
+            $erreur = $validator->errors();
+            
+            return response([
+                'message' => 'success',
+                'data' => $erreur
+            ], 200);
 
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
 
         }else {
 
@@ -59,16 +85,26 @@ class departementsController extends Controller
 
             if ($departement) {
                 
-                return 'message : succes 200' . $departement;
+                return response([
+                    'message' => 'success',
+                    'data' => $departement
+                ], 200);
+
             }else {
                 
-                return 'Erreur 005 : echec';
+                return response([
+                    'message' => 'Erreur 005 : echec lors de l\'ajout',
+                    'data' => 'Nul'
+                ], 201);
 
             }
             
         }
 
     }
+
+
+    // Modifier un departement
 
     public function putDepartement(Request $request, $id){
 
@@ -84,10 +120,12 @@ class departementsController extends Controller
     
             if ($validator->fails()) {
     
-                return response()->json($validator->errors(), 201);
-                return $validator->errors();
-    
-                // return $erreur = "Erreur : 001, lie au champs de saisie";
+                $erreur = $validator->errors();
+            
+                return response([
+                    'message' => 'success',
+                    'data' => $erreur
+                ], 200);
     
             }else {
                 
@@ -95,22 +133,31 @@ class departementsController extends Controller
 
                 if ($modif) {
 
-                    return 'Message : succes 200' . $modif;
+                    return response([
+                        'message' => 'success',
+                        'data' => $modif
+                    ], 200);
 
-                // return 'Message : 200' . $departement;
                 }else {
                     
-                    return 'Erreur 005 : une erreur c\'est produite lors de la mofication ';
+                return response([
+                    'message' => 'Erreur 005 : une erreur c\'est produite lors de la mofication',
+                    'data' => 'Nul'
+                ], 201);
+
                 }
                 
             }
         }else {
             
-            return 'Erreur 004 : l\'information n\'existe pas';
+            return response([
+                'message' => 'Erreur 004 : l\'information n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
 
         }
 
-        
-
     }
+
+
 }

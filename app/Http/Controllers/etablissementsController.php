@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Validator;
 
 class etablissementsController extends Controller
 {
-    //
+    
+    //Creer un etablissement
+
     public function createEtablissement(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -24,22 +26,20 @@ class etablissementsController extends Controller
             'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
             'logo'=> 'required|unique:etablissements|max:100', 
             'actif'=> 'required', 
-            'pays'=> 'required|max:200|regex:/[^0-9.-]/', 
-            'departement'=> 'required|regex:/[^0-9.-]/', 
-            'ville'=> 'required|max:200|regex:/[^0-9.-]/', 
-            'arrondissement'=> 'required|max:200|regex:/[^0-9.]/', 
             'latitude'=> 'required|max:100', 
             'longitude'=> 'required|max:100', 
-            'souscategories_id'=> 'required', 
+            'arrondissements_id'=> 'required', 
             'utilisateurs_id'=> 'required'
         ]);
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
-
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+            $erreur = $validator->errors();
+            
+            return response([
+                'message' => 'success',
+                'data' => $erreur
+            ], 200);
 
         }else {
 
@@ -55,33 +55,103 @@ class etablissementsController extends Controller
 
                 $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
-                return utilisateurs::create($Utilisateur);
+                $tes = etablissements::create($Utilisateur);
+
+                if ($tes) {
+                    
+                    return response([
+                        'message' => 'success',
+                        'data' => $tes
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'message' => 'Erreur 005 : echec lors de la creation',
+                        'data' => 'Nul'
+                    ], 201);
+                    
+                }
 
             }else {
 
-                return etablissements::create($request->all());
+                $ets = etablissements::create($request->all());
+
+                if ($tes) {
+                    
+                    return response([
+                        'message' => 'success',
+                        'data' => $tes
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'message' => 'Erreur 005 : echec lors de la creation',
+                        'data' => 'Nul'
+                    ], 201);
+                    
+                }
                 
             }
-
-            
             
         }
+
     }
 
+
+    // Afficher les etablissements
 
     public function Etablissements(){
 
-        return etablissements::all();
+        $ets = etablissements::all();
+
+        if ($tes) {
+                    
+            return response([
+                'message' => 'success',
+                'data' => $tes
+            ], 200);
+
+        } else {
+
+            return response([
+                'message' => 'Erreur 004 : Table est vide',
+                'data' => 'Nul'
+            ], 201);
+            
+        }
+
     }
 
+
+    // Consulter ou afficher un etablissement
 
     public function Etablissement($id){
 
-        return $etablissement = etablissements::find($id);
+        $etablissement = etablissements::find($id);
+
+        if ($etablissement) {
+                    
+            return response([
+                'message' => 'success',
+                'data' => $tes
+            ], 200);
+
+        } else {
+
+            return response([
+                'message' => 'Erreur 004 : Identifiant incorrect',
+                'data' => 'Nul'
+            ], 201);
+
+        }
+        
     }
 
 
-    
+    // Afficher les sous categories par rapport a l'etablissement
+
     public function sousCategorie($id){
 
         return $etablissements = etablissements::find($id)->sousCategories;

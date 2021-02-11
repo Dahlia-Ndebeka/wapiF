@@ -9,21 +9,33 @@ use Illuminate\Support\Facades\Validator;
 
 class villesController extends Controller
 {
-    //
+
+    //Afficher les villes
+
     public function Villes(){
 
         $villes = villes::all();
 
         if ($villes) {
-            
-            return 'Message : succes 200 ' . $villes;
+
+            return response([
+                'message' => 'success',
+                'data' => $villes
+            ], 200);
+
         }else {
-            
-            return 'Erreur 004 : Pas d\'enregistrements, la table est vide';
+    
+            return response([
+                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
+                'data' => 'Nul'
+            ], 201);
+
             
         }
     }
 
+
+    // Consulter ou afficher une ville
 
     public function getVille($id){
 
@@ -31,15 +43,24 @@ class villesController extends Controller
 
         if ($ville) {
             
-            return 'Message : succes 200 ' . $ville ;
+            return response([
+                'message' => 'success',
+                'data' => $ville
+            ], 200);
             
         }else {
             
-            return 'Erreur 004, Aucune information ne correspond à cet identifiant';
+            return response([
+                'message' => 'Erreur 004, Aucune information ne correspond à cet identifiant',
+                'data' => 'Nul'
+            ], 201);
 
         }
+
     }
 
+
+    // Creer une ville
 
     public function createVille(Request $request){
 
@@ -51,10 +72,14 @@ class villesController extends Controller
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
+            $erreur = $validator->errors();
 
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+            return response([
+                'code' => '001',
+                'message' => $erreur,
+                'info' => 'erreur lie au champs de saisie' 
+            ], 202);
+
 
         }else {
 
@@ -62,10 +87,17 @@ class villesController extends Controller
 
             if ($ville) {
                 
-                return 'Message :succes 200' . $ville;
+                return response([
+                    'message' => 'success',
+                    'data' => $ville
+                ], 200);
+
             }else {
                 
-                return 'Erreur 005 : echec';
+                return response([
+                    'message' => 'Erreur 005 : echec, lors de l\'ajout',
+                    'data' => 'Nul'
+                ], 201);
 
             }
             
@@ -73,6 +105,8 @@ class villesController extends Controller
 
     }
 
+
+    // Modifier une ville
 
     public function putVille(Request $request, $id){
 
@@ -87,33 +121,47 @@ class villesController extends Controller
             ]);
     
             if ($validator->fails()) {
+
+                $erreur = $validator->errors();
     
-                return response()->json($validator->errors(), 201);
-                return $validator->errors();
-    
-                // return $erreur = "Erreur : 001, lie au champs de saisie";
-    
+                return response([
+                    'code' => '001',
+                    'message' => $erreur,
+                    'info' => 'erreur lie au champs de saisie' 
+                ], 202);
+
             }else {
                 
                 $modif = $ville->update($request->all());
 
                 if ($modif) {
 
-                    return 'Message : succes 200';
-                    return $ville;
+                    return response([
+                        'message' => 'success',
+                        'data' => $ville
+                    ], 200);
 
                 }else {
                     
-                    return 'Erreur 005 : Echec';
+                    return response([
+                        'message' => 'Erreur 005 : Echec lors de la modification',
+                        'data' => 'Nul'
+                    ], 201);
+
                 }
                 
             }
 
         }else {
-            
-            return 'Erreur 004 : l\identifiant n\existe pas';
+
+            return response([
+                'message' => 'Erreur 004 : l\identifiant n\existe pas',
+                'data' => 'Nul'
+            ], 201);
+
         }
 
     }
+
 
 }

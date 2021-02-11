@@ -30,9 +30,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('utilisateur', [utilisateursController::class, 'createUtilisateur']);
 Route::post("login", [authentificationsController::class, 'login']);
-Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
-// Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
-
 
 
 // Secure routes
@@ -42,6 +39,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     //Routes concernanats les comptes 
 
     Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
+    Route::put('utilisateurAd/{id}', [utilisateursController::class, 'addUtilisateur']);
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateur']);
     Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);

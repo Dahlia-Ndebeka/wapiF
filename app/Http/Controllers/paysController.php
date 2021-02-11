@@ -8,20 +8,33 @@ use Illuminate\Support\Facades\Validator;
 
 class paysController extends Controller
 {
-    //
+
+    //Afficher tous les pays
+
     public function Pays(){
 
         $pays = pays::all();
 
         if ($pays) {
 
-            return 'message: succes 200' . $pays;
+            return response([
+                'message' => 'success',
+                'data' => $pays
+            ], 200);
 
         }else {
 
-            return 'Erreur 004 : Pas d\'enregistrements, la table est vide';
+            return response([
+                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
+                'data' => 'Nul'
+            ], 201);
+
         }
+
     }
+
+
+    // Consulter ou afficher un pays
 
     public function getPays($id){
 
@@ -29,14 +42,24 @@ class paysController extends Controller
 
         if ($pays) {
 
-            return 'message: succes 200' . $pays;
+            return response([
+                'message' => 'success',
+                'data' => $pays
+            ], 200);
 
         }else {
 
-            return 'Erreur 004 : Aucune information ne correspond à votre demande';
+            return response([
+                'message' => 'Erreur 004 : Aucune information ne correspond à votre demande',
+                'data' => 'Nul'
+            ], 201);
+
         }
 
     }
+
+
+    // Creer un pays
 
     public function createPays(Request $request){
 
@@ -47,25 +70,30 @@ class paysController extends Controller
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
+            $erreur = $validator->errors();
 
-            return $validator->errors();
-
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+            return response([
+                'message' => 'success',
+                'data' => $erreur
+            ], 200);
 
         }else {
-
-            // return pays::create($request->all());
 
             $pays = pays::create($request->all());
 
             if ($pays) {
 
-                return 'message : succes 200 ' . $pays;
+                return response([
+                    'message' => 'success',
+                    'data' => $pays
+                ], 200);
 
             }else {
 
-                return 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement ';
+                return response([
+                    'message' => 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement',
+                    'data' => 'Nul'
+                ], 201);
 
             }
 
@@ -73,6 +101,9 @@ class paysController extends Controller
         }
 
     }
+
+
+    // Modifier un pays
 
     public function putPays(Request $request, $id){
 
@@ -86,11 +117,14 @@ class paysController extends Controller
             ]);
     
             if ($validator->fails()) {
-    
-                return response()->json($validator->errors(), 201);
-                return $validator->errors();
-    
-                // return $erreur = "Erreur : 001, lie au champs de saisie";
+
+                $erreur = $validator->errors();
+
+                return response([
+                        'message' => 'success',
+                        'data' => $erreur
+                    ], 200);
+
     
             }else {
     
@@ -98,24 +132,33 @@ class paysController extends Controller
 
                if ($modif) {
 
-                return 'message : succes 200' . $pays;
+                    return response([
+                        'message' => 'success',
+                        'data' => $pays
+                    ], 200);
 
                }else {
-                   
-                    return 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement ';
 
-               }
+                    return response([
+                        'message' => 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement',
+                        'data' => 'Nul'
+                    ], 201);
+
+                }
                 
             }
 
         }else {
 
-            return 'Erreur 004: Identifiant n\'existe pas';
+            return response([
+                'message' => 'Erreur 004: Identifiant n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
 
         }
 
-        
-
     }
+
+
 
 }

@@ -8,117 +8,205 @@ use Illuminate\Support\Facades\Validator;
 
 class categoriesController extends Controller
 {
-    //
+    
+    //Afficher les categories
+
     public function Categories(){
 
         $categorie = categories::all();
 
         if ($categorie) {
             
-            return 'Message : succes 200';
-            return $categorie;
+            return response([
+                'message' => 'success',
+                'data' => $categorie
+            ], 200);
 
         }else {
-            
-            return 'Erreur 004, Aucune information existe, la table est vide';
+
+            return response([
+                'message' => 'Erreur 004, la table est vide',
+                'data' => 'Nul'
+            ], 201);
+
         }
 
     }
 
+
+    // Consulter ou afficher une categorie
 
     public function Categorie($id){
 
-        $Categorie = categories::find($id);
+        $categorie = categories::find($id);
 
-        if ($Categorie) {
+        if ($categorie) {
             
-            return 'Message : succes 200';
-            return $Categorie;
+            return response([
+                'message' => 'success',
+                'data' => $categorie
+            ], 200);
             
         }else {
             
-            return 'Erreur 004, l\'identifiant n\'existe pas';
+            return response([
+                'message' => 'Erreur 004, l\'identifiant n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
 
         }
+
     }
 
 
+    // Creer une categorie
+
     public function createCategorie(Request $request){
+
+        $categorie = $request->all();
 
         $validator = Validator::make($request->all(), [
             
             'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
+            'image' => 'required',
+            'titre' => 'required'
         ]);
 
         if ($validator->fails()) {
 
-            return response()->json($validator->errors(), 201);
-            return $validator->errors();
-
-            // return $erreur = "Erreur : 001, lie au champs de saisie";
+            $erreur = $validator->errors();
+            
+            return response([
+                'message' => 'success',
+                'data' => $erreur
+            ], 200);
 
         }else {
 
-            $cat = categories::create($request->all());
+            $img = $request->file('image');
 
-            if ($cat) {
-                
-                return 'Message : succes 200';
-                return $cat;
+            if($request->hasFile('image')){
+
+                $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+
+                $img->move(public_path('/categories/images', $imageName));
+
+                // return response()->json($imageName);
+
+                $categorie['image'] = $imageName;
+
+                $cat = categories::create($categorie);
+
+                if ($cat) {
+
+                    return response([
+                        'message' => 'success',
+                        'data' => $cat
+                    ], 200);
+
+                }else {
+
+                    return response([
+                        'message' => 'Erreur 005 : Echec lors de l\'ajout',
+                        'data' => 'Nul'
+                    ], 201);
+
+                }
+
             }else {
+
+                return response([
+                    'message' => 'image nulle',
+                    'data' => 'Nul'
+                ], 201);
                 
-                return 'Erreur 005 : Echec';
             }
-            
         }
+
 
     }
 
 
+    // Modifier une categorie
 
     public function putCategorie(Request $request, $id)
     {
-        //
-        $categorie = categories::findOrFail($id);
 
-        if ($categorie) {
+        $identifiant = categories::findOrFail($id);
+
+        $categorie = $request->all();
+
+        if ($identifiant) {
             
             $validator = Validator::make($request->all(), [
             
                 'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
+                'image' => 'required',
+                'titre' => 'required'
             ]);
     
             if ($validator->fails()) {
     
-                // return response()->json($validator->errors(), 201);
-                // return $validator->errors();
-    
-                return $erreur = "Erreur : 001, lie au champs de saisie";
+                $erreur = $validator->errors();
+            
+                return response([
+                    'message' => 'success',
+                    'data' => $erreur
+                ], 200);
     
             }else {
-    
-                $modif = $categorie->update($request->all());
 
-                if ($modif) {
-                    
-                    return 'Message : succes 200';
-                    return $modif;
+                $img = $request->file('image');
+
+                if($request->hasFile('image')){
+
+                    $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+
+                    $img->move(public_path('/categories/images', $imageName));
+
+                    // return response()->json($imageName);
+
+                    $categorie['image'] = $imageName;
+
+                    $cat = $identifiant->update($categorie);
+
+                    if ($cat) {
+
+                        return response([
+                            'message' => 'success',
+                            'data' => $cat
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'message' => 'Erreur 005 : Echec lors de l\'ajout',
+                            'data' => 'Nul'
+                        ], 201);
+                        
+                    }
 
                 }else {
 
-                    return 'Erreur 005 : Echec';
-                    
+                    return response([
+                        'message' => 'Erreur 001 : image nulle',
+                        'data' => 'Nul'
+                    ], 201);
+
                 }
                 
             }
 
         }else {
             
-            return 'Erreur 004, l\'identifiant n\'existe pas';
+            return response([
+                'message' => 'Erreur 004, l\'identifiant n\'existe pas',
+                'data' => 'Nul'
+            ], 201);
 
         }
-
         
     }
+
 
 }

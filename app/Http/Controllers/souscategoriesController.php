@@ -9,17 +9,58 @@ use Illuminate\Support\Facades\Validator;
 
 class souscategoriesController extends Controller
 {
-    //
+
+    //Afficher tous les sous categories
+
     public function sousCategories(){
 
-        return souscategories::all();
+        $souscategories = souscategories::all();
+
+        if ($souscategories) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $souscategories
+            ], 200);
+
+        } else {
+
+            return response([
+                'message' => 'Ereur 004 : Table vide',
+                'data' => 'Nul'
+            ], 201);
+
+        }
+        
     }
+
+
+    // Consulter ou afficher une sous categorie
 
     public function sousCategorie($id){
 
-        return $souscategories = souscategories::find($id);
+        $souscategories = souscategories::find($id);
+
+        if ($souscategories) {
+            
+        return response([
+            'message' => 'success',
+            'data' => $souscategories
+        ], 200);
+
+        } else {
+            
+        return response([
+            'message' => 'Ereur 004 : indentifiant n\'existe pas',
+            'data' => 'Nul'
+        ], 201);
+        
+        }
+         
     }
 
+
+    // Creation de la sous categorie
 
     public function createSousCategorie(Request $request){
 
@@ -30,19 +71,40 @@ class souscategoriesController extends Controller
         ]);
 
         if ($validator->fails()) {
+            
+            $erreur = $validator->errors();
 
-            // return response()->json($validator->errors(), 201);
-            // return $validator->errors();
-
-            return $erreur = "Erreur : 001, lie au champs de saisie";
+            return response([
+                'code' => '001',
+                'message' => $erreur,
+                'info' => 'erreur lie au champs de saisie' 
+            ], 202);
 
         }else {
 
-            return souscategories::create($request->all());
+            $data = souscategories::create($request->all());
+
+            if ($data) {
+                
+                return response([
+                    'message' => 'success',
+                    'data' => $data
+                ], 200);
+
+            } else {
+                
+                return response([
+                    'message' => 'Erreur 005 : la modification a echoue',
+                    'data' => 'Nul'
+                ], 201);
+            }
+            
             
         }
     }
 
+
+    // Modification de la sous categorie
 
     public function putSousCategorie(Request $request, $id)
     {
@@ -57,22 +119,58 @@ class souscategoriesController extends Controller
 
         if ($validator->fails()) {
 
-            // return response()->json($validator->errors(), 201);
-            // return $validator->errors();
+            $erreur = $validator->errors();
 
-            return $erreur = "Erreur : 001, lie au champs de saisie";
+            return response([
+                'code' => '001',
+                'message' => $erreur,
+                'info' => 'erreur lie au champs de saisie' 
+            ], 202);
             
         }else {
 
-             $souscategorie->update($request->all());
-             return $souscategorie;
+            $datas = $souscategorie->update($request->all());
+
+            if ($datas) {
+                
+                return response([
+                    'message' => 'success',
+                    'data' => $souscategorie
+                ], 200);
+
+            } else {
+            
+                return response([
+                    'message' => 'Erreur 005 : echec lors de la modification',
+                    'data' => 'Nul'
+                ], 201);
+            }
+             
         }
     }
 
+    // Affichage des etablissements par rapport a la sous categorie
 
     public function Etablissements($id){
 
-        return $etablissements = souscategories::find($id)->Etablissements;
+        $etablissements = souscategories::find($id)->Etablissements;
+
+        if ($etablissements) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $etablissements
+            ], 200);
+
+        } else {
+            
+            return response([
+                'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
+                'data' => 'Nul'
+            ], 201);
+        }
+        
+
     }
 
 

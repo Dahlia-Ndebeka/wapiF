@@ -16,4 +16,5 @@ class souscategories extends Model
     { 
         return $this->hasMany(etablissements::class); 
     }
+    
 }

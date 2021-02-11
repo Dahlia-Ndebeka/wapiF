@@ -14,10 +14,13 @@ class authentificationsController extends Controller
 
         $utilisateur = utilisateurs::where('email', $request->email)->first();
 
+        $data = utilisateurs::where('email', $request->all())->first();
 
         if (!$utilisateur || !Hash::check($request->password, $utilisateur->password)) {
+
             return response([
-                'Erreur 001' => ['mot de passe ou email incoorecte, lie au champs de saisie']
+                'code' => '001',
+                'message' => 'mot de passe ou email incoorecte, lie au champs de saisie'
             ], 404);
         }
 
@@ -25,7 +28,8 @@ class authentificationsController extends Controller
 
         return response([
             'message' => 'success',
-            'token' => $token
+            'token' => $token,
+            'data' => $data
         ], 200);
         
     }
