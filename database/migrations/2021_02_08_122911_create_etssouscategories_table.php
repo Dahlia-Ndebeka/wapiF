@@ -22,6 +22,7 @@ class CreateEtssouscategoriesTable extends Migration
         DB::unprepared('ALTER TABLE `etssouscategories` DROP PRIMARY KEY, ADD PRIMARY KEY (  `etablissements_id` ,  `souscategories_id` )');
     }
 
+
     
 
     /**

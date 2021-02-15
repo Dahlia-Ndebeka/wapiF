@@ -31,7 +31,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Table vide',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 201);
 
         }
@@ -57,7 +57,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant n\'existe pas',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 200);
 
         }   
@@ -83,13 +83,15 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 201);
 
         }
         
     }
 
+
+    // Creer un utilisateur
 
     public function createUtilisateur(Request $request){
 
@@ -130,7 +132,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'ajout',
-                    'data' => $util
+                    'data' => 'null'
                 ], 201);
 
             }
@@ -147,111 +149,123 @@ class utilisateursController extends Controller
 
         $Utilisateur = utilisateurs::findOrFail($id);
 
-        $role = $Utilisateur['role'];
+        $val1 = $Utilisateur['id'];
 
-        if ($role) {
+            $role = $Utilisateur['role'];
 
-            if ($role == 'administrateur') {
-
-                $validator = Validator::make($request->all(), [
-                    
-                    'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
-                    'email' => 'required|email|unique:utilisateurs',
-                    'role' => 'required|max:50',
-                    'actif' => 'required',
-                    'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
-                    'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
-                    'telephoneAdministrateur' => 'required|unique:utilisateurs|regex:/[^a-zA-Z]/',
-                ]);
-
-                if ($validator->fails()) {
-        
-                    $erreur = $validator->errors();
-
-                    return response([
-                        'code' => '001',
-                        'message' => $erreur,
-                        'info' => 'erreur lie au champs de saisie' 
-                    ], 202);
-            
-                }else {
-                    
-                    $util = $Utilisateur->update($request->all());
-
-                    if ($util) {
-
-                        return response([
-                            'message' => 'success',
-                            'data' => $Utilisateur
-                        ], 200);
+            $identif = utilisateurs::where('id', $request->id)->first();
     
-                    }else {
-
+            $val2 = $identif['id'];
+    
+            if ($val1 == $val2 ) {
+                
+                if ($role == 'administrateur') {
+    
+                    $validator = Validator::make($request->all(), [
+                        
+                        'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
+                        'email' => 'required|email|unique:utilisateurs',
+                        'role' => 'required|max:50',
+                        'actif' => 'required',
+                        'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
+                        'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
+                        'telephoneAdministrateur' => 'required|unique:utilisateurs|regex:/[^a-zA-Z]/',
+                    ]);
+        
+                    if ($validator->fails()) {
+            
+                        $erreur = $validator->errors();
+        
                         return response([
-                            'code' => '005',
-                            'message' => 'Echec lors de la modification',
-                            'data' => 'Nul'
-                        ], 201);
-
+                            'code' => '001',
+                            'message' => $erreur,
+                            'info' => 'erreur lie au champs de saisie' 
+                        ], 202);
+                
+                    }else {
+                        
+                        $util = $Utilisateur->update($request->all());
+        
+                        if ($util) {
+        
+                            return response([
+                                'message' => 'success',
+                                'data' => $Utilisateur
+                            ], 200);
+        
+                        }else {
+        
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de la modification',
+                                'data' => 'null'
+                            ], 201);
+        
+                        }       
                     } 
-    
-                }
-
-            } elseif($role == 'mobinaute') {
-
-                $validator = Validator::make($request->all(), [
-                    'login' => 'required|regex:/[^0-9.-]/',
-                    'email' => 'email|required|unique:utilisateurs',
-                    'role' => 'required|max:50',
-                    'actif' => 'required'
-                ]);
-
-                if ($validator->fails()) {
-        
-                    $erreur = $validator->errors();
-                    
-                    return response([
-                        'code' => '001',
-                        'message' => $erreur,
-                        'info' => 'erreur lie au champs de saisie' 
-                    ], 202);
-            
                 }else {
-    
-                    $util = $Utilisateur->update($request->all());
                     
-                    if ($util) {
-
+                    $validator = Validator::make($request->all(), [
+                        'login' => 'required|regex:/[^0-9.-]/',
+                        'email' => 'email|required|unique:utilisateurs'
+                    ]);
+        
+                    if ($validator->fails()) {
+            
+                        $erreur = $validator->errors();
+                        
                         return response([
-                            'message' => 'success',
-                            'data' => $Utilisateur
-                        ], 200);
-    
+                            'code' => '001',
+                            'message' => $erreur,
+                            'info' => 'erreur lie au champs de saisie' 
+                        ], 202);
+                
                     }else {
-
-                        return response([
-                            'code' => '005',
-                            'message' => 'Echec lors de la modification',
-                            'data' => 'Nul'
-                        ], 201);
-    
+        
+                        $util = $Utilisateur->update($request->all());
+                        
+                        if ($util) {
+        
+                            return response([
+                                'message' => 'success',
+                                'data' => $Utilisateur
+                            ], 200);
+        
+                        }else {
+        
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de la modification',
+                                'data' => 'null'
+                            ], 201);
+        
+                        }
+        
                     }
-    
                 }
-            }else{
-
+    
+            }elseif($val1 != $val2) {
+                
                 return response([
                     'code' => '004',
-                    'message' => 'Echec l\'utilisateur n\'existe pas',
-                    'data' => 'Nul'
-                ], 200);
+                    'message' => 'Aucune information ne correspond à cet identifiant',
+                    'data' => 'null'
+                ], 201);
+    
+            }else {
                 
+                return response([
+                    'code' => '004',
+                    'message' => 'Desole vous n\'avez saisie aucun identifiant',
+                    'data' => 'null'
+                ], 201);
             }
+        
+        
 
-        }
+
 
     }
-
 
 
     // Modifier le mot de passe
@@ -296,7 +310,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'echec lors de la modification',
-                    'info' => 'Nul' 
+                    'info' => 'null' 
                 ], 200);
 
             }
@@ -336,7 +350,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'echec lors de la modification',
-                    'info' => 'Nul' 
+                    'info' => 'null' 
                 ], 200);
 
             }
@@ -346,7 +360,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '001',
                 'message' => 'image nulle',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 201);
 
         }
@@ -405,7 +419,7 @@ class utilisateursController extends Controller
                             return response([
                                 'code' => '005',
                                 'message' => 'Echec lors de la modification',
-                                'data' => 'Nul'
+                                'data' => 'null'
                             ], 201);
 
                         }
@@ -445,7 +459,7 @@ class utilisateursController extends Controller
                             return response([
                                 'code' => '005',
                                 'message' => 'Echec lors de la modification',
-                                'data' => 'Nul'
+                                'data' => 'null'
                             ], 201);
 
                         }
@@ -455,7 +469,7 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '001',
                         'message' => 'Echec vous devez indiquer le role de l\'utilisateur pour pouvoir ajouter les champs manquant',
-                        'data' => 'Nul'
+                        'data' => 'null'
                     ], 201);
                     
                 }
@@ -467,12 +481,83 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Desole l\'identidiant n\'existe pas',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 201);
             
         }
          
     }
+
+
+    // Affichage des annonces a partir de l'utilisateur
+
+    public function Annonces($id){
+
+        $annonces = utilisateurs::find($id)->Annonces;
+
+        if ($annonces) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // $img = $request->file('image');
+
+    //         if($request->hasFile('image')){
+
+    //             $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+
+    //             $img->move(public_path('/categories/images', $imageName));
+
+    //             // return response()->json($imageName);
+
+    //             $categorie['image'] = $imageName;
+
+    //             $cat = categories::create($categorie);
+
+    //             if ($cat) {
+
+    //                 return response([
+    //                     'code' => '200',
+    //                     'message' => 'success',
+    //                     'data' => $cat
+    //                 ], 200);
+
+    //             }else {
+
+    //                 return response([
+    //                     'code' => '005',
+    //                     'message' => 'Echec lors de l\'operation',
+    //                     'data' => 'null'
+    //                 ], 201);
+
+    //             }
   
 
 

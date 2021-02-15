@@ -4,33 +4,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\utilisateurs;
+use App\Models\personal_access_tokens;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 
 class authentificationsController extends Controller
 {
-    //
+
+    //Connexion
+
     public function login(Request $request){
 
         $utilisateur = utilisateurs::where('email', $request->email)->first();
-
-        $data = utilisateurs::where('email', $request->all())->first();
 
         if (!$utilisateur || !Hash::check($request->password, $utilisateur->password)) {
 
             return response([
                 'code' => '001',
-                'message' => 'mot de passe ou email incoorecte, lie au champs de saisie'
+                'message' => 'Erreur lie au champs de saisie. Mot de passe ou email incoorecte'
             ], 404);
         }
 
         $token = $utilisateur->createToken('token-name')->plainTextToken;
-
+            
         return response([
-            'message' => 'success',
+            'code' => '200',
+            'message' => 'connecté',
             'token' => $token,
-            'data' => $data
+            'data' => $utilisateur
         ], 200);
         
     }
+
+
+    // Deconnexion
+
+    public function logOut(Request $request){
+
+        $request->user()->currentAccessToken()->delete();
+        return response([
+            'message' => 'deconnectez',
+        ], 200);
+
+    }
+
+
 }

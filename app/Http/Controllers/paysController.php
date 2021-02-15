@@ -25,8 +25,9 @@ class paysController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Table vide',
+                'data' => $erreur
             ], 201);
 
         }
@@ -43,6 +44,7 @@ class paysController extends Controller
         if ($pays) {
 
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $pays
             ], 200);
@@ -50,8 +52,9 @@ class paysController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : Aucune information ne correspond à votre demande',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
@@ -73,9 +76,10 @@ class paysController extends Controller
             $erreur = $validator->errors();
 
             return response([
-                'message' => 'success',
+                'code' => '001',
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                 'data' => $erreur
-            ], 200);
+            ], 201);
 
         }else {
 
@@ -84,6 +88,7 @@ class paysController extends Controller
             if ($pays) {
 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $pays
                 ], 200);
@@ -91,8 +96,9 @@ class paysController extends Controller
             }else {
 
                 return response([
-                    'message' => 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Echec lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
 
             }
@@ -121,9 +127,10 @@ class paysController extends Controller
                 $erreur = $validator->errors();
 
                 return response([
-                        'message' => 'success',
-                        'data' => $erreur
-                    ], 200);
+                    'code' => '001',
+                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                    'data' => $erreur
+                ], 201);
 
     
             }else {
@@ -133,6 +140,7 @@ class paysController extends Controller
                if ($modif) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $pays
                     ], 200);
@@ -140,8 +148,9 @@ class paysController extends Controller
                }else {
 
                     return response([
-                        'message' => 'message : echec 005, une erreur c\'est produite lors de l\'enregistrement',
-                        'data' => 'Nul'
+                        'message' => '005',
+                        'message' => 'echec lors de l\'operation',
+                        'data' => 'null'
                     ], 201);
 
                 }
@@ -151,7 +160,8 @@ class paysController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004: Identifiant n\'existe pas',
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
                 'data' => 'Nul'
             ], 201);
 

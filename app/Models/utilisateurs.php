@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\etablissements;
+use App\Models\annonces;
 
 
 class utilisateurs extends Model
@@ -17,8 +18,10 @@ class utilisateurs extends Model
 
 
     protected $hidden = [
-        // 'password',
+        'password',
         'remember_token',
+        'updated_at',
+        'created_at',
     ];
 
     protected $casts = [
@@ -29,6 +32,12 @@ class utilisateurs extends Model
     public function Etablissements() 
     { 
         return $this->hasMany(etablissements::class); 
+    }
+    
+
+    public function Annonces() 
+    { 
+        return $this->hasMany(annonces::class); 
     }
 
 }

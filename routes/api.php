@@ -11,6 +11,8 @@ use App\Http\Controllers\paysController;
 use App\Http\Controllers\departementsController;
 use App\Http\Controllers\villesController;
 use App\Http\Controllers\arrondissementsController;
+use App\Http\Controllers\calendriersController;
+use App\Http\Controllers\annoncesController;
 
 
 /*
@@ -36,18 +38,25 @@ Route::post("login", [authentificationsController::class, 'login']);
 
 Route::group(['middleware'=>['auth:sanctum']], function() {
 
+    // Pour se deconnecter
+
+    Route::post("logOut", [authentificationsController::class, 'logOut']);
+
+
     //Routes concernanats les comptes 
 
     Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
-    Route::put('utilisateurAd/{id}', [utilisateursController::class, 'addUtilisateur']);
+    Route::put('utilisateurAdd/{id}', [utilisateursController::class, 'addUtilisateur']);
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateur']);
-    Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);
-    Route::get("utilisateur/{login}", [utilisateursController::class, 'researchUtilisateur']);
-    Route::get("utilisateurE/{id}", [utilisateursController::class, 'Etablissements']);
+    // Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);
+    // Route::get("utilisateur/{login}", [utilisateursController::class, 'researchUtilisateur']);
+    Route::get("utilisateurEts/{id}", [utilisateursController::class, 'Etablissements']);
     Route::put("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
     Route::put("utilisateurPwd/{id}", [utilisateursController::class, 'putPassword']);
     Route::post("utilisateurImg", [utilisateursController::class, 'imageUtilisateur']);
+    Route::get("utilisateurAnnonce/{id}", [utilisateursController::class, 'Annonces']);
+
 
 
     //Routes concernanats les Categories 
@@ -88,20 +97,41 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('ville', [villesController::class, 'createVille']);
     Route::get('ville/{id}', [villesController::class, 'getVille']);
     Route::put('ville/{id}', [villesController::class, 'putVille']);
+    // Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
 
-    //Routes concernanats les arrondissements
+    //Routes concernanat les arrondissements
 
     Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
     Route::post('arrondissement', [arrondissementsController::class, 'createArrondissement']);
     Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
     Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
+    Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
 
 
-    //Routes concernanats les etablissements
+    //Routes concernanat les etablissements
 
     Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
+    Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
     Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
+    Route::get('etablissementR/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
+    Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
     // Route::get('etablissementSC/{id}', [etablissementsController::class, 'SousCategories']);
+
+
+    // Routes concernant les calendriers
+
+    Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
+
+
+    // Routes concernant les annonces
+
+    Route::post('annonce', [annoncesController::class, 'createAnnonce']);
+    Route::get('annonces', [annoncesController::class, 'Annonces']);
+    Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
+    Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
+    Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
+    Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
+
 
 });

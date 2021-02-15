@@ -19,6 +19,7 @@ class villesController extends Controller
         if ($villes) {
 
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $villes
             ], 200);
@@ -26,8 +27,9 @@ class villesController extends Controller
         }else {
     
             return response([
-                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Table est vide',
+                'data' => 'null'
             ], 201);
 
             
@@ -44,6 +46,7 @@ class villesController extends Controller
         if ($ville) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $ville
             ], 200);
@@ -51,8 +54,9 @@ class villesController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004, Aucune information ne correspond à cet identifiant',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
@@ -76,9 +80,9 @@ class villesController extends Controller
 
             return response([
                 'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
-            ], 202);
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                'data' => $erreur
+            ], 201);
 
 
         }else {
@@ -88,6 +92,7 @@ class villesController extends Controller
             if ($ville) {
                 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $ville
                 ], 200);
@@ -95,8 +100,9 @@ class villesController extends Controller
             }else {
                 
                 return response([
-                    'message' => 'Erreur 005 : echec, lors de l\'ajout',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Echec, lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
 
             }
@@ -126,9 +132,9 @@ class villesController extends Controller
     
                 return response([
                     'code' => '001',
-                    'message' => $erreur,
-                    'info' => 'erreur lie au champs de saisie' 
-                ], 202);
+                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                    'data' => $erreur
+                ], 201);
 
             }else {
                 
@@ -137,6 +143,7 @@ class villesController extends Controller
                 if ($modif) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $ville
                     ], 200);
@@ -144,8 +151,9 @@ class villesController extends Controller
                 }else {
                     
                     return response([
-                        'message' => 'Erreur 005 : Echec lors de la modification',
-                        'data' => 'Nul'
+                        'code' => '005',
+                        'message' => 'Echec lors de l\'operation',
+                        'data' => 'null'
                     ], 201);
 
                 }
@@ -155,13 +163,40 @@ class villesController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : l\identifiant n\existe pas',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
 
     }
+
+
+    // // Affichage des etablissements a partir de la ville
+
+    // public function Etablissements($id){
+
+    //     $etablissements = villes::find($id)->Etablissements;
+
+    //     if ($etablissements) {
+            
+    //         return response([
+    //             'message' => 'success',
+    //             'data' => $etablissements
+    //         ], 200);
+
+    //     } else {
+
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'Identifiant incorrect',
+    //             'data' => 'null'
+    //         ], 201);
+
+    //     }
+        
+    // }
 
 
 }

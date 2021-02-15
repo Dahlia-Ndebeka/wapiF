@@ -19,6 +19,7 @@ class departementsController extends Controller
         if($departements){
 
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $departements
             ], 200);
@@ -26,8 +27,9 @@ class departementsController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : Pas d\'enregistrements, la table est vide',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Ta table est vide',
+                'data' => 'null'
             ], 201);
 
         }
@@ -41,8 +43,9 @@ class departementsController extends Controller
         $departements = departements::find($id);
 
         if($departements){
-
-            return $departements;return response([
+            
+            return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $departements
             ], 200);
@@ -50,8 +53,9 @@ class departementsController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004 : Aucune information ne correspond à votre demande',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
@@ -74,9 +78,10 @@ class departementsController extends Controller
             $erreur = $validator->errors();
             
             return response([
-                'message' => 'success',
+                'code' => '001',
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                 'data' => $erreur
-            ], 200);
+            ], 201);
 
 
         }else {
@@ -86,6 +91,7 @@ class departementsController extends Controller
             if ($departement) {
                 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $departement
                 ], 200);
@@ -93,8 +99,9 @@ class departementsController extends Controller
             }else {
                 
                 return response([
-                    'message' => 'Erreur 005 : echec lors de l\'ajout',
-                    'data' => 'Nul'
+                    'message' => '005',
+                    'message' => 'Echec lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
 
             }
@@ -123,9 +130,10 @@ class departementsController extends Controller
                 $erreur = $validator->errors();
             
                 return response([
-                    'message' => 'success',
+                    'code' => '001',
+                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                     'data' => $erreur
-                ], 200);
+                ], 201);
     
             }else {
                 
@@ -134,6 +142,7 @@ class departementsController extends Controller
                 if ($modif) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $modif
                     ], 200);
@@ -141,8 +150,9 @@ class departementsController extends Controller
                 }else {
                     
                 return response([
-                    'message' => 'Erreur 005 : une erreur c\'est produite lors de la mofication',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Erreur lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
 
                 }
@@ -151,8 +161,9 @@ class departementsController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004 : l\'information n\'existe pas',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }

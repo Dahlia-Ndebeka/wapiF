@@ -18,6 +18,7 @@ class categoriesController extends Controller
         if ($categorie) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $categorie
             ], 200);
@@ -25,8 +26,9 @@ class categoriesController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004, la table est vide',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'La table est vide',
+                'data' => 'null'
             ], 201);
 
         }
@@ -43,6 +45,7 @@ class categoriesController extends Controller
         if ($categorie) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $categorie
             ], 200);
@@ -50,8 +53,9 @@ class categoriesController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004, l\'identifiant n\'existe pas',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
@@ -77,7 +81,8 @@ class categoriesController extends Controller
             $erreur = $validator->errors();
             
             return response([
-                'message' => 'success',
+                'code' => '001',
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                 'data' => $erreur
             ], 200);
 
@@ -100,6 +105,7 @@ class categoriesController extends Controller
                 if ($cat) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $cat
                     ], 200);
@@ -107,8 +113,9 @@ class categoriesController extends Controller
                 }else {
 
                     return response([
-                        'message' => 'Erreur 005 : Echec lors de l\'ajout',
-                        'data' => 'Nul'
+                        'code' => '005',
+                        'message' => 'Echec lors de l\'operation',
+                        'data' => 'null'
                     ], 201);
 
                 }
@@ -116,8 +123,9 @@ class categoriesController extends Controller
             }else {
 
                 return response([
+                    'code' => '001',
                     'message' => 'image nulle',
-                    'data' => 'Nul'
+                    'data' => 'null'
                 ], 201);
                 
             }
@@ -150,7 +158,8 @@ class categoriesController extends Controller
                 $erreur = $validator->errors();
             
                 return response([
-                    'message' => 'success',
+                    'code' => '001',
+                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                     'data' => $erreur
                 ], 200);
     
@@ -173,6 +182,7 @@ class categoriesController extends Controller
                     if ($cat) {
 
                         return response([
+                            'code' => '200',
                             'message' => 'success',
                             'data' => $cat
                         ], 200);
@@ -180,8 +190,9 @@ class categoriesController extends Controller
                     }else {
 
                         return response([
-                            'message' => 'Erreur 005 : Echec lors de l\'ajout',
-                            'data' => 'Nul'
+                            'message' => '005',
+                            'message' => 'Erreur 005 : Echec lors de l\'operation',
+                            'data' => 'null'
                         ], 201);
                         
                     }
@@ -189,8 +200,9 @@ class categoriesController extends Controller
                 }else {
 
                     return response([
-                        'message' => 'Erreur 001 : image nulle',
-                        'data' => 'Nul'
+                        'message' => '001',
+                        'message' => 'image nulle',
+                        'data' => 'null'
                     ], 201);
 
                 }
@@ -200,8 +212,9 @@ class categoriesController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004, l\'identifiant n\'existe pas',
-                'data' => 'Nul'
+                'message' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }

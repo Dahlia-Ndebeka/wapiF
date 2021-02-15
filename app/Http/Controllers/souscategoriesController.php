@@ -19,6 +19,7 @@ class souscategoriesController extends Controller
         if ($souscategories) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $souscategories
             ], 200);
@@ -26,8 +27,9 @@ class souscategoriesController extends Controller
         } else {
 
             return response([
-                'message' => 'Ereur 004 : Table vide',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Table vide',
+                'data' => 'null'
             ], 201);
 
         }
@@ -44,6 +46,7 @@ class souscategoriesController extends Controller
         if ($souscategories) {
             
         return response([
+            'code' => '200',
             'message' => 'success',
             'data' => $souscategories
         ], 200);
@@ -51,8 +54,9 @@ class souscategoriesController extends Controller
         } else {
             
         return response([
-            'message' => 'Ereur 004 : indentifiant n\'existe pas',
-            'data' => 'Nul'
+            'message' => '004',
+            'message' => 'Indentifiant incorrect',
+            'data' => 'null'
         ], 201);
         
         }
@@ -76,8 +80,9 @@ class souscategoriesController extends Controller
 
             return response([
                 'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                'data' => $erreur,
+
             ], 202);
 
         }else {
@@ -87,6 +92,7 @@ class souscategoriesController extends Controller
             if ($data) {
                 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $data
                 ], 200);
@@ -94,8 +100,9 @@ class souscategoriesController extends Controller
             } else {
                 
                 return response([
-                    'message' => 'Erreur 005 : la modification a echoue',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Erreur lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
             }
             
@@ -123,8 +130,8 @@ class souscategoriesController extends Controller
 
             return response([
                 'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                'data' => $erreur, 
             ], 202);
             
         }else {
@@ -134,6 +141,7 @@ class souscategoriesController extends Controller
             if ($datas) {
                 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $souscategorie
                 ], 200);
@@ -141,8 +149,9 @@ class souscategoriesController extends Controller
             } else {
             
                 return response([
-                    'message' => 'Erreur 005 : echec lors de la modification',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Echec lors de l\'operation',
+                    'data' => 'null'
                 ], 201);
             }
              
@@ -158,6 +167,7 @@ class souscategoriesController extends Controller
         if ($etablissements) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $etablissements
             ], 200);
@@ -165,8 +175,9 @@ class souscategoriesController extends Controller
         } else {
             
             return response([
+                'code' => '004',
                 'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
-                'data' => 'Nul'
+                'data' => 'null'
             ], 201);
         }
         

@@ -18,6 +18,7 @@ class arrondissementsController extends Controller
         if ($arrondissement) {
 
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $arrondissement
             ], 200);
@@ -25,9 +26,11 @@ class arrondissementsController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : Aucune information n\'existe, la table est vide',
-                'data' => 'Nul'
+                'code' => '005',
+                'message' => 'La table est vide',
+                'data' => $arrondissement
             ], 201);
+
         }
 
     }
@@ -39,9 +42,10 @@ class arrondissementsController extends Controller
 
         $arrondissement = arrondissements::find($id);
 
-        if ($arrondissement) {
+        if (!empty($arrondissement)) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $arrondissement
             ], 200);
@@ -49,11 +53,13 @@ class arrondissementsController extends Controller
         }else {
             
             return response([
-                'message' => 'Erreur 004 : l\'identifiant n\'existe pas',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
+
     }
 
 
@@ -63,7 +69,7 @@ class arrondissementsController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+            'libelle' => 'required|unique:arrondissements|max:250|regex:/[^0-9.-]/',
             'villes_id' => 'required'
         ]);
 
@@ -72,9 +78,10 @@ class arrondissementsController extends Controller
             $erreur = $validator->errors();
             
             return response([
-                'message' => 'success',
+                'code' => '001',
+                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                 'data' => $erreur
-            ], 200);
+            ], 201);
 
         }else {
 
@@ -83,6 +90,7 @@ class arrondissementsController extends Controller
             if ($arrondissement) {
                 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $arrondissement
                 ], 200);
@@ -90,8 +98,9 @@ class arrondissementsController extends Controller
             }else {
                 
                 return response([
-                    'message' => 'Erreur 005 : Echec lors de la creation',
-                    'data' => 'Nul'
+                    'code' => '005',
+                    'message' => 'Echec lors de l\'opération',
+                    'data' => 'null'
                 ], 201);
 
             }
@@ -120,7 +129,8 @@ class arrondissementsController extends Controller
                 $erreur = $validator->errors();
             
                 return response([
-                    'message' => 'success',
+                    'code' => '001',
+                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                     'data' => $erreur
                 ], 200);
     
@@ -131,6 +141,7 @@ class arrondissementsController extends Controller
                 if ($modif) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $modif
                     ], 200);
@@ -138,8 +149,9 @@ class arrondissementsController extends Controller
                 }else {
 
                     return response([
-                        'message' => 'Erreur 005 : Echec lors de la modification',
-                        'data' => 'Nul'
+                        'code' => '005',
+                        'message' => 'Erreur lors de l\'operation',
+                        'data' => 'null'
                     ], 201);
 
                 }
@@ -149,12 +161,39 @@ class arrondissementsController extends Controller
         }else {
 
             return response([
-                'message' => 'Erreur 004 : l\'identifiant n\'existe pas',
-                'data' => 'Nul'
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
             ], 201);
 
         }
 
+    }
+
+
+    // Affichage des etablissements a partir de l'arrondissement
+
+    public function Etablissements($id){
+
+        $etablissements = arrondissements::find($id)->Etablissements;
+
+        if ($etablissements) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $etablissements
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
     }
 
 
