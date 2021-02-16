@@ -321,5 +321,31 @@ class etablissementsController extends Controller
     }
 
 
+    // Affichage des notes a partir des etablissements
+
+    public function Notes($id){
+
+        $Notes = etablissements::find($id)->Notes;
+
+        if ($Notes) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $Notes
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
 
 }

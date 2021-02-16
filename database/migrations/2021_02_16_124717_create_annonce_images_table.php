@@ -16,12 +16,14 @@ class CreateAnnonceImagesTable extends Migration
         Schema::create('annonce_images', function (Blueprint $table) {
             $table->id();
             $table->string('image', 200);
+
             $table->unsignedBigInteger('annonces_id');
             $table->foreign('annonces_id')
             ->references('id')
             ->on('annonces')
             ->onDelete('restrict')
             ->onUpdate('restrict');
+            
             $table->timestamps();
         });
     }

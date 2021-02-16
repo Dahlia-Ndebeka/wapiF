@@ -541,6 +541,32 @@ class utilisateursController extends Controller
     }
 
 
+    // Affichage des notes a partir de l'utilisateur
+
+    public function Notes($id){
+
+        $Notes = utilisateurs::find($id)->Notes;
+
+        if ($Notes) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $Notes
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
 
 
 

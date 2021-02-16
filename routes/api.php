@@ -15,6 +15,7 @@ use App\Http\Controllers\calendriersController;
 use App\Http\Controllers\annoncesController;
 use App\Http\Controllers\commentairesController;
 use App\Http\Controllers\annonce_imagesController;
+use App\Http\Controllers\notesController;
 
 
 /*
@@ -43,6 +44,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Pour se deconnecter
 
     Route::post("logOut", [authentificationsController::class, 'logOut']);
+    
 
 
     //Routes concernanats les comptes 
@@ -59,6 +61,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post("utilisateurImg", [utilisateursController::class, 'imageUtilisateur']);
     Route::get("utilisateurAnnonce/{id}", [utilisateursController::class, 'Annonces']);
     Route::get("utilisateurCommentaire/{id}", [utilisateursController::class, 'Commentaires']);
+    Route::get("utilisateurNote/{id}", [utilisateursController::class, 'Notes']);
 
 
 
@@ -69,6 +72,8 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
     Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
 
+
+
     //Routes concernanats les sous Categories 
 
     Route::get('sousCategories', [souscategoriesController::class, 'sousCategories']);
@@ -76,6 +81,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('sousCategorie/{id}', [souscategoriesController::class, 'sousCategorie']);
     Route::put('sousCategorie/{id}', [souscategoriesController::class, 'putSousCategorie']);
     Route::get('sousCategorieE/{id}', [souscategoriesController::class, 'Etablissements']);
+
 
 
     //Routes concernanats les pays
@@ -86,12 +92,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('pays/{id}', [paysController::class, 'putPays']);
 
 
+
     //Routes concernanats les departements
 
     Route::get('departements', [departementsController::class, 'Departements']);
     Route::post('departement', [departementsController::class, 'createDepartement']);
     Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
     Route::put('departement/{id}', [departementsController::class, 'putDepartement']);
+
 
 
     //Routes concernanats les villes
@@ -102,6 +110,8 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('ville/{id}', [villesController::class, 'putVille']);
     // Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
 
+
+
     //Routes concernanat les arrondissements
 
     Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
@@ -109,6 +119,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
     Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
     Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
+
 
 
     //Routes concernanat les etablissements
@@ -119,13 +130,15 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
     Route::get('etablissementR/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
     Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
-    // Route::get('etablissementSC/{id}', [etablissementsController::class, 'SousCategories']);
+    Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
+
 
 
     // Routes concernant les calendriers
 
     Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
     Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
+
 
 
     // Routes concernant les annonces
@@ -140,6 +153,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
 
 
+
     // Les routes concernant les commentaires
 
     Route::post('commentaire', [commentairesController::class, 'createCommentaire']);
@@ -149,6 +163,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('commentaire/{id}', [commentairesController::class, 'putCommentaire']);
 
 
+
     // Routes concernant annonce_image 
 
     Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
@@ -156,5 +171,17 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
     Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
     Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
+
+
+
+    // Routes concernant les notes
+
+    Route::get('notes', [notesController::class, 'Notes']);
+    Route::get('note/{id}', [notesController::class, 'getNote']);
+    Route::post('note', [notesController::class, 'createNote']);
+    Route::put('note/{id}', [notesController::class, 'putNote']);
+    Route::get('noteUtilisateur/{id}', [notesController::class, 'Utilisateur']);
+    Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
+
 
 });

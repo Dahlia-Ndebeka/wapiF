@@ -4,23 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Models\arrondissements;
+use App\Models\notes;
 
-class arrondissementsController extends Controller
+class notesController extends Controller
 {
     
-    //Afficher les arrondissements
+    //Afficher les notes
 
-    public function Arrondissements(){
+    public function Notes(){
 
-        $arrondissement = arrondissements::all();
+        $notes = notes::all();
 
-        if ($arrondissement) {
+        if ($notes) {
 
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $arrondissement
+                'data' => $notes
             ], 200);
 
         }else {
@@ -28,7 +28,7 @@ class arrondissementsController extends Controller
             return response([
                 'code' => '005',
                 'message' => 'La table est vide',
-                'data' => $arrondissement
+                'data' => $notes
             ], 201);
 
         }
@@ -36,18 +36,18 @@ class arrondissementsController extends Controller
     }
 
 
-    // Consulter ou afficher un arrondissement
+    // Consulter ou afficher une note
 
-    public function getArrondissement($id){
+    public function getNote($id){
 
-        $arrondissement = arrondissements::find($id);
+        $notes = notes::find($id);
 
-        if ($arrondissement) {
+        if ($notes) {
             
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $arrondissement
+                'data' => $notes
             ], 200);
 
         }else {
@@ -63,14 +63,16 @@ class arrondissementsController extends Controller
     }
 
 
-    // Creer un arrondissement
+    // Creer une note
 
-    public function createArrondissement(Request $request){
+    public function createNote(Request $request){
 
         $validator = Validator::make($request->all(), [
             
-            'libelle' => 'required|unique:arrondissements|max:250|regex:/[^0-9.-]/',
-            'villes_id' => 'required'
+            'commentaire' => 'required|regex:/[^0-9.-]/',
+            'score' => 'required',
+            'utilisateurs_id' => 'required',
+            'etablissements_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -85,14 +87,14 @@ class arrondissementsController extends Controller
 
         }else {
 
-            $arrondissement = arrondissements::create($request->all());
+            $notes = notes::create($request->all());
 
-            if ($arrondissement) {
+            if ($notes) {
                 
                 return response([
                     'code' => '200',
                     'message' => 'success',
-                    'data' => $arrondissement
+                    'data' => $notes
                 ], 200);
 
             }else {
@@ -110,18 +112,20 @@ class arrondissementsController extends Controller
     }
 
 
-    // Modifier un arrondissement
+    // Modifier une note
 
-    public function putArrondissement(Request $request, $id){
+    public function putNote(Request $request, $id){
 
-        $arrondissement = arrondissements::findOrFail($id);
+        $identif = notes::findOrFail($id);
 
-        if ($arrondissement) {
+        if ($identif) {
             
             $validator = Validator::make($request->all(), [
             
-                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-                'villes_id' => 'required'
+                'commentaire' => 'required|regex:/[^0-9.-]/',
+                'score' => 'required',
+                'utilisateurs_id' => 'required',
+                'etablissements_id' => 'required'
             ]);
     
             if ($validator->fails()) {
@@ -136,14 +140,14 @@ class arrondissementsController extends Controller
     
             }else {
                 
-                $modif = $arrondissement->update($request->all());
+                $modif = $identif->update($request->all());
 
                 if ($modif) {
 
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $arrondissement
+                        'data' => $identif
                     ], 200);
 
                 }else {
@@ -171,17 +175,43 @@ class arrondissementsController extends Controller
     }
 
 
-    // Affichage des etablissements a partir de l'arrondissement
+    // Affichage des utilisateurs a partir des notes
 
-    public function Etablissements($id){
+    public function Utilisateur($id){
 
-        $etablissements = arrondissements::find($id)->Etablissements;
+        $Utilisateur = notes::find($id)->Utilisateurs;
 
-        if ($etablissements) {
+        if ($Utilisateur) {
             
             return response([
                 'message' => 'success',
-                'data' => $etablissements
+                'data' => $Utilisateur
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Affichage des etablissements a partir des notes
+
+    public function Etablissements($id){
+
+        $Etablissements = notes::find($id)->Etablissements;
+
+        if ($Etablissements) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $Etablissements
             ], 200);
 
         } else {

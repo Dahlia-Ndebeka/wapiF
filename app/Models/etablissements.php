@@ -8,6 +8,7 @@ use App\Models\utilisateurs;
 use App\Models\arrondissements;
 use App\Models\villes;
 use App\Models\annonces;
+use App\Models\notes;
 
 class etablissements extends Model
 {
@@ -59,5 +60,10 @@ class etablissements extends Model
         { 
             return $this->hasMany(annonces::class); 
         }
-        
+
+
+        public function Notes() 
+        { 
+            return $this->hasMany(notes::class); 
+        }
 }

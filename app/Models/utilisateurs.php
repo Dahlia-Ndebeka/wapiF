@@ -8,6 +8,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\etablissements;
 use App\Models\annonces;
 use App\Models\commentaires;
+use App\Models\notes;
 
 
 class utilisateurs extends Model
@@ -44,6 +45,12 @@ class utilisateurs extends Model
     public function Commentaires() 
     { 
         return $this->hasMany(commentaires::class); 
+    }
+
+
+    public function Notes() 
+    { 
+        return $this->hasMany(notes::class); 
     }
 
 }
