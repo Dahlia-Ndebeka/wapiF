@@ -39,10 +39,10 @@ class CreateAnnoncesTable extends Migration
             ->onDelete('restrict')
             ->onUpdate('restrict');
 
-            $table->unsignedBigInteger('souscategories_id');
-            $table->foreign('souscategories_id')
+            $table->unsignedBigInteger('sous_categories_id');
+            $table->foreign('sous_categories_id')
             ->references('id')
-            ->on('souscategories')
+            ->on('sous_categories')
             ->onDelete('restrict')
             ->onUpdate('restrict');
 
@@ -52,7 +52,6 @@ class CreateAnnoncesTable extends Migration
             ->on('calendriers')
             ->onDelete('restrict')
             ->onUpdate('restrict');
-
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSouscategoriesTable extends Migration
+class CreateSousCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,17 @@ class CreateSouscategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('souscategories', function (Blueprint $table) {
+        Schema::create('sous_categories', function (Blueprint $table) {
             $table->id();
-            $table->string("nomSousCategorie", 150);
+            $table->string("nom_sous_categorie", 150);
+
             $table->unsignedBigInteger('categories_id');
             $table->foreign('categories_id')
             ->references('id')
             ->on('categories')
             ->onDelete('restrict')
             ->onUpdate('restrict');
+            
             $table->timestamps();
         });
     }
@@ -33,6 +35,6 @@ class CreateSouscategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('souscategories');
+        Schema::dropIfExists('sous_categories');
     }
 }

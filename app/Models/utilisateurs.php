@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\etablissements;
 use App\Models\annonces;
+use App\Models\commentaires;
 
 
 class utilisateurs extends Model
@@ -33,11 +34,16 @@ class utilisateurs extends Model
     { 
         return $this->hasMany(etablissements::class); 
     }
-    
+
 
     public function Annonces() 
     { 
         return $this->hasMany(annonces::class); 
+    }
+
+    public function Commentaires() 
+    { 
+        return $this->hasMany(commentaires::class); 
     }
 
 }

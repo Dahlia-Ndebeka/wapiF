@@ -3,25 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\models\souscategories;
 use Illuminate\Support\Facades\Validator;
+use App\Models\sous_categories;
 
-
-class souscategoriesController extends Controller
+class sous_categoriesController extends Controller
 {
-
+    //
     //Afficher tous les sous categories
 
-    public function sousCategories(){
+    public function sous_categories(){
 
-        $souscategories = souscategories::all();
+        $sous_categories = sous_categories::all();
 
-        if ($souscategories) {
+        if ($sous_categories) {
             
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $souscategories
+                'data' => $sous_categories
             ], 200);
 
         } else {
@@ -41,14 +40,14 @@ class souscategoriesController extends Controller
 
     public function sousCategorie($id){
 
-        $souscategories = souscategories::find($id);
+        $sous_categories = sous_categories::find($id);
 
-        if ($souscategories) {
+        if ($sous_categories) {
             
         return response([
             'code' => '200',
             'message' => 'success',
-            'data' => $souscategories
+            'data' => $sous_categories
         ], 200);
 
         } else {
@@ -70,7 +69,7 @@ class souscategoriesController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            'nomSousCategorie' => 'required|unique:souscategories|max:100|regex:/[^0-9.-]/',
+            'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
             'categories_id' => 'required',
         ]);
 
@@ -87,7 +86,7 @@ class souscategoriesController extends Controller
 
         }else {
 
-            $data = souscategories::create($request->all());
+            $data = sous_categories::create($request->all());
 
             if ($data) {
                 
@@ -116,11 +115,11 @@ class souscategoriesController extends Controller
     public function putSousCategorie(Request $request, $id)
     {
         //
-        $souscategorie = souscategories::findOrFail($id);
+        $souscategorie = sous_categories::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             
-            'nomSousCategorie' => 'required|unique:souscategories|max:100|regex:/[^0-9.-]/',
+            'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
             'categories_id' => 'required',
         ]);
 
@@ -162,7 +161,7 @@ class souscategoriesController extends Controller
 
     public function Etablissements($id){
 
-        $etablissements = souscategories::find($id)->Etablissements;
+        $etablissements = sous_categories::find($id)->Etablissements;
 
         if ($etablissements) {
             
@@ -183,7 +182,5 @@ class souscategoriesController extends Controller
         
 
     }
-
-
 
 }

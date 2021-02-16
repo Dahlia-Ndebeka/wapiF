@@ -13,6 +13,7 @@ use App\Http\Controllers\villesController;
 use App\Http\Controllers\arrondissementsController;
 use App\Http\Controllers\calendriersController;
 use App\Http\Controllers\annoncesController;
+use App\Http\Controllers\commentairesController;
 
 
 /*
@@ -56,6 +57,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put("utilisateurPwd/{id}", [utilisateursController::class, 'putPassword']);
     Route::post("utilisateurImg", [utilisateursController::class, 'imageUtilisateur']);
     Route::get("utilisateurAnnonce/{id}", [utilisateursController::class, 'Annonces']);
+    Route::get("utilisateurCommentaire/{id}", [utilisateursController::class, 'Commentaires']);
 
 
 
@@ -132,6 +134,16 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
     Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
+
+
+    // Les routes concernant les commentaires
+
+    Route::post('commentaire', [commentairesController::class, 'createCommentaire']);
+    Route::get('commentaireUtilisateur/{id}', [commentairesController::class, 'Utilisateur']);
+    Route::get('commentaires', [commentairesController::class, 'Commentaires']);
+    Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
+    Route::put('commentaire/{id}', [commentairesController::class, 'putCommentaire']);
+
 
 
 });

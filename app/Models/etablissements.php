@@ -59,4 +59,5 @@ class etablissements extends Model
         { 
             return $this->hasMany(annonces::class); 
         }
+        
 }

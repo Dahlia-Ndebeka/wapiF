@@ -21,12 +21,12 @@ class annoncesController extends Controller
             'etat' => 'required',
             'date' => 'required',
             'type' => 'required',
-            'image_couverture' => 'required',
+            'image_couverture' => '',
             'lieu' => 'required',
             'actif' => 'required',
             'utilisateurs_id' => 'required',
             'etablissements_id' => 'required',
-            'souscategories_id' => 'required',
+            'sous_categories_id' => 'required',
             'calendriers_id' => 'required',
         ]);
 
@@ -77,11 +77,20 @@ class annoncesController extends Controller
 
             }else {
 
+                // return response([
+                //     'code' => '001',
+                //     'message' => 'image nulle',
+                //     'data' => 'null'
+                // ], 201);
+
+                $annonces = annonces::create($data);
+
                 return response([
-                    'code' => '001',
-                    'message' => 'image nulle',
+                    'code' => '200',
+                    'message' => $annonces,
                     'data' => 'null'
                 ], 201);
+
                 
             }
             
@@ -169,13 +178,13 @@ class annoncesController extends Controller
 
     public function Utilisateur($id){
 
-        $annonces = annonces::find($id)->Utilisateur;
+        $utilisateur = annonces::find($id)->Utilisateurs;
 
-        if ($annonces) {
+        if ($utilisateur) {
             
             return response([
                 'message' => 'success',
-                'data' => $annonces
+                'data' => $utilisateur
             ], 200);
 
         } else {
@@ -203,18 +212,18 @@ class annoncesController extends Controller
             
             $validator = Validator::make($request->all(), [
             
-                // 'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
-                // 'description' => 'required',
-                // 'etat' => 'required',
-                // 'date' => 'required',
-                // 'type' => 'required',
-                // 'image_couverture' => 'required',
-                // 'lieu' => 'required',
-                // 'actif' => 'required',
-                // 'utilisateurs_id' => 'required',
-                // 'etablissements_id' => 'required',
-                // 'souscategories_id' => 'required',
-                // 'calendriers_id' => 'required',
+                'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
+                'description' => 'required',
+                'etat' => 'required',
+                'date' => 'required',
+                'type' => 'required',
+                'image_couverture' => 'required',
+                'lieu' => 'required',
+                'actif' => 'required',
+                'utilisateurs_id' => 'required',
+                'etablissements_id' => 'required',
+                'sous_categories_id' => 'required',
+                'calendriers_id' => 'required',
             ]);
     
             if ($validator->fails()) {
@@ -263,11 +272,19 @@ class annoncesController extends Controller
 
                 }else {
 
+                    $modif = $identifiant->update($data);
+
                     return response([
-                        'code' => '001',
-                        'message' => 'image nulle',
-                        'data' => 'null'
+                        'code' => '200',
+                        'message' => 'success',
+                        'data' => $identifiant
                     ], 201);
+
+                    // return response([
+                    //     'code' => '001',
+                    //     'message' => 'image nulle',
+                    //     'data' => 'null'
+                    // ], 201);
 
                 }
                 

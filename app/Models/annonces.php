@@ -21,7 +21,7 @@ class annonces extends Model
                             'actif', 
                             'utilisateurs_id',                
                             'etablissements_id', 
-                            'souscategories_id', 
+                            'sous_categories_id', 
                             'calendriers_id'];
 
     public function Etablissements()
@@ -30,7 +30,7 @@ class annonces extends Model
     }
 
 
-    public function Utilisateur()
+    public function Utilisateurs()
     { 
         return $this->belongsTo(utilisateurs::class); 
     }

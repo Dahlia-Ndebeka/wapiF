@@ -493,7 +493,7 @@ class utilisateursController extends Controller
 
     public function Annonces($id){
 
-        $annonces = utilisateurs::find($id)->Annonces;
+        $annonces = annonces::find($id)->Commentaires;
 
         if ($annonces) {
             
@@ -515,7 +515,30 @@ class utilisateursController extends Controller
     }
 
 
+    // Affichage des commentaires a partir de l'utilisateur
 
+    public function Commentaires($id){
+
+        $commentaires = utilisateurs::find($id)->Commentaires;
+
+        if ($commentaires) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $commentaires
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
 
 
 
