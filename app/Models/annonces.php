@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\etablissements;
 use App\Models\utilisateurs;
+use App\Models\calendriers;
+use App\Models\annonce_images;
 
 class annonces extends Model
 {
@@ -33,6 +35,17 @@ class annonces extends Model
     public function Utilisateurs()
     { 
         return $this->belongsTo(utilisateurs::class); 
+    }
+
+
+    public function Calendriers()
+    { 
+        return $this->belongsTo(calendriers::class); 
+    }
+
+    public function AnnonceImage() 
+    { 
+        return $this->hasMany(annonce_images::class); 
     }
 
 }

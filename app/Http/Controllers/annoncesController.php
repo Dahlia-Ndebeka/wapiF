@@ -200,6 +200,32 @@ class annoncesController extends Controller
     }
 
 
+    // Affichage du calendrier a partir de l'annonce
+
+    public function Calendrier($id){
+
+        $calendrier = annonces::find($id)->Calendriers;
+
+        if ($calendrier) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $calendrier
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
     // Modifier annonce
 
     public function putAnnonce(Request $request, $id){
@@ -295,6 +321,32 @@ class annoncesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'L\'identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Affichage des images annonces a partir de l'annonce
+
+    public function imageAnnonce($id){
+
+        $imageAnnonce = annonces::find($id)->AnnonceImage;
+
+        if ($imageAnnonce) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $imageAnnonce
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
                 'data' => 'null'
             ], 201);
 

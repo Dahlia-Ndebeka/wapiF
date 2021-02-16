@@ -14,6 +14,7 @@ use App\Http\Controllers\arrondissementsController;
 use App\Http\Controllers\calendriersController;
 use App\Http\Controllers\annoncesController;
 use App\Http\Controllers\commentairesController;
+use App\Http\Controllers\annonce_imagesController;
 
 
 /*
@@ -124,6 +125,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Routes concernant les calendriers
 
     Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
+    Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
 
 
     // Routes concernant les annonces
@@ -133,7 +135,9 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
     Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
     Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
+    Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
+    Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
 
 
     // Les routes concernant les commentaires
@@ -145,5 +149,12 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('commentaire/{id}', [commentairesController::class, 'putCommentaire']);
 
 
+    // Routes concernant annonce_image 
+
+    Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
+    Route::put('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
+    Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
+    Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
+    Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
 
 });

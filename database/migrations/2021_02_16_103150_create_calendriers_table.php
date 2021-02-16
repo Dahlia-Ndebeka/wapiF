@@ -15,6 +15,7 @@ class CreateCalendriersTable extends Migration
     {
         Schema::create('calendriers', function (Blueprint $table) {
             $table->id();
+            $table->string('label', 150);
             $table->date('date');
             $table->string('heure_debut');
             $table->string('heure_fin');
