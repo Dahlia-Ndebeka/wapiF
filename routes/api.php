@@ -72,6 +72,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('categorie', [categoriesController::class, 'createCategorie']);
     Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
     Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
+    Route::get('categorieSousCategorie/{id}', [categoriesController::class, 'Souscategories']);
 
 
 
@@ -81,7 +82,8 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('sousCategorie', [souscategoriesController::class, 'createSousCategorie']);
     Route::get('sousCategorie/{id}', [souscategoriesController::class, 'sousCategorie']);
     Route::put('sousCategorie/{id}', [souscategoriesController::class, 'putSousCategorie']);
-    Route::get('sousCategorieE/{id}', [souscategoriesController::class, 'Etablissements']);
+    Route::get('sousCategorieEts/{id}', [souscategoriesController::class, 'Etablissements']);
+    Route::get('sousCategorieCategorie/{id}', [souscategoriesController::class, 'Categories']);
 
 
 
@@ -109,7 +111,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('ville', [villesController::class, 'createVille']);
     Route::get('ville/{id}', [villesController::class, 'getVille']);
     Route::put('ville/{id}', [villesController::class, 'putVille']);
-    // Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
 
 
 
@@ -129,7 +130,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
     Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
-    Route::get('etablissementR/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
+    Route::get('etablissementRecherche/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
     Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
     Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
 

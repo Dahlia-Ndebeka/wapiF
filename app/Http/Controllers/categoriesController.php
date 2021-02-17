@@ -222,4 +222,30 @@ class categoriesController extends Controller
     }
 
 
+    // Affichage des sous categories a partir des categories
+
+    public function Souscategories($id){
+
+        $Souscategories = categories::find($id)->sousCategorie;
+
+        if ($Souscategories) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $Souscategories
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
 }
