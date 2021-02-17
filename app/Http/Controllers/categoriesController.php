@@ -184,7 +184,7 @@ class categoriesController extends Controller
                         return response([
                             'code' => '200',
                             'message' => 'success',
-                            'data' => $cat
+                            'data' => $identifiant
                         ], 200);
 
                     }else {

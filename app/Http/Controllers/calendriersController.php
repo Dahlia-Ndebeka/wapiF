@@ -114,7 +114,7 @@ class calendriersController extends Controller
 
     // Consulter ou afficher un programme
 
-    public function getArrondissement($id){
+    public function getCalendriers($id){
 
         $calendriers = calendriers::find($id);
 

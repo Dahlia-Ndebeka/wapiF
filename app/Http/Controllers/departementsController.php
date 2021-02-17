@@ -144,7 +144,7 @@ class departementsController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $modif
+                        'data' => $departement
                     ], 200);
 
                 }else {

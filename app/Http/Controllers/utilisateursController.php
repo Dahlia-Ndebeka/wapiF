@@ -567,47 +567,28 @@ class utilisateursController extends Controller
     }
 
 
+    // Rechercher un utilisateur à partir des ces champs
 
+    public function rechercheUtilisateur($valeur){
 
+        $data = utilisateurs::where("login", "like", "%".$valeur."%" )
+                                    ->orWhere("email", "like", "%".$valeur."%" )
+                                    ->orWhere("photo", "like", "%".$valeur."%" )
+                                    ->orWhere("role", "like", "%".$valeur."%" )
+                                    ->orWhere("actif", "like", "%".$valeur."%" )
+                                    ->orWhere("date_creation", "like", "%".$valeur."%" )
+                                    ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
+                                    ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
+                                    ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )->get(); 
+            
+        return response([
+            'code' => '200',
+            'message' => 'success',
+            'data' => $data
+        ], 200);
+                                    
 
-
-
-
-
-
-
-    // $img = $request->file('image');
-
-    //         if($request->hasFile('image')){
-
-    //             $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
-
-    //             $img->move(public_path('/categories/images', $imageName));
-
-    //             // return response()->json($imageName);
-
-    //             $categorie['image'] = $imageName;
-
-    //             $cat = categories::create($categorie);
-
-    //             if ($cat) {
-
-    //                 return response([
-    //                     'code' => '200',
-    //                     'message' => 'success',
-    //                     'data' => $cat
-    //                 ], 200);
-
-    //             }else {
-
-    //                 return response([
-    //                     'code' => '005',
-    //                     'message' => 'Echec lors de l\'operation',
-    //                     'data' => 'null'
-    //                 ], 201);
-
-    //             }
-  
+    }
 
 
 }

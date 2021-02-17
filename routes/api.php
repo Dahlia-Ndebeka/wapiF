@@ -16,6 +16,7 @@ use App\Http\Controllers\annoncesController;
 use App\Http\Controllers\commentairesController;
 use App\Http\Controllers\annonce_imagesController;
 use App\Http\Controllers\notesController;
+use App\Http\Controllers\favorisController;
 
 
 /*
@@ -44,7 +45,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Pour se deconnecter
 
     Route::post("logOut", [authentificationsController::class, 'logOut']);
-    
+
 
 
     //Routes concernanats les comptes 
@@ -54,7 +55,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateur']);
     // Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);
-    // Route::get("utilisateur/{login}", [utilisateursController::class, 'researchUtilisateur']);
+    Route::get("utilisateurRecherche/{valeur}", [utilisateursController::class, 'rechercheUtilisateur']);
     Route::get("utilisateurEts/{id}", [utilisateursController::class, 'Etablissements']);
     Route::put("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
     Route::put("utilisateurPwd/{id}", [utilisateursController::class, 'putPassword']);
@@ -137,6 +138,9 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Routes concernant les calendriers
 
     Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
+    Route::put('calendrier/{id}', [calendriersController::class, 'putCalendrier']);
+    Route::get('calendriers', [calendriersController::class, 'Calendriers']);
+    Route::get('calendrier/{id}', [calendriersController::class, 'getCalendriers']);
     Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
 
 
@@ -182,6 +186,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('note/{id}', [notesController::class, 'putNote']);
     Route::get('noteUtilisateur/{id}', [notesController::class, 'Utilisateur']);
     Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
+
+
+
+    // Routes concernant les favoris
+
+    Route::get('favoris', [favorisController::class, 'Favoris']);
+    Route::get('favoris/{id}', [favorisController::class, 'getFavoris']);
+    Route::post('favoris', [favorisController::class, 'createFavoris']);
 
 
 });
