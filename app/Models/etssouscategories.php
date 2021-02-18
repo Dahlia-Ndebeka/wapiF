@@ -11,5 +11,5 @@ class etssouscategories extends Model
 
     protected $primaryKey = ['etablissements_id', 'souscategories_id'];
 
-    public $incrementing = false;
+    // public $incrementing = false;
 }

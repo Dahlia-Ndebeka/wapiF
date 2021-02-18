@@ -261,10 +261,6 @@ class utilisateursController extends Controller
                 ], 201);
             }
         
-        
-
-
-
     }
 
 
