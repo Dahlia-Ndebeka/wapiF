@@ -170,5 +170,30 @@ class departementsController extends Controller
 
     }
 
+    // Affichage des etablissements a partir du departements
+
+    public function Etablissements($id){
+
+        $etablissements = departements::find($id)->Etablissements;
+
+        if ($etablissements) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $etablissements
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
 
 }

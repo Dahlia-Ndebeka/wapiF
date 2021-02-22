@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\etablissements;
+use App\Models\arrondissements;
 
 class villes extends Model
 {
@@ -13,9 +14,9 @@ class villes extends Model
     protected $fillable = ['libelle', 'departements_id'];
     
 
-    public function Etablissements() 
-    { 
-        return $this->hasMany(etablissements::class); 
+    public function Etablissements()
+    {
+        return $this->hasManyThrough(etablissements::class, arrondissements::class);
     }
 
 }

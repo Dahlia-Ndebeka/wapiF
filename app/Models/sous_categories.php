@@ -9,6 +9,7 @@ use App\Models\categories;
 
 class sous_categories extends Model
 {
+    
     protected $fillable = ['nom_sous_categorie', 'categories_id'];
 
     public function Etablissements() 
@@ -20,5 +21,6 @@ class sous_categories extends Model
     { 
         return $this->belongsTo(categories::class); 
     }
+
     
 }

@@ -248,4 +248,30 @@ class categoriesController extends Controller
     }
 
 
+    // Affichage des etablissements à partir de la categorie
+
+    public function Etablissements($id){
+
+        $cats = categories::find($id)->Etablissements;
+
+        if ($cats) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $cats
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
 }

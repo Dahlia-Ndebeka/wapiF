@@ -15,17 +15,21 @@ class annoncesController extends Controller
 
         $data = $request->all();
 
+        $valeur = $data['etablissement'];
+
         $validator = Validator::make($request->all(), [
             'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
             'description' => 'required',
-            'etat' => 'required',
             'date' => 'required',
             'type' => 'required',
             'image_couverture' => '',
             'lieu' => 'required',
+            'latitude',
+            'longitude',
+            'etablissement'=> 'required',
+            'etat' => 'required',
             'actif' => 'required',
             'utilisateurs_id' => 'required',
-            'etablissements_id' => 'required',
             'sous_categories_id' => 'required',
             'calendriers_id' => 'required',
         ]);
@@ -42,68 +46,191 @@ class annoncesController extends Controller
 
         }else {
 
-            $img = $request->file('image_couverture');
+            if ($valeur == true) {
+                
+                $img = $request->file('image_couverture');
 
-            if($request->hasFile('image_couverture')){
+                if($request->hasFile('image_couverture')){
 
-                $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+                    $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
 
-                $img->move(public_path('/annonces/images', $imageName));
+                    $img->move(public_path('/annonces/images', $imageName));
 
-                // return response()->json($imageName);
+                    // return response()->json($imageName);
 
-                $data['image_couverture'] = $imageName;
+                    $data['image_couverture'] = $imageName;
 
-                $annonces = annonces::create($data);
+                    $annonces = annonces::create($data);
 
 
-                if ($annonces) {
+                    if ($annonces) {
 
-                    return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $annonces
-                    ], 200);
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonces
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => 'null'
+                        ], 201);
+
+                    }
 
                 }else {
 
+                    // return response([
+                    //     'code' => '001',
+                    //     'message' => 'image nulle',
+                    //     'data' => 'null'
+                    // ], 201);
+
+
+
+                    $annonces = annonces::create($data);
+
                     return response([
-                        'code' => '005',
-                        'message' => 'Echec lors de l\'operation',
+                        'code' => '200',
+                        'message' => $annonces,
                         'data' => 'null'
                     ], 201);
 
+                    
                 }
 
-            }else {
-
-                // return response([
-                //     'code' => '001',
-                //     'message' => 'image nulle',
-                //     'data' => 'null'
-                // ], 201);
-
-                $annonces = annonces::create($data);
-
-                return response([
-                    'code' => '200',
-                    'message' => $annonces,
-                    'data' => 'null'
-                ], 201);
-
+            } else {
                 
+                $img = $request->file('image_couverture');
+
+                if($request->hasFile('image_couverture')){
+
+                    $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+
+                    $img->move(public_path('/annonces/images', $imageName));
+
+                    // return response()->json($imageName);
+
+                    $data['image_couverture'] = $imageName;
+
+                    $annonces = annonces::create($data);
+
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonces
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => 'null'
+                        ], 201);
+
+                    }
+
+                }else {
+
+                    // return response([
+                    //     'code' => '001',
+                    //     'message' => 'image nulle',
+                    //     'data' => 'null'
+                    // ], 201);
+
+
+
+                    $annonces = annonces::create($data);
+
+                    return response([
+                        'code' => '200',
+                        'message' => $annonces,
+                        'data' => 'null'
+                    ], 201);
+
+                    
+                }
+
             }
             
+            
+        }
+
+
+    }
+
+
+    // publier une annonce
+
+    public function publier($id){
+
+        $annonces = annonces::find($id);
+
+        $valeur = $annonces['etat'];
+
+        if ($valeur == true) {
+
+            return response([
+                'code' => '200',
+                'message' => 'success, votre annonce a ete publie',
+                'data' => $annonces
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Desole vous ne pouvez pas publiez cette annonce son etat est bloque',
+                'data' => 'null'
+            ], 201);
+
         }
 
     }
 
 
-    //Afficher les annonces
+    //Afficher toutes les annonces 
 
     public function Annonces(){
 
         $annonces = annonces::all();
+
+
+        if ($annonces) {
+
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        }else {
+
+            return response([
+                'code' => '005',
+                'message' => 'La table est vide',
+                'data' => $annonces
+            ], 201);
+
+        }
+
+    }
+
+
+
+
+    //Afficher les annonces publiees
+
+    public function AnnoncesPublier(){
+
+        $annonces = annonces::where('etat', '=', true)->get();
 
         if ($annonces) {
 
@@ -240,11 +367,14 @@ class annoncesController extends Controller
             
                 'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
                 'description' => 'required',
-                'etat' => 'required',
                 'date' => 'required',
                 'type' => 'required',
-                'image_couverture' => 'required',
+                'image_couverture' => '',
                 'lieu' => 'required',
+                'latitude',
+                'longitude',
+                'etablissement'=> 'required',
+                'etat' => 'required',
                 'actif' => 'required',
                 'utilisateurs_id' => 'required',
                 'etablissements_id' => 'required',
@@ -306,12 +436,6 @@ class annoncesController extends Controller
                         'data' => $identifiant
                     ], 201);
 
-                    // return response([
-                    //     'code' => '001',
-                    //     'message' => 'image nulle',
-                    //     'data' => 'null'
-                    // ], 201);
-
                 }
                 
             }
@@ -353,6 +477,7 @@ class annoncesController extends Controller
         }
         
     }
+
 
 
 }

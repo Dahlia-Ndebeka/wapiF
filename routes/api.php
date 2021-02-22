@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\utilisateursController;
 use App\Http\Controllers\authentificationsController;
 use App\Http\Controllers\categoriesController;
-use App\Http\Controllers\souscategoriesController;
+use App\Http\Controllers\sous_categoriesController;
 use App\Http\Controllers\etablissementsController;
 use App\Http\Controllers\paysController;
 use App\Http\Controllers\departementsController;
@@ -38,6 +38,104 @@ Route::post('utilisateur', [utilisateursController::class, 'createUtilisateur'])
 Route::post("login", [authentificationsController::class, 'login']);
 
 
+
+//Routes concernanats les Categories 
+
+Route::get('categories', [categoriesController::class, 'Categories']);
+Route::get('categorieSousCategorie/{id}', [categoriesController::class, 'Souscategories']);
+Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
+Route::get('categorieEts/{id}', [categoriesController::class, 'Etablissements']);
+
+
+//Routes concernanats les sous Categories 
+
+Route::get('sousCategorieEts/{id}', [sous_categoriesController::class, 'Etablissements']);
+Route::get('sousCategorie/{id}', [sous_categoriesController::class, 'sousCategorie']);
+Route::get('sousCategories', [sous_categoriesController::class, 'sousCategories']);
+Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'Categories']);
+
+
+//Routes concernanats les pays
+
+Route::get('pays/{id}', [paysController::class, 'getPays']);
+Route::get('pays', [paysController::class, 'Pays']);
+
+
+//Routes concernanats les departements
+
+Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
+Route::get('departements', [departementsController::class, 'Departements']);
+
+//Routes concernanats les villes
+
+Route::get('villes', [villesController::class, 'Villes']);
+Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
+Route::get('ville/{id}', [villesController::class, 'getVille']);
+
+
+//Routes concernanat les arrondissements
+
+Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
+Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
+Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
+
+
+//Routes concernanat les etablissements
+
+Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
+Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
+Route::get('etablissementRecherche/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
+Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
+Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
+Route::get('etablissementSousCategories/{id}', [etablissementsController::class, 'sousCategories']);
+// Route::get('etablissementCategories/{id}', [etablissementsController::class, 'Categories']);
+Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
+Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
+
+
+// Routes concernant les calendriers
+
+Route::get('calendriers', [calendriersController::class, 'Calendriers']);
+Route::get('calendrier/{id}', [calendriersController::class, 'getCalendriers']);
+Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
+
+
+// Routes concernant les annonces
+
+Route::get('annonces', [annoncesController::class, 'Annonces']);
+Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
+Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
+Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
+Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
+Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
+Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
+Route::get('annoncesPublie', [annoncesController::class, 'AnnoncesPublier']);
+
+
+// Les routes concernant les commentaires
+
+Route::get('commentaireUtilisateur/{id}', [commentairesController::class, 'Utilisateur']);
+Route::get('commentaires', [commentairesController::class, 'Commentaires']);
+Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
+
+
+// Routes concernant annonce_image 
+
+Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
+Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
+Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
+
+
+// Routes concernant les notes
+
+Route::get('notes', [notesController::class, 'Notes']);
+Route::get('note/{id}', [notesController::class, 'getNote']);
+Route::get('noteUtilisateur/{id}', [notesController::class, 'Utilisateur']);
+Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
+
+
+
+
 // Secure routes
 
 Route::group(['middleware'=>['auth:sanctum']], function() {
@@ -45,7 +143,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Pour se deconnecter
 
     Route::post("logOut", [authentificationsController::class, 'logOut']);
-
 
 
     //Routes concernanats les comptes 
@@ -68,114 +165,124 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     //Routes concernanats les Categories 
 
-    Route::get('categories', [categoriesController::class, 'Categories']);
+    // Route::get('categories', [categoriesController::class, 'Categories']);
+    // Route::get('categorieSousCategorie/{id}', [categoriesController::class, 'Souscategories']);
+    // Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
+    // Route::get('categorieEts/{id}', [categoriesController::class, 'Etablissements']);
+
     Route::post('categorie', [categoriesController::class, 'createCategorie']);
-    Route::get('categorie/{id}', [categoriesController::class, 'Categorie']);
     Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
-    Route::get('categorieSousCategorie/{id}', [categoriesController::class, 'Souscategories']);
 
 
 
     //Routes concernanats les sous Categories 
 
-    Route::get('sousCategories', [souscategoriesController::class, 'sousCategories']);
-    Route::post('sousCategorie', [souscategoriesController::class, 'createSousCategorie']);
-    Route::get('sousCategorie/{id}', [souscategoriesController::class, 'sousCategorie']);
-    Route::put('sousCategorie/{id}', [souscategoriesController::class, 'putSousCategorie']);
-    Route::get('sousCategorieEts/{id}', [souscategoriesController::class, 'Etablissements']);
-    Route::get('sousCategorieCategorie/{id}', [souscategoriesController::class, 'Categories']);
+    // Route::get('sousCategorieEts/{id}', [sous_categoriesController::class, 'Etablissements']);
+    // Route::get('sousCategorie/{id}', [sous_categoriesController::class, 'sousCategorie']);
+    // Route::get('sousCategories', [sous_categoriesController::class, 'sousCategories']);
+    // Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'Categories']);
+    Route::post('sousCategorie', [sous_categoriesController::class, 'createSousCategorie']);
+    Route::put('sousCategorie/{id}', [sous_categoriesController::class, 'putSousCategorie']);
+    
 
 
 
     //Routes concernanats les pays
 
-    Route::get('pays', [paysController::class, 'Pays']);
+    // Route::get('pays/{id}', [paysController::class, 'getPays']);
+    // Route::get('pays', [paysController::class, 'Pays']);
     Route::post('pays', [paysController::class, 'createPays']);
-    Route::get('pays/{id}', [paysController::class, 'getPays']);
     Route::put('pays/{id}', [paysController::class, 'putPays']);
 
 
 
     //Routes concernanats les departements
 
-    Route::get('departements', [departementsController::class, 'Departements']);
+    // Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
+    // Route::get('departements', [departementsController::class, 'Departements']);
     Route::post('departement', [departementsController::class, 'createDepartement']);
-    Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
     Route::put('departement/{id}', [departementsController::class, 'putDepartement']);
+    // Route::get('departementEts/{id}', [departementsController::class, 'Etablissements']);
 
 
 
     //Routes concernanats les villes
 
-    Route::get('villes', [villesController::class, 'Villes']);
+    // Route::get('villes', [villesController::class, 'Villes']);
+    // Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
+    // Route::get('ville/{id}', [villesController::class, 'getVille']);
     Route::post('ville', [villesController::class, 'createVille']);
-    Route::get('ville/{id}', [villesController::class, 'getVille']);
     Route::put('ville/{id}', [villesController::class, 'putVille']);
 
 
 
     //Routes concernanat les arrondissements
 
-    Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
+    // Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
+    // Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
+    // Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
     Route::post('arrondissement', [arrondissementsController::class, 'createArrondissement']);
-    Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
     Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
-    Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
 
 
 
     //Routes concernanat les etablissements
 
-    Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
+    // Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
+    // Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
+    // Route::get('etablissementRecherche/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
+    // Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
+    // Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
+    // Route::get('etablissementSousCategories/{id}', [etablissementsController::class, 'sousCategories']);
+    // Route::get('etablissementCategories/{id}', [etablissementsController::class, 'Categories']);
+    Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
+    Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
-    Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
-    Route::get('etablissementRecherche/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
-    Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
-    Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
 
 
 
     // Routes concernant les calendriers
 
+    // Route::get('calendriers', [calendriersController::class, 'Calendriers']);
+    // Route::get('calendrier/{id}', [calendriersController::class, 'getCalendriers']);
+    // Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
     Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
     Route::put('calendrier/{id}', [calendriersController::class, 'putCalendrier']);
-    Route::get('calendriers', [calendriersController::class, 'Calendriers']);
-    Route::get('calendrier/{id}', [calendriersController::class, 'getCalendriers']);
-    Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
 
 
 
     // Routes concernant les annonces
 
+    // Route::get('annonces', [annoncesController::class, 'Annonces']);
+    // Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
+    // Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
+    // Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
+    // Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
+    // Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
-    Route::get('annonces', [annoncesController::class, 'Annonces']);
-    Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
-    Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
-    Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
-    Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
-    Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
 
 
 
     // Les routes concernant les commentaires
 
+    // Route::get('commentaireUtilisateur/{id}', [commentairesController::class, 'Utilisateur']);
+    // Route::get('commentaires', [commentairesController::class, 'Commentaires']);
+    // Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
     Route::post('commentaire', [commentairesController::class, 'createCommentaire']);
-    Route::get('commentaireUtilisateur/{id}', [commentairesController::class, 'Utilisateur']);
-    Route::get('commentaires', [commentairesController::class, 'Commentaires']);
-    Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
     Route::put('commentaire/{id}', [commentairesController::class, 'putCommentaire']);
 
 
 
     // Routes concernant annonce_image 
 
+    // Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
+    // Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
+    // Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
     Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
     Route::put('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
-    Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
-    Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
-    Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
+    
 
 
 
@@ -183,18 +290,10 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::get('notes', [notesController::class, 'Notes']);
     Route::get('note/{id}', [notesController::class, 'getNote']);
-    Route::post('note', [notesController::class, 'createNote']);
-    Route::put('note/{id}', [notesController::class, 'putNote']);
     Route::get('noteUtilisateur/{id}', [notesController::class, 'Utilisateur']);
     Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
-
-
-
-    // Routes concernant les favoris
-
-    Route::get('favoris', [favorisController::class, 'Favoris']);
-    Route::get('favoris/{id}', [favorisController::class, 'getFavoris']);
-    Route::post('favoris', [favorisController::class, 'createFavoris']);
+    Route::post('note', [notesController::class, 'createNote']);
+    Route::put('note/{id}', [notesController::class, 'putNote']);
 
 
 });

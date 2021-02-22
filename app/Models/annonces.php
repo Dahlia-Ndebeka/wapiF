@@ -15,14 +15,16 @@ class annonces extends Model
 
     protected $fillable = ['titre', 
                             'description', 
-                            'etat', 
                             'date', 
                             'type',                
                             'image_couverture', 
-                            'lieu', 
+                            'lieu',
+                            'latitude',
+                            'longitude',
+                            'etablissement',
+                            'etat', 
                             'actif', 
-                            'utilisateurs_id',                
-                            'etablissements_id', 
+                            'utilisateurs_id', 
                             'sous_categories_id', 
                             'calendriers_id'];
 
@@ -47,5 +49,6 @@ class annonces extends Model
     { 
         return $this->hasMany(annonce_images::class); 
     }
+
 
 }

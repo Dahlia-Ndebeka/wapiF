@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\sous_categories;
+use App\Models\etablissements;
 
 class categories extends Model
 {
@@ -15,6 +16,11 @@ class categories extends Model
     public function sousCategorie() 
     { 
         return $this->hasMany(sous_categories::class); 
+    }
+
+    public function Etablissements()
+    {
+        return $this->hasManyThrough(etablissements::class, sous_categories::class);
     }
 
 }

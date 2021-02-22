@@ -43,10 +43,10 @@ class CreateEtablissementsTable extends Migration
             ->onDelete('restrict')
             ->onUpdate('restrict');
 
-            $table->unsignedBigInteger('categories_id');
-            $table->foreign('categories_id')
+            $table->unsignedBigInteger('sous_categories_id');
+            $table->foreign('sous_categories_id')
             ->references('id')
-            ->on('categories')
+            ->on('sous_categories')
             ->onDelete('restrict')
             ->onUpdate('restrict');
             $table->timestamps();

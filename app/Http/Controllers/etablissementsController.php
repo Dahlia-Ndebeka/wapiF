@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\etablissements;
 use Illuminate\Support\Facades\Validator;
+use App\Models\categories;
+
 
 class etablissementsController extends Controller
 {
@@ -32,7 +34,7 @@ class etablissementsController extends Controller
             'longitude'=> 'required|max:100', 
             'arrondissements_id'=> 'required', 
             'utilisateurs_id'=> 'required',
-            'categories_id' => 'required'
+            'sous_categories_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -221,7 +223,7 @@ class etablissementsController extends Controller
             // 'longitude'=> 'required|max:100', 
             // 'arrondissements_id'=> 'required', 
             // 'utilisateurs_id'=> 'required',
-            // 'categories_id' => 'required'
+            // 'sous_categories_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -347,5 +349,101 @@ class etablissementsController extends Controller
     }
 
 
+
+    // Affichage des sous categories a partir des etablissements
+
+    public function sousCategories($id){
+
+        $sousCategories = etablissements::find($id);
+
+        $sousCat = $sousCategories->sousCategories;
+
+        return $sousCat;
+
+
+    }
+
+
+
+
+
+    // Affichage des categories a partir des etablissements
+
+    // public function Categories($id){
+
+    //     $Categories = etablissements::find($id)->Categories;
+
+    //     if ($Categories) {
+            
+    //         return response([
+    //             'message' => 'success',
+    //             'data' => $Categories
+    //         ], 200);
+
+    //     } else {
+
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'Identifiant incorrect',
+    //             'data' => 'null'
+    //         ], 201);
+
+    //     }
+        
+    // }
+
+
+
+    // Affichage la ville a partir des etablissements
+
+    public function Villes($id){
+
+        $villes = etablissements::find($id)->Villes;
+
+        if ($villes) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $villes
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Affichage des categories
+
+    public function CategoriesAp(){
+
+        $categorie = categories::all();
+
+        if ($categorie) {
+            
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $categorie
+            ], 200);
+
+        }else {
+
+            return response([
+                'code' => '004',
+                'message' => 'La table est vide',
+                'data' => 'null'
+            ], 201);
+
+        }
+
+    }
 
 }

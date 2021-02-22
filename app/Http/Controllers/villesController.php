@@ -173,30 +173,30 @@ class villesController extends Controller
     }
 
 
-    // // Affichage des etablissements a partir de la ville
+    // Affichage des etablissements a partir de la ville
 
-    // public function Etablissements($id){
+    public function Etablissements($id){
 
-    //     $etablissements = villes::find($id)->Etablissements;
+        $etablissements = villes::find($id)->Etablissements;
 
-    //     if ($etablissements) {
+        if ($etablissements) {
             
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $etablissements
-    //         ], 200);
+            return response([
+                'message' => 'success',
+                'data' => $etablissements
+            ], 200);
 
-    //     } else {
+        } else {
 
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
 
-    //     }
+        }
         
-    // }
+    }
 
 
 }

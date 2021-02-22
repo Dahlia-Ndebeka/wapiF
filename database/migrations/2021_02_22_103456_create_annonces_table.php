@@ -17,25 +17,20 @@ class CreateAnnoncesTable extends Migration
             $table->id();
             $table->string('titre', 100);
             $table->text('description');
-            $table->string('etat', 100);
             $table->date('date');
             $table->string('type', 200);
             $table->string('image_couverture');
             $table->string('lieu', 200);
-            $table->boolean('actif');
-            
+            $table->float('latitude')->nullable();
+            $table->float('longitude')->nullable();
+            $table->boolean('etablissement');
+            $table->boolean('etat')->default(0);
+            $table->boolean('actif')->default(1);
 
             $table->unsignedBigInteger('utilisateurs_id');
             $table->foreign('utilisateurs_id')
             ->references('id')
             ->on('utilisateurs')
-            ->onDelete('restrict')
-            ->onUpdate('restrict');
-
-            $table->unsignedBigInteger('etablissements_id');
-            $table->foreign('etablissements_id')
-            ->references('id')
-            ->on('etablissements')
             ->onDelete('restrict')
             ->onUpdate('restrict');
 

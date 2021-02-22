@@ -159,29 +159,29 @@ class sous_categoriesController extends Controller
 
     // Affichage des etablissements par rapport a la sous categorie
 
-    public function Etablissements($id){
+    // public function Etablissements($id){
 
-        $etablissements = sous_categories::find($id)->Etablissements;
+    //     $etablissements = sous_categories::find($id)->Etablissements;
 
-        if ($etablissements) {
+    //     if ($etablissements) {
             
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $etablissements
-            ], 200);
+    //         return response([
+    //             'code' => '200',
+    //             'message' => 'success',
+    //             'data' => $etablissements
+    //         ], 200);
 
-        } else {
+    //     } else {
             
-            return response([
-                'code' => '004',
-                'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
-                'data' => 'null'
-            ], 201);
-        }
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
+    //             'data' => 'null'
+    //         ], 201);
+    //     }
         
 
-    }
+    // }
 
 
     // Affichage des categories a partir des sous categories
@@ -208,5 +208,18 @@ class sous_categoriesController extends Controller
         }
         
     }
+
+
+    
+    public function Etablissements($id){
+
+        $etablissements = sous_categories::find($id);
+
+        $ets = $etablissements->Etablissements;
+
+        return $ets;
+
+    }
+
 
 }
