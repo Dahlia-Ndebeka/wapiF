@@ -56,10 +56,10 @@ class etablissements extends Model
     // }
 
 
-    public function Annonces() 
-    { 
-        return $this->hasMany(annonces::class); 
-    }
+    // public function Annonces() 
+    // { 
+    //     return $this->hasMany(annonces::class); 
+    // }
 
 
     public function Notes() 
@@ -75,6 +75,25 @@ class etablissements extends Model
     }
 
 
+    // Acces a la categorie
+
+    public function Annonces()
+    {
+        return $this->belongsToMany(annonces::class);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Acces a la categorie
 
     // public function Categories()

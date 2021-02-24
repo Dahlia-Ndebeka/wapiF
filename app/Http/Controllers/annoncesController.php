@@ -9,6 +9,222 @@ use App\Models\annonces;
 class annoncesController extends Controller
 {
     
+    // Affichage des images annonces a partir de l'annonce
+
+    public function imageAnnonce($id){
+
+        $imageAnnonce = annonces::find($id)->AnnonceImage;
+
+        if ($imageAnnonce) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $imageAnnonce
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+
+
+    // Affichage des etablissements a partir de l'annonce
+
+    public function Etablissements($id){
+
+        $ets = annonces::find($id)->Etablissements;
+
+        if ($ets) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $ets
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+
+    //Afficher toutes les annonces 
+
+    public function Annonces(){
+
+        $annonces = annonces::all();
+
+        if ($annonces) {
+
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        }else {
+
+            return response([
+                'code' => '005',
+                'message' => 'La table est vide',
+                'data' => $annonces
+            ], 201);
+
+        }
+
+    }
+
+
+
+    //Afficher les annonces publiees
+
+    public function AnnoncesPublier(){
+
+        $annonces = annonces::where('etat', '=', true)->get();
+
+        if ($annonces) {
+
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        }else {
+
+            return response([
+                'code' => '005',
+                'message' => 'La table est vide',
+                'data' => $annonces
+            ], 201);
+
+        }
+
+    }
+
+
+
+
+    // Consulter ou afficher une annonce
+
+    public function getAnnonce($id){
+
+        $annonces = annonces::find($id);
+
+        if ($annonces) {
+            
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        }else {
+            
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+
+    }
+
+    
+
+    // Affichage des utilisateurs a partir de l'annonce
+
+    public function Utilisateur($id){
+
+        $utilisateur = annonces::find($id)->Utilisateurs;
+
+        if ($utilisateur) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $utilisateur
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+    
+    
+    
+    
+    // Affichage du calendrier a partir de l'annonce
+
+    public function Calendrier($id){
+
+        $calendrier = annonces::find($id)->Calendriers;
+
+        if ($calendrier) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $calendrier
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Rechercher une annonce
+
+    public function rechercheAnnonce($valeur){
+
+        $data = annonces::where("titre", "like", "%".$valeur."%" )
+                                    ->orWhere("description", "like", "%".$valeur."%" )
+                                    ->orWhere("etat", "like", "%".$valeur."%" )
+                                    ->orWhere("date", "like", "%".$valeur."%" )
+                                    ->orWhere("type", "like", "%".$valeur."%" )
+                                    ->orWhere("image_couverture", "like", "%".$valeur."%" )
+                                    ->orWhere("lieu", "like", "%".$valeur."%" )->get();
+            
+        return response([
+            'code' => '200',
+            'message' => 'success',
+            'data' => $data
+        ], 200);
+                                    
+    }
+
+
+    
     // Creer une annonce
 
     public function createAnnonce(Request $request){
@@ -22,13 +238,13 @@ class annoncesController extends Controller
             'description' => 'required',
             'date' => 'required',
             'type' => 'required',
-            'image_couverture' => '',
+            'image_couverture',
             'lieu' => 'required',
             'latitude',
             'longitude',
             'etablissement'=> 'required',
-            'etat' => 'required',
-            'actif' => 'required',
+            'etat',
+            'actif',
             'utilisateurs_id' => 'required',
             'sous_categories_id' => 'required',
             'calendriers_id' => 'required',
@@ -90,7 +306,6 @@ class annoncesController extends Controller
                     // ], 201);
 
 
-
                     $annonces = annonces::create($data);
 
                     return response([
@@ -146,7 +361,6 @@ class annoncesController extends Controller
                     // ], 201);
 
 
-
                     $annonces = annonces::create($data);
 
                     return response([
@@ -165,6 +379,8 @@ class annoncesController extends Controller
 
 
     }
+
+
 
 
     // publier une annonce
@@ -195,162 +411,6 @@ class annoncesController extends Controller
 
     }
 
-
-    //Afficher toutes les annonces 
-
-    public function Annonces(){
-
-        $annonces = annonces::all();
-
-
-        if ($annonces) {
-
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $annonces
-            ], 200);
-
-        }else {
-
-            return response([
-                'code' => '005',
-                'message' => 'La table est vide',
-                'data' => $annonces
-            ], 201);
-
-        }
-
-    }
-
-
-
-
-    //Afficher les annonces publiees
-
-    public function AnnoncesPublier(){
-
-        $annonces = annonces::where('etat', '=', true)->get();
-
-        if ($annonces) {
-
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $annonces
-            ], 200);
-
-        }else {
-
-            return response([
-                'code' => '005',
-                'message' => 'La table est vide',
-                'data' => $annonces
-            ], 201);
-
-        }
-
-    }
-
-
-    // Consulter ou afficher une annonce
-
-    public function getAnnonce($id){
-
-        $annonces = annonces::find($id);
-
-        if ($annonces) {
-            
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $annonces
-            ], 200);
-
-        }else {
-            
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-
-    }
-
-
-    // Rechercher une annonce
-
-    public function rechercheAnnonce($valeur){
-
-        $data = annonces::where("titre", "like", "%".$valeur."%" )
-                                    ->orWhere("description", "like", "%".$valeur."%" )
-                                    ->orWhere("etat", "like", "%".$valeur."%" )
-                                    ->orWhere("date", "like", "%".$valeur."%" )
-                                    ->orWhere("type", "like", "%".$valeur."%" )
-                                    ->orWhere("image_couverture", "like", "%".$valeur."%" )
-                                    ->orWhere("lieu", "like", "%".$valeur."%" )->get();
-            
-        return response([
-            'code' => '200',
-            'message' => 'success',
-            'data' => $data
-        ], 200);
-                                    
-    }
-
-
-    // Affichage des utilisateurs a partir de l'annonce
-
-    public function Utilisateur($id){
-
-        $utilisateur = annonces::find($id)->Utilisateurs;
-
-        if ($utilisateur) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $utilisateur
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-        
-    }
-
-
-    // Affichage du calendrier a partir de l'annonce
-
-    public function Calendrier($id){
-
-        $calendrier = annonces::find($id)->Calendriers;
-
-        if ($calendrier) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $calendrier
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-        
-    }
 
 
     // Modifier annonce
@@ -453,31 +513,11 @@ class annoncesController extends Controller
     }
 
 
-    // Affichage des images annonces a partir de l'annonce
+    
+    
+    
 
-    public function imageAnnonce($id){
-
-        $imageAnnonce = annonces::find($id)->AnnonceImage;
-
-        if ($imageAnnonce) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $imageAnnonce
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-        
-    }
-
+    
 
 
 }

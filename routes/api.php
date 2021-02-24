@@ -85,12 +85,13 @@ Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondi
 Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
 Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
 Route::get('etablissementRecherche/{valeur}', [etablissementsController::class, 'rechercheEtablissement']);
-Route::get('etablissementAnnonces/{valeur}', [etablissementsController::class, 'Annonces']);
 Route::get('etablissementNote/{id}', [etablissementsController::class, 'Notes']);
 Route::get('etablissementSousCategories/{id}', [etablissementsController::class, 'sousCategories']);
 // Route::get('etablissementCategories/{id}', [etablissementsController::class, 'Categories']);
 Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
 Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
+Route::get('etablissementAnnonces/{id}', [etablissementsController::class, 'Annonces']);
+
 
 
 // Routes concernant les calendriers
@@ -98,6 +99,7 @@ Route::get('etablissementCategories', [etablissementsController::class, 'Categor
 Route::get('calendriers', [calendriersController::class, 'Calendriers']);
 Route::get('calendrier/{id}', [calendriersController::class, 'getCalendriers']);
 Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces']);
+
 
 
 // Routes concernant les annonces
@@ -110,6 +112,8 @@ Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
 Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
 Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
 Route::get('annoncesPublie', [annoncesController::class, 'AnnoncesPublier']);
+Route::get('annoncesEts/{id}', [annoncesController::class, 'Etablissements']);
+
 
 
 // Les routes concernant les commentaires
@@ -119,11 +123,13 @@ Route::get('commentaires', [commentairesController::class, 'Commentaires']);
 Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
 
 
+
 // Routes concernant annonce_image 
 
 Route::get('imageAnnonces', [annonce_imagesController::class, 'AnnonceImage']);
 Route::get('imageAnnonce/{id}', [annonce_imagesController::class, 'getAnnonceImage']);
 Route::get('imageAnnonceA/{id}', [annonce_imagesController::class, 'Annonce']);
+
 
 
 // Routes concernant les notes
@@ -283,7 +289,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
     Route::put('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
     
-
 
 
     // Routes concernant les notes
