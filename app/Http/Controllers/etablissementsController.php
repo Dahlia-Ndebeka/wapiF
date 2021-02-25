@@ -13,9 +13,18 @@ class etablissementsController extends Controller
     
     //Creer un etablissement
 
+
     public function createEtablissement(Request $request){
 
         $etablissement = $request->all();
+
+        $heure_ouverture = $etablissement['heure_ouverture'];
+
+        $heure_fermeture = $etablissement['heure_fermeture'];
+
+        $valeur_ouverture = ($heure_ouverture * 3600);
+
+        $valeur_fermeture = ($heure_fermeture * 3600);
 
         $validator = Validator::make($request->all(), [
             
@@ -23,12 +32,12 @@ class etablissementsController extends Controller
             'adresse'=> 'required|unique:etablissements|max:100', 
             'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
             'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
-            'heure_ouverture'=> 'required|max:100', 
-            'heure_fermeture'=> 'required|max:100', 
+            'heure_ouverture'=> 'required|max:2', 
+            'heure_fermeture'=> 'required|max:2', 
             'email'=> 'required|unique:etablissements|max:200|email', 
             'boite_postale'=> 'required|unique:etablissements|max:100', 
             'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-            'logo'=> 'unique:etablissements|max:100', 
+            // 'logo'=> 'unique:etablissements|max:100', 
             'actif'=> 'required', 
             'latitude'=> 'required|max:100', 
             'longitude'=> 'required|max:100', 
@@ -59,6 +68,10 @@ class etablissementsController extends Controller
 
                 $etablissement['logo'] = $imageName;
 
+                $etablissement['heure_ouverture'] = $valeur_ouverture;
+
+                $etablissement['heure_fermeture'] = $valeur_fermeture;
+
                 $ets = etablissements::create($etablissement);
 
                 if ($ets) {
@@ -81,7 +94,11 @@ class etablissementsController extends Controller
 
             }else {
 
-                $ets = etablissements::create($request->all());
+                $etablissement['heure_ouverture'] = $valeur_ouverture;
+
+                $etablissement['heure_fermeture'] = $valeur_fermeture;
+
+                $ets = etablissements::create($etablissement);
 
                 if ($ets) {
                     
@@ -112,7 +129,45 @@ class etablissementsController extends Controller
 
     public function Etablissements(){
 
-        $ets = etablissements::all();
+        // $ets = etablissements::all();
+
+        $ets = etablissements::from('etablissements')
+        ->join('sous_categories', 'etablissements.sous_categories_id', '=', 'sous_categories.id')
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'sous_categories.nom_sous_categorie', 
+                    'categories.nomCategorie', 
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays')->get();
 
         if ($ets) {
                     
@@ -129,17 +184,56 @@ class etablissementsController extends Controller
                 'message' => 'Table est vide',
                 'data' => 'null'
             ], 201);
-            
+
         }
 
     }
+
 
 
     // Consulter ou afficher un etablissement
 
     public function Etablissement($id){
 
-        $etablissement = etablissements::find($id);
+        // $etablissement = etablissements::find($id);
+
+        $etablissement = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
+        ->join('sous_categories', 'etablissements.sous_categories_id', '=', 'sous_categories.id')
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'sous_categories.nom_sous_categorie', 
+                    'categories.nomCategorie', 
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays')->get();
 
         if ($etablissement) {
                     
@@ -208,22 +302,21 @@ class etablissementsController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            // 'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-            // 'adresse'=> 'required|unique:etablissements|max:100', 
-            // 'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
-            // 'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
-            // 'heure_ouverture'=> 'required|max:100', 
-            // 'heure_fermeture'=> 'required|max:100', 
-            // 'email'=> 'required|unique:etablissements|max:200|email', 
-            // 'boite_postale'=> 'required|unique:etablissements|max:100', 
-            // 'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-            // 'logo'=> 'unique:etablissements|max:100', 
-            // 'actif'=> 'required', 
-            // 'latitude'=> 'required|max:100', 
-            // 'longitude'=> 'required|max:100', 
-            // 'arrondissements_id'=> 'required', 
-            // 'utilisateurs_id'=> 'required',
-            // 'sous_categories_id' => 'required'
+            'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
+            'adresse'=> 'required|unique:etablissements|max:100', 
+            'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
+            'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
+            'heure_ouverture'=> 'required|max:100', 
+            'heure_fermeture'=> 'required|max:100', 
+            'email'=> 'required|unique:etablissements|max:200|email', 
+            'boite_postale'=> 'required|unique:etablissements|max:100', 
+            'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/',
+            'actif'=> 'required', 
+            'latitude'=> 'required|max:100', 
+            'longitude'=> 'required|max:100', 
+            'arrondissements_id'=> 'required', 
+            'utilisateurs_id'=> 'required',
+            'sous_categories_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -297,6 +390,7 @@ class etablissementsController extends Controller
     }
 
 
+
     // Affichage des annonces a partir de l'etablissement
 
     public function Annonces($id){
@@ -321,6 +415,8 @@ class etablissementsController extends Controller
         }
         
     }
+
+
 
 
     // Affichage des notes a partir des etablissements
@@ -359,7 +455,6 @@ class etablissementsController extends Controller
         $sousCat = $sousCategories->sousCategories;
 
         return $sousCat;
-
 
     }
 
@@ -445,5 +540,7 @@ class etablissementsController extends Controller
         }
 
     }
+
+    
 
 }

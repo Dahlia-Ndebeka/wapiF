@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\annonces;
+use App\Models\annonces_etablissements;
+use App\Models\etablissements;
 
 class annoncesController extends Controller
 {
@@ -203,6 +205,7 @@ class annoncesController extends Controller
     }
 
 
+
     // Rechercher une annonce
 
     public function rechercheAnnonce($valeur){
@@ -233,7 +236,7 @@ class annoncesController extends Controller
 
         $valeur = $data['etablissement'];
 
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($data, [
             'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
             'description' => 'required',
             'date' => 'required',
@@ -256,65 +259,105 @@ class annoncesController extends Controller
             
             return response([
                 'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
                 'data' => $erreur
             ], 201);
 
         }else {
 
             if ($valeur == true) {
-                
-                $img = $request->file('image_couverture');
 
-                if($request->hasFile('image_couverture')){
+                $validator = Validator::make($request->all(), [
 
-                    $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+                    'nom_etablissement' => 'required',
+                ]);
 
-                    $img->move(public_path('/annonces/images', $imageName));
+                if ($validator->fails()) {
 
-                    // return response()->json($imageName);
-
-                    $data['image_couverture'] = $imageName;
-
-                    $annonces = annonces::create($data);
-
-
-                    if ($annonces) {
-
-                        return response([
-                            'code' => '200',
-                            'message' => 'success',
-                            'data' => $annonces
-                        ], 200);
-
-                    }else {
-
-                        return response([
-                            'code' => '005',
-                            'message' => 'Echec lors de l\'operation',
-                            'data' => 'null'
-                        ], 201);
-
-                    }
-
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+        
                 }else {
 
-                    // return response([
-                    //     'code' => '001',
-                    //     'message' => 'image nulle',
-                    //     'data' => 'null'
-                    // ], 201);
+                    $img = $request->file('image_couverture');
 
+                    if($request->hasFile('image_couverture')){
+    
+                        $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+    
+                        $img->move(public_path('/annonces/images', $imageName));
+    
+                        // return response()->json($imageName);
+    
+                        $data['image_couverture'] = $imageName;
+    
+                        $annonces = annonces::create($data);
 
-                    $annonces = annonces::create($data);
+                        // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
 
-                    return response([
-                        'code' => '200',
-                        'message' => $annonces,
-                        'data' => 'null'
-                    ], 201);
+                        $nomEts = $data['nom_etablissement'];
 
-                    
+                        $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+    
+                        $id1 = $result->id;
+    
+                        $id2 = $annonces['id'];
+    
+                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                            'etablissements_id' => $id1,
+                            'annonces_id' => $id2,
+                        ]);
+    
+                        if ($annonces) {
+    
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonces
+                            ], 200);
+    
+                        }else {
+    
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => 'null'
+                            ], 201);
+    
+                        }
+    
+                    }else {
+    
+                        $annonces = annonces::create($data);
+
+                        // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
+
+                        $nomEts = $data['nom_etablissement'];
+
+                        $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+    
+                        $id1 = $result->id;
+    
+                        $id2 = $annonces['id'];
+    
+                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                            'etablissements_id' => $id1,
+                            'annonces_id' => $id2,
+                        ]);
+    
+                        return response([
+                            'code' => '200',
+                            'message' => $annonces,
+                            'data' => 'null'
+                        ], 201);
+    
+                    } 
+
                 }
 
             } else {
@@ -333,7 +376,6 @@ class annoncesController extends Controller
 
                     $annonces = annonces::create($data);
 
-
                     if ($annonces) {
 
                         return response([
@@ -354,13 +396,6 @@ class annoncesController extends Controller
 
                 }else {
 
-                    // return response([
-                    //     'code' => '001',
-                    //     'message' => 'image nulle',
-                    //     'data' => 'null'
-                    // ], 201);
-
-
                     $annonces = annonces::create($data);
 
                     return response([
@@ -368,17 +403,16 @@ class annoncesController extends Controller
                         'message' => $annonces,
                         'data' => 'null'
                     ], 201);
-
                     
                 }
 
             }
-            
-            
+             
         }
 
 
     }
+
 
 
 
@@ -423,21 +457,21 @@ class annoncesController extends Controller
 
         if ($identifiant) {
             
-            $validator = Validator::make($request->all(), [
-            
+            $valeur = $data['etablissement'];
+
+            $validator = Validator::make($data, [
                 'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
                 'description' => 'required',
                 'date' => 'required',
                 'type' => 'required',
-                'image_couverture' => '',
+                'image_couverture',
                 'lieu' => 'required',
                 'latitude',
                 'longitude',
                 'etablissement'=> 'required',
-                'etat' => 'required',
-                'actif' => 'required',
+                'etat',
+                'actif',
                 'utilisateurs_id' => 'required',
-                'etablissements_id' => 'required',
                 'sous_categories_id' => 'required',
                 'calendriers_id' => 'required',
             ]);
@@ -445,59 +479,158 @@ class annoncesController extends Controller
             if ($validator->fails()) {
     
                 $erreur = $validator->errors();
-            
+                
                 return response([
                     'code' => '001',
-                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                    'message' => 'L\'un des champs est vide ou ne respecte pas au format',
                     'data' => $erreur
-                ], 200);
+                ], 201);
     
             }else {
-
-                $img = $request->file('image_couverture');
-
-                if($request->hasFile('image_couverture')){
-
-                    $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
-
-                    $img->move(public_path('/annonces/images', $imageName));
-
-                    // return response()->json($imageName);
-
-                    $data['image_couverture'] = $imageName;
-
-                    $modif = $identifiant->update($data);
-
-                    if ($modif) {
-
+    
+                if ($valeur == true) {
+    
+                    $validator = Validator::make($request->all(), [
+    
+                        'nom_etablissement' => 'required',
+                    ]);
+    
+                    if ($validator->fails()) {
+    
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+            
+                    }else {
+    
+                        $img = $request->file('image_couverture');
+    
+                        if($request->hasFile('image_couverture')){
+        
+                            $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+        
+                            $img->move(public_path('/annonces/images', $imageName));
+        
+                            // return response()->json($imageName);
+        
+                            $data['image_couverture'] = $imageName;
+        
+                            $annonces = $identifiant->update($data);
+    
+                            // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
+    
+                            $nomEts = $data['nom_etablissement'];
+    
+                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+        
+                            $id1 = $result->id;
+        
+                            $id2 = $annonces['id'];
+        
+                            $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                                'etablissements_id' => $id1,
+                                'annonces_id' => $id2,
+                            ]);
+        
+                            if ($annonces) {
+        
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $annonces
+                                ], 200);
+        
+                            }else {
+        
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'Echec lors de l\'operation',
+                                    'data' => 'null'
+                                ], 201);
+        
+                            }
+        
+                        }else {
+        
+                            $annonces = $identifiant->update($data);
+    
+                            // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
+    
+                            $nomEts = $data['nom_etablissement'];
+    
+                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+        
+                            $id1 = $result->id;
+        
+                            $id2 = $annonces['id'];
+        
+                            $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                                'etablissements_id' => $id1,
+                                'annonces_id' => $id2,
+                            ]);
+        
+                            return response([
+                                'code' => '200',
+                                'message' => $annonces,
+                                'data' => 'null'
+                            ], 201);
+        
+                        } 
+    
+                    }
+    
+                } else {
+                    
+                    $img = $request->file('image_couverture');
+    
+                    if($request->hasFile('image_couverture')){
+    
+                        $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+    
+                        $img->move(public_path('/annonces/images', $imageName));
+    
+                        // return response()->json($imageName);
+    
+                        $data['image_couverture'] = $imageName;
+    
+                        $annonces = $identifiant->update($data);
+    
+                        if ($annonces) {
+    
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonces
+                            ], 200);
+    
+                        }else {
+    
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => 'null'
+                            ], 201);
+    
+                        }
+    
+                    }else {
+    
+                        $annonces = $identifiant->update($data);
+    
                         return response([
                             'code' => '200',
-                            'message' => 'success',
-                            'data' => $modif
-                        ], 200);
-
-                    }else {
-
-                        return response([
-                            'code' => '005',
-                            'message' => 'Erreur 005 : Echec lors de l\'operation',
+                            'message' => $annonces,
                             'data' => 'null'
                         ], 201);
                         
                     }
-
-                }else {
-
-                    $modif = $identifiant->update($data);
-
-                    return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $identifiant
-                    ], 201);
-
+    
                 }
-                
+                 
             }
 
         }else {
@@ -511,12 +644,6 @@ class annoncesController extends Controller
         }
         
     }
-
-
-    
-    
-    
-
     
 
 

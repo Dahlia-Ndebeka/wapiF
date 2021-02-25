@@ -24,6 +24,7 @@ class CreateAnnoncesTable extends Migration
             $table->float('latitude')->nullable();
             $table->float('longitude')->nullable();
             $table->boolean('etablissement');
+            $table->string('nom_etablissement');
             $table->boolean('etat')->default(0);
             $table->boolean('actif')->default(1);
 
@@ -47,7 +48,9 @@ class CreateAnnoncesTable extends Migration
             ->on('calendriers')
             ->onDelete('restrict')
             ->onUpdate('restrict');
+
             $table->timestamps();
+            
         });
     }
 

@@ -22,6 +22,7 @@ class annonces extends Model
                             'latitude',
                             'longitude',
                             'etablissement',
+                            'nom_etablissement',
                             'etat', 
                             'actif', 
                             'utilisateurs_id', 
@@ -57,6 +58,5 @@ class annonces extends Model
     { 
         return $this->hasMany(annonce_images::class); 
     }
-
 
 }

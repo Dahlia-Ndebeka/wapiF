@@ -14,7 +14,6 @@ class CreateAnnoncesEtablissementsTable extends Migration
     public function up()
     {
         Schema::create('annonces_etablissements', function (Blueprint $table) {
-            
             $table->unsignedBigInteger('etablissements_id')->index();
             $table->foreign('etablissements_id')
             ->references('id')
@@ -29,8 +28,8 @@ class CreateAnnoncesEtablissementsTable extends Migration
 
             $table->primary(['etablissements_id', 'annonces_id']);
 
+            $table->timestamps();
         });
-        
     }
 
     /**
