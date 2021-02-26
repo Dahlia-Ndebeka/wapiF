@@ -13,7 +13,6 @@ class etablissementsController extends Controller
     
     //Creer un etablissement
 
-
     public function createEtablissement(Request $request){
 
         $etablissement = $request->all();
@@ -29,7 +28,7 @@ class etablissementsController extends Controller
         $validator = Validator::make($request->all(), [
             
             'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-            'adresse'=> 'required|unique:etablissements|max:100', 
+            'adresse'=> 'required', 
             'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
             'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
             'heure_ouverture'=> 'required|max:2', 
@@ -43,7 +42,8 @@ class etablissementsController extends Controller
             'longitude'=> 'required|max:100', 
             'arrondissements_id'=> 'required', 
             'utilisateurs_id'=> 'required',
-            'sous_categories_id' => 'required'
+            // 'sous_categories_id' => 'required',
+            'nom_sous_categorie' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -74,12 +74,31 @@ class etablissementsController extends Controller
 
                 $ets = etablissements::create($etablissement);
 
+                
+
+
+                $nomSousCat = $etablissement['nom_sous_categorie'];
+
+                $result = sous_categories::where('nom_sous_categorie', '=', $nomSousCat)->addSelect('id')->first();
+
+                $id1 = $result->id;
+
+                $id2 = $ets['id'];
+
+                $EtsSousCat = etablissements_sous_categories::firstOrCreate([
+                    'etablissements_id' => $id1,
+                    'sous_categorie_id' => $id2,
+                ]);
+
+
+
                 if ($ets) {
                     
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $ets
+                        'data' => $ets,
+                        'datas' => $EtsSousCat,
                     ], 200);
 
                 } else {
@@ -99,6 +118,23 @@ class etablissementsController extends Controller
                 $etablissement['heure_fermeture'] = $valeur_fermeture;
 
                 $ets = etablissements::create($etablissement);
+
+
+
+                $nomSousCat = $etablissement['nom_sous_categorie'];
+
+                $result = sous_categories::where('nom_sous_categorie', '=', $nomSousCat)->addSelect('id')->first();
+
+                $id1 = $result->id;
+
+                $id2 = $ets['id'];
+
+                $EtsSousCat = etablissements_sous_categories::firstOrCreate([
+                    'etablissements_id' => $id1,
+                    'sous_categorie_id' => $id2,
+                ]);
+
+
 
                 if ($ets) {
                     
@@ -517,29 +553,29 @@ class etablissementsController extends Controller
 
     // Affichage des categories
 
-    public function CategoriesAp(){
+    // public function CategoriesAp(){
 
-        $categorie = categories::all();
+    //     $categorie = categories::all();
 
-        if ($categorie) {
+    //     if ($categorie) {
             
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $categorie
-            ], 200);
+    //         return response([
+    //             'code' => '200',
+    //             'message' => 'success',
+    //             'data' => $categorie
+    //         ], 200);
 
-        }else {
+    //     }else {
 
-            return response([
-                'code' => '004',
-                'message' => 'La table est vide',
-                'data' => 'null'
-            ], 201);
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'La table est vide',
+    //             'data' => 'null'
+    //         ], 201);
 
-        }
+    //     }
 
-    }
+    // }
 
     
 
