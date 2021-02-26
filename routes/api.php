@@ -111,7 +111,6 @@ Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']
 Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
 Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
 Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
-Route::get('annoncesPublie', [annoncesController::class, 'AnnoncesPublier']);
 Route::get('annoncesEts/{id}', [annoncesController::class, 'Etablissements']);
 
 
@@ -268,6 +267,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Route::get('annonceImage/{id}', [annoncesController::class, 'imageAnnonce']);
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
+    Route::get('annoncesPublie', [annoncesController::class, 'AnnoncesPublier']);
 
 
 
