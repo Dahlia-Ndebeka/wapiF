@@ -92,13 +92,13 @@ class categoriesController extends Controller
 
             if($request->hasFile('image')){
 
-                $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+                $fileName = $request->file('image')->getClientOriginalName();
 
-                $img->move(public_path('/categories/images', $imageName));
+                $path = $img->move(public_path("/categories/images/"), $fileName);
 
-                // return response()->json($imageName);
+                $photoURL = url('/categories/images/'.$fileName);
 
-                $categorie['image'] = $imageName;
+                $categorie['image'] = $img;
 
                 $cat = categories::create($categorie);
 
@@ -107,7 +107,8 @@ class categoriesController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $cat
+                        'data' => $cat,
+                        'url' => $photoURL
                     ], 200);
 
                 }else {
@@ -144,11 +145,13 @@ class categoriesController extends Controller
 
         $categorie = $request->all();
 
+        // return $categorie;
+
         if ($identifiant) {
             
-            $validator = Validator::make($request->all(), [
+            $validator = Validator::make($categorie, [
             
-                'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
+                'nomCategorie' => 'required|max:100|regex:/[^0-9.-]/',
                 'image' => 'required',
                 'titre' => 'required'
             ]);
@@ -169,11 +172,11 @@ class categoriesController extends Controller
 
                 if($request->hasFile('image')){
 
-                    $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+                    $fileName = $request->file('image')->getClientOriginalName();
 
-                    $img->move(public_path('/categories/images', $imageName));
+                    $path = $img->move(public_path("/categories/images/"), $fileName);
 
-                    // return response()->json($imageName);
+                    $photoURL = url('/categories/images/'.$fileName);
 
                     $categorie['image'] = $imageName;
 
@@ -184,7 +187,8 @@ class categoriesController extends Controller
                         return response([
                             'code' => '200',
                             'message' => 'success',
-                            'data' => $identifiant
+                            'data' => $identifiant,
+                            'url' => $photoURL,
                         ], 200);
 
                     }else {
@@ -199,11 +203,19 @@ class categoriesController extends Controller
 
                 }else {
 
-                    return response([
-                        'message' => '001',
-                        'message' => 'image nulle',
-                        'data' => 'null'
-                    ], 201);
+                    $cat = $identifiant->update($categorie);
+
+                        return response([
+                            'message' => '200',
+                            'message' => 'succes',
+                            'data' => $identifiant
+                        ], 201);
+
+                    // return response([
+                    //     'message' => '001',
+                    //     'message' => 'image nulle',
+                    //     'data' => 'null'
+                    // ], 201);
 
                 }
                 
@@ -254,6 +266,46 @@ class categoriesController extends Controller
 
         $cats = categories::find($id)->Etablissements;
 
+        $cats = categories::from('categories')->where('categories.id', '=', $id)
+        ->join('sous_categories', 'sous_categories.categories_id', '=', 'categories.id')
+        ->join('etablissements_sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
+        ->join('etablissements', function($join)
+            {
+                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id');
+            })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.id',
+                    'etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays')->get();
+
         if ($cats) {
             
             return response([
@@ -273,5 +325,12 @@ class categoriesController extends Controller
         
     }
 
+    // Acceder aux images
+
+    public function image($fileName){
+        
+        return response()->download(public_path('/categories/images/' . $fileName));
+
+    }
 
 }

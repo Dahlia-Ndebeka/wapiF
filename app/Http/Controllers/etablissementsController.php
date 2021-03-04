@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\etablissements;
 use Illuminate\Support\Facades\Validator;
 use App\Models\categories;
+use App\Models\sous_categories;
+use App\Models\etablissements_sous_categories;
 
 
 class etablissementsController extends Controller
@@ -31,8 +33,8 @@ class etablissementsController extends Controller
             'adresse'=> 'required', 
             'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
             'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
-            'heure_ouverture'=> 'required|max:2', 
-            'heure_fermeture'=> 'required|max:2', 
+            'heure_ouverture'=> 'required', 
+            'heure_fermeture'=> 'required', 
             'email'=> 'required|unique:etablissements|max:200|email', 
             'boite_postale'=> 'required|unique:etablissements|max:100', 
             'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
@@ -62,11 +64,13 @@ class etablissementsController extends Controller
 
             if($request->hasFile('logo')){
 
-                $imageName = rand(11111, 99999) . '.' . $request->file('logo')->getClientOriginalExtension();
+                $fileName = $request->file('logo')->getClientOriginalName();
 
-                $img->move(public_path('/uploads/logos', $imageName));
+                $path = $img->move(public_path("/uploads/images/"), $fileName);
 
-                $etablissement['logo'] = $imageName;
+                $photoURL = url('/uploads/images/'.$fileName);
+
+                $etablissement['logo'] = $fileName;
 
                 $etablissement['heure_ouverture'] = $valeur_ouverture;
 
@@ -74,23 +78,18 @@ class etablissementsController extends Controller
 
                 $ets = etablissements::create($etablissement);
 
-                
-
-
                 $nomSousCat = $etablissement['nom_sous_categorie'];
 
                 $result = sous_categories::where('nom_sous_categorie', '=', $nomSousCat)->addSelect('id')->first();
 
-                $id1 = $result->id;
+                $id2 = $result->id;
 
-                $id2 = $ets['id'];
+                $id1 = $ets['id'];
 
                 $EtsSousCat = etablissements_sous_categories::firstOrCreate([
                     'etablissements_id' => $id1,
-                    'sous_categorie_id' => $id2,
+                    'sous_categories_id' => $id2,
                 ]);
-
-
 
                 if ($ets) {
                     
@@ -98,7 +97,7 @@ class etablissementsController extends Controller
                         'code' => '200',
                         'message' => 'success',
                         'data' => $ets,
-                        'datas' => $EtsSousCat,
+                        'url' => $photoURL,
                     ], 200);
 
                 } else {
@@ -119,22 +118,18 @@ class etablissementsController extends Controller
 
                 $ets = etablissements::create($etablissement);
 
-
-
                 $nomSousCat = $etablissement['nom_sous_categorie'];
 
                 $result = sous_categories::where('nom_sous_categorie', '=', $nomSousCat)->addSelect('id')->first();
 
-                $id1 = $result->id;
+                $id2 = $result->id;
 
-                $id2 = $ets['id'];
+                $id1 = $ets['id'];
 
                 $EtsSousCat = etablissements_sous_categories::firstOrCreate([
                     'etablissements_id' => $id1,
-                    'sous_categorie_id' => $id2,
+                    'sous_categories_id' => $id2,
                 ]);
-
-
 
                 if ($ets) {
                     
@@ -161,19 +156,19 @@ class etablissementsController extends Controller
     }
 
 
+    
     // Afficher les etablissements
 
     public function Etablissements(){
 
-        // $ets = etablissements::all();
-
-        $ets = etablissements::from('etablissements')
-        ->join('sous_categories', 'etablissements.sous_categories_id', '=', 'sous_categories.id')
-        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        $ets = etablissements::
+        join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
+        ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
         ->join('villes', function($join)
             {
                 $join->on('villes.id', '=', 'arrondissements.villes_id');
@@ -186,7 +181,8 @@ class etablissementsController extends Controller
             {
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
-        ->select('etablissements.nom_etablissement',
+        ->select('etablissements.id',
+                    'etablissements.nom_etablissement',
                     'etablissements.adresse',
                     'etablissements.telephone',
                     'etablissements.description',
@@ -198,8 +194,10 @@ class etablissementsController extends Controller
                     'etablissements.logo',
                     'etablissements.latitude',
                     'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie', 
-                    'categories.nomCategorie', 
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
                     'arrondissements.libelle_arrondissement', 
                     'villes.libelle_ville', 
                     'departements.libelle_departement',
@@ -233,13 +231,17 @@ class etablissementsController extends Controller
 
         // $etablissement = etablissements::find($id);
 
+        // $etablissements = etablissements::find($id)->sousCategories;
+
+
         $etablissement = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
-        ->join('sous_categories', 'etablissements.sous_categories_id', '=', 'sous_categories.id')
-        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
+        ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
         ->join('villes', function($join)
             {
                 $join->on('villes.id', '=', 'arrondissements.villes_id');
@@ -252,7 +254,8 @@ class etablissementsController extends Controller
             {
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
-        ->select('etablissements.nom_etablissement',
+        ->select('etablissements.id',
+                    'etablissements.nom_etablissement',
                     'etablissements.adresse',
                     'etablissements.telephone',
                     'etablissements.description',
@@ -264,13 +267,14 @@ class etablissementsController extends Controller
                     'etablissements.logo',
                     'etablissements.latitude',
                     'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie', 
-                    'categories.nomCategorie', 
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
                     'arrondissements.libelle_arrondissement', 
                     'villes.libelle_ville', 
                     'departements.libelle_departement',
                     'pays.libelle_pays')->get();
-
         if ($etablissement) {
                     
             return response([
@@ -298,7 +302,11 @@ class etablissementsController extends Controller
 
         return $etablissements = etablissements::find($id)->sousCategories;
 
+        // $data = etablissements::where("etablissement", "like", "%".$valeur."%" )->get();
+
     }
+
+
 
 
     // Rechercher un etablissement
@@ -342,8 +350,8 @@ class etablissementsController extends Controller
             'adresse'=> 'required|unique:etablissements|max:100', 
             'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
             'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
-            'heure_ouverture'=> 'required|max:100', 
-            'heure_fermeture'=> 'required|max:100', 
+            'heure_ouverture'=> 'required', 
+            'heure_fermeture'=> 'required', 
             'email'=> 'required|unique:etablissements|max:200|email', 
             'boite_postale'=> 'required|unique:etablissements|max:100', 
             'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/',
@@ -371,11 +379,13 @@ class etablissementsController extends Controller
 
             if($request->hasFile('logo')){
 
-                $imageName = rand(11111, 99999) . '.' . $request->file('logo')->getClientOriginalExtension();
+                $fileName = $request->file('logo')->getClientOriginalName();
 
-                $img->move(public_path('/uploads/logos', $imageName));
+                $path = $img->move(public_path("/uploads/images/"), $fileName);
 
-                $etablissement['logo'] = $imageName;
+                $photoURL = url('/uploads/images/'.$fileName);
+
+                $etablissement['logo'] = $fileName;
 
                 $ets = $identif->update($etablissement);
 
@@ -384,7 +394,8 @@ class etablissementsController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $identif
+                        'data' => $identif,
+                        'url' => $photoURL
                     ], 200);
 
                 } else {
@@ -551,32 +562,31 @@ class etablissementsController extends Controller
     }
 
 
-    // Affichage des categories
+    public function ets(){
+        
+        return $categorie = etablissements::
+        join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
+        ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('etablissements.*',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre'
+                    )->get();
+    }
 
-    // public function CategoriesAp(){
 
-    //     $categorie = categories::all();
 
-    //     if ($categorie) {
-            
-    //         return response([
-    //             'code' => '200',
-    //             'message' => 'success',
-    //             'data' => $categorie
-    //         ], 200);
+    // Acceder aux images
+     
+    public function image($fileName){
+        
+        return response()->download(public_path('/uploads/images/' . $fileName));
 
-    //     }else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'La table est vide',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-
-    // }
-
+    }
     
 
 }

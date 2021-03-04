@@ -91,6 +91,72 @@ class utilisateursController extends Controller
     }
 
 
+
+
+    // Affichage des annonces à partir de l'utilisateur
+
+    public function Annonce($id){
+
+        $annonces = utilisateurs::find($id)->Annonces;
+
+        if ($annonces) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Affichage des annonces à partir de l'utilisateur
+
+    public function Annoncess($id){
+
+        $annonces = utilisateurs::find($id)->Annonces;
+
+
+        $annonces = utilisateurs::where("login", "like", "%".$valeur."%" )
+                                    ->orWhere("email", "like", "%".$valeur."%" )
+                                    ->orWhere("photo", "like", "%".$valeur."%" )
+                                    ->orWhere("role", "like", "%".$valeur."%" )
+                                    ->orWhere("actif", "like", "%".$valeur."%" )
+                                    ->orWhere("date_creation", "like", "%".$valeur."%" )
+                                    ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
+                                    ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
+                                    ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )->get(); 
+
+        if ($annonces) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+
     // Creer un utilisateur
 
     public function createUtilisateur(Request $request){
@@ -326,11 +392,13 @@ class utilisateursController extends Controller
 
         if($request->hasFile('photo')){
 
-            $imageName = rand() . '.' . $request->file('photo')->getClientOriginalExtension();
+            $fileName = $request->file('photo')->getClientOriginalName();
 
-            $img->move(public_path('/uploads/images', $imageName));
+            $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
 
-            $Utilisateur['photo'] = $imageName;
+            $photoURL = url('/utilisateurs/images/'.$fileName);
+
+            $Utilisateur['photo'] = $fileName;
 
             $update = $donnees->update($Utilisateur);
 
@@ -583,6 +651,14 @@ class utilisateursController extends Controller
             'data' => $data
         ], 200);
                                     
+
+    }
+
+    // Acceder aux images
+     
+    public function image($fileName){
+        
+        return response()->download(public_path('/utilisateurs/images/' . $fileName));
 
     }
 

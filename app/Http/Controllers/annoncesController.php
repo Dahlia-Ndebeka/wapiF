@@ -70,7 +70,32 @@ class annoncesController extends Controller
 
     public function Annonces(){
 
-        $annonces = annonces::all();
+        $annonces = annonces::from('annonces')->where('etat', '=', true)
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.etablissement',
+                    'annonces.nom_etablissement',
+                    'annonces.etat',
+                    'annonces.actif',
+                    'annonces.sous_categories_id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre'
+                    )->get();
 
         if ($annonces) {
 
@@ -127,7 +152,36 @@ class annoncesController extends Controller
 
     public function getAnnonce($id){
 
-        $annonces = annonces::find($id);
+        // $annonces = annonces::find($id); 
+
+        $annonces = annonces::from('annonces')
+        ->where('annonces.id', '=', $id)
+        ->where('etat', '=', true)
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.etablissement',
+                    'annonces.nom_etablissement',
+                    'annonces.etat',
+                    'annonces.actif',
+                    'annonces.sous_categories_id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre'
+                    )->get();
 
         if ($annonces) {
             
@@ -366,11 +420,13 @@ class annoncesController extends Controller
 
                 if($request->hasFile('image_couverture')){
 
-                    $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
+                    // $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
 
-                    $img->move(public_path('/annonces/images', $imageName));
+                    $fileName = $request->file('image_couverture')->getClientOriginalName();
 
-                    // return response()->json($imageName);
+                    $path = $img->move(public_path("/annonces/images/"), $fileName);
+
+                    $photoURL = url('/annonces/images/'.$fileName);
 
                     $data['image_couverture'] = $imageName;
 
@@ -511,11 +567,11 @@ class annoncesController extends Controller
     
                         if($request->hasFile('image_couverture')){
         
-                            $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
-        
-                            $img->move(public_path('/annonces/images', $imageName));
-        
-                            // return response()->json($imageName);
+                            $fileName = $request->file('image_couverture')->getClientOriginalName();
+
+                            $path = $img->move(public_path("/annonces/images/"), $fileName);
+
+                            $photoURL = url('/annonces/images/'.$fileName);
         
                             $data['image_couverture'] = $imageName;
         
@@ -541,7 +597,8 @@ class annoncesController extends Controller
                                 return response([
                                     'code' => '200',
                                     'message' => 'success',
-                                    'data' => $annonces
+                                    'data' => $annonces,
+                                    'url' => $photoURL
                                 ], 200);
         
                             }else {
@@ -589,11 +646,11 @@ class annoncesController extends Controller
     
                     if($request->hasFile('image_couverture')){
     
-                        $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
-    
-                        $img->move(public_path('/annonces/images', $imageName));
-    
-                        // return response()->json($imageName);
+                        $fileName = $request->file('image_couverture')->getClientOriginalName();
+
+                        $path = $img->move(public_path("/annonces/images/"), $fileName);
+
+                        $photoURL = url('/annonces/images/'.$fileName);
     
                         $data['image_couverture'] = $imageName;
     
@@ -604,7 +661,8 @@ class annoncesController extends Controller
                             return response([
                                 'code' => '200',
                                 'message' => 'success',
-                                'data' => $annonces
+                                'data' => $annonces,
+                                'url' => $photoURL
                             ], 200);
     
                         }else {
@@ -643,6 +701,16 @@ class annoncesController extends Controller
 
         }
         
+    }
+
+
+
+    // Acceder aux images
+     
+    public function image($fileName){
+        
+        return response()->download(public_path('/annonces/images/' . $fileName));
+
     }
     
 

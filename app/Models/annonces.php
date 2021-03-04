@@ -29,13 +29,8 @@ class annonces extends Model
                             'sous_categories_id', 
                             'calendriers_id'];
 
-    // public function Etablissements()
-    // { 
-    //     return $this->belongsTo(etablissements::class); 
-    // }
 
-
-    // Acces a la categorie
+    // Acces a l'Etablissement
 
     public function Etablissements()
     {
@@ -53,6 +48,7 @@ class annonces extends Model
     { 
         return $this->belongsTo(calendriers::class); 
     }
+    
 
     public function AnnonceImage() 
     { 

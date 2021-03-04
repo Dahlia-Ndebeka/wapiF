@@ -11,10 +11,11 @@ class sous_categories extends Model
 {
     
     protected $fillable = ['nom_sous_categorie', 'categories_id'];
+    
 
     public function Etablissements() 
     { 
-        return $this->hasMany(etablissements::class); 
+        return $this->belongsToMany(etablissements::class, 'etablissements_sous_categories'); 
     }
 
     public function Categories()

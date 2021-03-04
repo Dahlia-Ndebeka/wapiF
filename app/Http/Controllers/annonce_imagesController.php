@@ -38,11 +38,11 @@ class annonce_imagesController extends Controller
 
             if($request->hasFile('image')){
 
-                $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+                $fileName = $request->file('image')->getClientOriginalName();
 
-                $img->move(public_path('/annonceImages/images', $imageName));
+                $path = $img->move(public_path("/annonceImages/images/"), $fileName);
 
-                // return response()->json($imageName);
+                $photoURL = url('/annonceImages/images/'.$fileName);
 
                 $imageA['image'] = $imageName;
 
@@ -53,7 +53,8 @@ class annonce_imagesController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $annonceI
+                        'data' => $annonceI,
+                        'data' => $photoURL
                     ], 200);
 
                 }else {
@@ -112,11 +113,13 @@ class annonce_imagesController extends Controller
 
             if($request->hasFile('image')){
 
-                $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
+                // $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
 
-                $img->move(public_path('/annonceImages/images', $imageName));
+                $fileName = $request->file('image')->getClientOriginalName();
 
-                // return response()->json($imageName);
+                $path = $img->move(public_path("/annonceImages/images/"), $fileName);
+
+                $photoURL = url('/annonceImages/images/'.$fileName);
 
                 $imageA['image'] = $imageName;
 
@@ -231,6 +234,15 @@ class annonce_imagesController extends Controller
 
         }
         
+    }
+
+
+    // Acceder aux images
+     
+    public function image($fileName){
+        
+        return response()->download(public_path('/annonceImages/images/' . $fileName));
+
     }
 
 

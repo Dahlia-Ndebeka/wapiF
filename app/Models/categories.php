@@ -18,9 +18,6 @@ class categories extends Model
         return $this->hasMany(sous_categories::class); 
     }
 
-    public function Etablissements()
-    {
-        return $this->hasManyThrough(etablissements::class, sous_categories::class);
-    }
+    
 
 }
