@@ -11,6 +11,11 @@ class sous_categories extends Model
 {
     
     protected $fillable = ['nom_sous_categorie', 'categories_id'];
+
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
     
 
     public function Etablissements() 

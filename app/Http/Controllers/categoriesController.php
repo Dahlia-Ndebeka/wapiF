@@ -72,7 +72,7 @@ class categoriesController extends Controller
         $validator = Validator::make($request->all(), [
             
             'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
-            'image' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
             'titre' => 'required'
         ]);
 
@@ -136,6 +136,7 @@ class categoriesController extends Controller
     }
 
 
+
     // Modifier une categorie
 
     public function putCategorie(Request $request, $id)
@@ -152,7 +153,7 @@ class categoriesController extends Controller
             $validator = Validator::make($categorie, [
             
                 'nomCategorie' => 'required|max:100|regex:/[^0-9.-]/',
-                'image' => 'required',
+                'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
                 'titre' => 'required'
             ]);
     
@@ -205,17 +206,11 @@ class categoriesController extends Controller
 
                     $cat = $identifiant->update($categorie);
 
-                        return response([
-                            'message' => '200',
-                            'message' => 'succes',
-                            'data' => $identifiant
-                        ], 201);
-
-                    // return response([
-                    //     'message' => '001',
-                    //     'message' => 'image nulle',
-                    //     'data' => 'null'
-                    // ], 201);
+                    return response([
+                        'message' => '200',
+                        'message' => 'succes',
+                        'data' => $identifiant
+                    ], 201);
 
                 }
                 
@@ -232,6 +227,7 @@ class categoriesController extends Controller
         }
         
     }
+
 
 
     // Affichage des sous categories a partir des categories
@@ -258,6 +254,7 @@ class categoriesController extends Controller
         }
         
     }
+
 
 
     // Affichage des etablissements à partir de la categorie
@@ -324,6 +321,7 @@ class categoriesController extends Controller
         }
         
     }
+
 
     // Acceder aux images
 

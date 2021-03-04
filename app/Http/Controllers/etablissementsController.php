@@ -38,7 +38,7 @@ class etablissementsController extends Controller
             'email'=> 'required|unique:etablissements|max:200|email', 
             'boite_postale'=> 'required|unique:etablissements|max:100', 
             'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-            // 'logo'=> 'unique:etablissements|max:100', 
+            'logo'=> 'image|mimes:jpeg,png,jpg,svg|max:2048',
             'actif'=> 'required', 
             'latitude'=> 'required|max:100', 
             'longitude'=> 'required|max:100', 
@@ -506,61 +506,7 @@ class etablissementsController extends Controller
     }
 
 
-
-
-
-    // Affichage des categories a partir des etablissements
-
-    // public function Categories($id){
-
-    //     $Categories = etablissements::find($id)->Categories;
-
-    //     if ($Categories) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $Categories
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-        
-    // }
-
-
-
-    // Affichage la ville a partir des etablissements
-
-    public function Villes($id){
-
-        $villes = etablissements::find($id)->Villes;
-
-        if ($villes) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $villes
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-        
-    }
-
+    // Affichage des etablissements avec ces categories et sous categories
 
     public function ets(){
         
@@ -579,7 +525,7 @@ class etablissementsController extends Controller
     }
 
 
-
+    
     // Acceder aux images
      
     public function image($fileName){

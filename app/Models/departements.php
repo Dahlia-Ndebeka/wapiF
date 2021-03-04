@@ -14,6 +14,11 @@ class departements extends Model
 
     protected $fillable = ['libelle', 'pays_id'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
     public function Etablissements()
     {
         return $this->hasManyThrough(etablissements::class, arrondissements::class, villes::class);

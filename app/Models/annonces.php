@@ -29,6 +29,11 @@ class annonces extends Model
                             'sous_categories_id', 
                             'calendriers_id'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
 
     // Acces a l'Etablissement
 

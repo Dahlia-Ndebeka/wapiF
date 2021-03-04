@@ -14,6 +14,11 @@ class notes extends Model
 
     protected $fillable = ['commentaire', 'score', 'utilisateurs_id', 'etablissements_id'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
 
     public function Utilisateurs()
     { 

@@ -12,6 +12,11 @@ class calendriers extends Model
 
     protected $fillable = ['label','date', 'heure_debut', 'heure_fin'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
     public function Annonces() 
     { 
         return $this->hasMany(annonces::class); 

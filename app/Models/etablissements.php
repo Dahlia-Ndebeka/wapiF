@@ -34,6 +34,11 @@ class etablissements extends Model
                                 'utilisateurs_id'
                                 ];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
 
     public function Utilisateurs()
     { 

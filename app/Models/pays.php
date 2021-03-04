@@ -11,43 +11,9 @@ class pays extends Model
 
     protected $fillable = ['libelle'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
 }
-
-
-
-// use App\Models\utilisateurs;
-
-// class etablissements extends Model
-// {
-//     use HasFactory;
-
-//     protected $fillable = ['nom_etablissement', 
-//                             'adresse', 
-//                             'telephone', 
-//                             'description', 
-//                             'heure_ouverture', 
-//                             'heure_fermeture', 
-//                             'email', 
-//                             'boite_postale', 
-//                             'site_web', 
-//                             'logo', 
-//                             'actif', 
-//                             'latitude', 
-//                             'longitude', 
-//                             'arrondissements_id', 
-//                             'utilisateurs_id',];
-//                             'categories_id'];
-
-
-//     public function sousCategories()
-//     { 
-//         return $this->belongsTo(souscategories::class); 
-//     }
-
-//     public function Utilisateurs()
-//     { 
-//         return $this->belongsTo(utilisateurs::class); 
-//     }
-
-
-// }

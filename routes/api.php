@@ -54,6 +54,7 @@ Route::get('sousCategorieEts/{id}', [sous_categoriesController::class, 'Etabliss
 Route::get('sousCategorie/{id}', [sous_categoriesController::class, 'sousCategorie']);
 Route::get('sousCategories', [sous_categoriesController::class, 'sousCategories']);
 Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'Categories']);
+Route::get('sousCategorieCategorie', [sous_categoriesController::class, 'sous_categoriesCat']);
 
 
 //Routes concernanats les pays

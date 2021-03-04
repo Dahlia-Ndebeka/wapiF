@@ -13,6 +13,11 @@ class categories extends Model
 
     protected $fillable = ['nomCategorie', 'image', 'titre'];
 
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+
     public function sousCategorie() 
     { 
         return $this->hasMany(sous_categories::class); 

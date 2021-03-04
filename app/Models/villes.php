@@ -12,6 +12,11 @@ class villes extends Model
     use HasFactory;
 
     protected $fillable = ['libelle', 'departements_id'];
+
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
     
 
     public function Etablissements()

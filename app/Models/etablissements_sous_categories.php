@@ -10,4 +10,10 @@ class etablissements_sous_categories extends Model
     use HasFactory;
 
     protected $fillable = ['etablissements_id', 'sous_categories_id'];
+
+    protected $hidden = [
+        'updated_at',
+        'created_at',
+    ];
+    
 }

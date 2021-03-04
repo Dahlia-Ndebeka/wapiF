@@ -149,7 +149,7 @@ class calendriersController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            'date' => 'required',
+            'date' => 'required|date',
             'heure_debut' => 'required',
             'heure_fin' => 'required'
         ]);
