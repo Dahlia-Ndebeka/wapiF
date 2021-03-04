@@ -293,12 +293,10 @@ class annoncesController extends Controller
         $validator = Validator::make($data, [
             'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
             'description' => 'required',
-            'date' => 'required',
+            'date' => 'required|date',
             'type' => 'required',
-            'image_couverture',
+            'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
             'lieu' => 'required',
-            'latitude',
-            'longitude',
             'etablissement'=> 'required',
             'etat',
             'actif',
@@ -342,12 +340,12 @@ class annoncesController extends Controller
 
                     if($request->hasFile('image_couverture')){
     
-                        $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
-    
-                        $img->move(public_path('/annonces/images', $imageName));
-    
-                        // return response()->json($imageName);
-    
+                        $fileName = $request->file('image_couverture')->getClientOriginalName();
+
+                        $path = $img->move(public_path("/annonces/images/"), $fileName);
+
+                        $photoURL = url('/annonces/images/'.$fileName);
+
                         $data['image_couverture'] = $imageName;
     
                         $annonces = annonces::create($data);
@@ -419,8 +417,6 @@ class annoncesController extends Controller
                 $img = $request->file('image_couverture');
 
                 if($request->hasFile('image_couverture')){
-
-                    // $imageName = rand() . '.' . $request->file('image_couverture')->getClientOriginalExtension();
 
                     $fileName = $request->file('image_couverture')->getClientOriginalName();
 
@@ -520,7 +516,7 @@ class annoncesController extends Controller
                 'description' => 'required',
                 'date' => 'required',
                 'type' => 'required',
-                'image_couverture',
+                'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
                 'lieu' => 'required',
                 'latitude',
                 'longitude',
@@ -704,7 +700,6 @@ class annoncesController extends Controller
     }
 
 
-
     // Acceder aux images
      
     public function image($fileName){
@@ -713,6 +708,5 @@ class annoncesController extends Controller
 
     }
     
-
 
 }

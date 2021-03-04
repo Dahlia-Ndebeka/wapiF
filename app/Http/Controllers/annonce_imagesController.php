@@ -18,7 +18,7 @@ class annonce_imagesController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            'image' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
             'annonces_id' => 'required'
         ]);
 
@@ -93,7 +93,7 @@ class annonce_imagesController extends Controller
 
         $validator = Validator::make($request->all(), [
             
-            'image' => 'required',
+            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
             'annonces_id' => 'required'
         ]);
 
