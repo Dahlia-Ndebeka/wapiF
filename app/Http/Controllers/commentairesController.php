@@ -88,14 +88,26 @@ class commentairesController extends Controller
 
     public function getCommentaire($id){
 
-        $commentaires = commentaires::find($id);
+        // $commentaires = commentaires::find($id);
+
+        $commentaires = commentaires::where('commentaires.id', '=', $id)
+            ->join('utilisateurs', 'utilisateurs.id', '=', 'commentaires.utilisateurs_id')
+            ->select(
+                'commentaires.id',
+                'commentaires.commentaire',
+                'commentaires.created_at',
+                'utilisateurs.login',
+                'utilisateurs.email',
+            )->get();
 
         if ($commentaires) {
             
             return response([
+                
                 'code' => '200',
                 'message' => 'success',
-                'data' => $commentaires
+                'data' => $commentaires,
+                
             ], 200);
 
         }else {

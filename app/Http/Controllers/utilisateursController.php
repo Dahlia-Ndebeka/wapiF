@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Image as InterventionImage;
+use Illuminate\Support\Facades\Auth;
+
 
 
 class utilisateursController extends Controller
@@ -17,23 +19,43 @@ class utilisateursController extends Controller
 
     public function Utilisateurs(){
 
-        $utilisateurs = Utilisateurs::All();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($utilisateurs) {
+            $role = $user['role'];
 
-            return response([
-                'message' => 'success',
-                'data' => $utilisateurs
-            ], 200);
+            if ($role == 'administrateur') { 
+                
+                $utilisateurs = Utilisateurs::All();
+        
+                if ($utilisateurs) {
 
-        } else {
+                    return response([
+                        'message' => 'success',
+                        'data' => $utilisateurs
+                    ], 200);
 
-            return response([
-                'code' => '004',
-                'message' => 'Table vide',
-                'data' => 'null'
-            ], 201);
+                } else {
 
+                    return response([
+                        'code' => '004',
+                        'message' => 'Table vide',
+                        'data' => 'null'
+                    ], 201);
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => 'null'
+                ], 201);
+
+            }
+            
         }
         
     }
@@ -43,60 +65,53 @@ class utilisateursController extends Controller
 
     public function getUtilisateur($id){
 
-        $Utilisateur = Utilisateurs::find($id);
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+            $user = Auth::user();
 
-        if ($Utilisateur) {
+            $role = $user['role'];
 
-            return response([
-                'message' => 'success',
-                'data' => $Utilisateur
-            ], 200);
+            if ($role == 'administrateur') {
 
-        } else {
+                $Utilisateur = Utilisateurs::find($id);
 
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant n\'existe pas',
-                'data' => 'null'
-            ], 200);
+                if ($Utilisateur) {
 
-        }   
+                    return response([
+                        'message' => 'success',
+                        'data' => $Utilisateur
+                    ], 200);
+        
+                } else {
+        
+                    return response([
+                        'code' => '004',
+                        'message' => 'Identifiant n\'existe pas',
+                        'data' => 'null'
+                    ], 200);
+        
+                } 
+
+            }else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => 'null'
+                ], 201);
+
+            }
+            
+        }  
 
     }
-
-
-    // Affichage des etablissements a partir a l'utilisateur
-
-    // public function Etablissements($id){
-
-    //     $etablissements = utilisateurs::find($id)->Etablissements;
-
-    //     if ($etablissements) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $etablissements
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-        
-    // }
 
 
 
     // Affichage des etablissements a partir a l'utilisateur
 
     public function Etablissements($id){
-
-        // $etablissements = utilisateurs::find($id)->Etablissements;
 
         $etablissements = utilisateurs::from('utilisateurs')
         ->where('utilisateurs.id', '=', $id)
@@ -162,34 +177,6 @@ class utilisateursController extends Controller
 
 
 
-
-    // // Affichage des annonces à partir de l'utilisateur
-
-    // public function Annonce($id){
-
-    //     $annonces = utilisateurs::find($id)->Annonces;
-
-    //     if ($annonces) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $annonces
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-        
-    // }
-
-
-
     // Affichage des annonces à partir de l'utilisateur
 
     public function Annonce($id){
@@ -216,7 +203,13 @@ class utilisateursController extends Controller
                     'annonces.etat',
                     'annonces.sous_categories_id',
                     'sous_categories.nom_sous_categorie',
+                    'categories.id',
                     'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    'annonces.utilisateurs_id',
+                    'utilisateurs.login',
+                    'utilisateurs.email',
                     )->get();
 
         if ($annonces) {
@@ -239,8 +232,9 @@ class utilisateursController extends Controller
     }
 
 
+    // *******Les methodes de creation*******//
 
-    // Creer un utilisateur
+                // Creer un mobinaute
 
     public function createUtilisateur(Request $request){
 
@@ -267,6 +261,8 @@ class utilisateursController extends Controller
 
             $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
+            $Utilisateur['role'] = 'mobinaute';
+
             $util = utilisateurs::create($Utilisateur);
 
             if ($util) {
@@ -291,32 +287,169 @@ class utilisateursController extends Controller
 
 
 
-    /**** Modifier un utilisateur ****/ 
+                    // Creer un administrateur
 
-    // Modifier tous les champs
+    public function createUtilisateurAdministrateur(Request $request){
+
+        $Utilisateur = $request->all();
+
+        $validator = Validator::make($request->all(), [
+            
+            'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
+            'password' => 'required|unique:utilisateurs',
+            'email' => 'required|email|unique:utilisateurs',
+            'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
+            'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
+            'telephoneAdministrateur' => 'required|unique:utilisateurs|regex:/[^a-zA-Z]/',
+        ]);
+
+        if ($validator->fails()) {
+
+            $erreur = $validator->errors();
+            
+            return response([
+                'code' => '001',
+                'message' => $erreur,
+                'info' => 'erreur lie au champs de saisie' 
+            ], 202);
+    
+        }else {
+
+            $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+
+            $Utilisateur['password'] = 'administrateur';
+
+            $util = utilisateurs::create($Utilisateur);
+
+            if ($util) {
+
+                return response([
+                    'message' => 'success',
+                    'data' => $util
+                ], 200);
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Echec lors de l\'ajout',
+                    'data' => 'null'
+                ], 201);
+
+            }
+        }
+            
+    }
+
+
+
+    /******* Modifier un utilisateur ******/ 
+
+
+    // Modifier tous les info du mobinaute (partie mobile)
+
+    public function putUtilisateurMobile(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $idAuth = Auth::id();
+
+            $role = $user['role'];
+
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ( $idAuth == $idU || $role == 'administrateur') {
+
+                $validator = Validator::make($request->all(), [
+
+                    'password' => 'required|unique:utilisateurs',
+                    
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => $erreur,
+                        'info' => 'erreur lie au champs de saisie' 
+                    ], 202);
+            
+                }else {
+        
+                    $Utilisateur = $request->all();
+        
+                    $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+                    
+                    $update = $donnees->update($Utilisateur);
+        
+                    if ($update) {
+                        
+                        return response([
+                            'message' => 'mot de passe modifié',
+                            'info' => $donnees 
+                        ], 200);
+        
+                    } else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'echec lors de la modification',
+                            'info' => 'null' 
+                        ], 200);
+        
+                    }
+                    
+                }
+    
+            } else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'info' => 'null' 
+                ], 200);
+            }
+            
+            
+        }
+
+    }
+
+
+
+
+    // Modifier les champs d'un administrateur
 
     public function putUtilisateur(Request $request, $id){
 
-        $Utilisateur = utilisateurs::findOrFail($id);
+        if (Auth::check()) {
 
-        $val1 = $Utilisateur['id'];
+            $user = Auth::user();
 
-            $role = $Utilisateur['role'];
+            $idAuth = Auth::id();
 
-            $identif = utilisateurs::where('id', $request->id)->first();
-    
-            $val2 = $identif['id'];
-    
-            if ($val1 == $val2 ) {
-                
-                if ($role == 'administrateur') {
-    
+            $role = $user['role'];
+
+            $Utilisateur = utilisateurs::findOrFail($id);
+
+            $idU = $Utilisateur['id'];
+
+            if ($role == true && $role == 'administrateur') {
+
+                if ($idAuth == $idU) {
+
                     $validator = Validator::make($request->all(), [
                         
                         'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
                         'email' => 'required|email|unique:utilisateurs',
-                        'role' => 'required|max:50',
-                        'actif' => 'required',
                         'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
                         'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
                         'telephoneAdministrateur' => 'required|unique:utilisateurs|regex:/[^a-zA-Z]/',
@@ -352,309 +485,204 @@ class utilisateursController extends Controller
                             ], 201);
         
                         }       
-                    } 
+                    }
+
                 }else {
                     
-                    $validator = Validator::make($request->all(), [
-                        'login' => 'required|regex:/[^0-9.-]/',
-                        'email' => 'email|required|unique:utilisateurs'
-                    ]);
-        
-                    if ($validator->fails()) {
-            
-                        $erreur = $validator->errors();
-                        
-                        return response([
-                            'code' => '001',
-                            'message' => $erreur,
-                            'info' => 'erreur lie au champs de saisie' 
-                        ], 202);
-                
-                    }else {
-        
-                        $util = $Utilisateur->update($request->all());
-                        
-                        if ($util) {
-        
-                            return response([
-                                'message' => 'success',
-                                'data' => $Utilisateur
-                            ], 200);
-        
-                        }else {
-        
-                            return response([
-                                'code' => '005',
-                                'message' => 'Echec lors de la modification',
-                                'data' => 'null'
-                            ], 201);
-        
-                        }
-        
-                    }
-                }
-    
-            }elseif($val1 != $val2) {
-                
-                return response([
-                    'code' => '004',
-                    'message' => 'Aucune information ne correspond à cet identifiant',
-                    'data' => 'null'
-                ], 201);
-    
-            }else {
-                
-                return response([
-                    'code' => '004',
-                    'message' => 'Desole vous n\'avez saisie aucun identifiant',
-                    'data' => 'null'
-                ], 201);
-            }
-        
-    }
-
-
-    // Modifier le mot de passe
-
-    public function putPassword(Request $request, $id){
-
-        $donnees = utilisateurs::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
-
-            'password' => 'required|unique:utilisateurs',
-            
-        ]);
-
-        if ($validator->fails()) {
-
-            $erreur = $validator->errors();
-
-            return response([
-                'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
-            ], 202);
-    
-        }else {
-
-            $Utilisateur = $request->all();
-
-            $Utilisateur['password'] = Hash::make($Utilisateur['password']);
-            
-            $update = $donnees->update($Utilisateur);
-
-            if ($update) {
-                
-                return response([
-                    'message' => 'mot de passe modifié',
-                    'info' => $donnees 
-                ], 200);
-
-            } else {
-                
-                return response([
-                    'code' => '005',
-                    'message' => 'echec lors de la modification',
-                    'info' => 'null' 
-                ], 200);
-
-            }
-            
-        }
-
-    }
-
-
-    // Modifier la photo d'utilisateur
-
-    public function putImage(Request $request, $id)
-    {
-        $donnees = utilisateurs::findOrFail($id);
-    
-        $validator = Validator::make($request->all(), [
-            
-            'photo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-
-            $erreur = $validator->errors();
-
-            return response([
-                'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
-            ], 202);
-    
-        }else {
-
-            $img = $request->file('photo');
-
-            if($request->hasFile('photo')){
-
-                $fileName = $request->file('photo')->getClientOriginalName();
-
-                $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
-
-                $photoURL = url('/utilisateurs/images/'.$fileName);
-
-                $Utilisateur['photo'] = $fileName;
-
-                $update = $donnees->update($Utilisateur);
-
-                if ($update) {
-                        
                     return response([
-                        'message' => 'mot de passe modifié',
-                        'info' => $donnees 
-                    ], 200);
-
-                } else {
+                        'code' => '001',
+                        'message' => 'Acces non autorise, Vous netes pas le proprietaire du compte',
+                        'data' => 'null'
+                    ], 201);
                     
-                    return response([
-                        'code' => '005',
-                        'message' => 'echec lors de la modification',
-                        'info' => 'null' 
-                    ], 200);
-
                 }
 
             }else {
 
                 return response([
                     'code' => '001',
-                    'message' => 'image nulle',
+                    'message' => 'Acces non autorise',
                     'data' => 'null'
                 ], 201);
 
             }
 
         }
-        
 
     }
 
 
-    // Ajout des autres informations complementaires
+    
+    // Modifier le mot de passe de l'administrateur
 
-    public function addUtilisateur(Request $request, $id)
-    {
-        $donnees = utilisateurs::findOrFail($id);
+    public function putPassword(Request $request, $id){
 
-        if ($donnees) {
+        if (Auth::check()) {
             
-            $Utilisateur = $request->all();
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $idAuth = Auth::id();
+
+            $role = $user['role'];
+
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ( $idAuth == $idU && $role == 'administrateur') {
+
+                $validator = Validator::make($request->all(), [
+
+                    'password' => 'required|unique:utilisateurs',
+                    
+                ]);
         
-            $role = $Utilisateur['role'];
-
-            if ($role) {
-
-                if ($role == 'administrateur') {
-
-                    $validator = Validator::make($request->all(), [
-
-                        'role' => 'required|max:50',
-                        'actif' => 'required',
-                        'nomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
-                        'prenomAdministrateur' => 'required|max:100|regex:/[^0-9.-]/',
-                        'telephoneAdministrateur' => 'required|unique:utilisateurs|regex:/[^a-zA-Z]/',
-                    ]);
-
-                    if ($validator->fails()) {
-            
-                        $erreur = $validator->errors();
-
-                        return response([
-                            'code' => '001',
-                            'message' => $erreur,
-                            'info' => 'erreur lie au champs de saisie' 
-                        ], 202);
-                
-                    }else {
-                        
-                        $util = $donnees->update($request->all());
-
-                        if ($util) {
-
-                            return response([
-                                'message' => 'success',
-                                'data' => $donnees
-                            ], 200);
+                if ($validator->fails()) {
         
-                        }else {
-
-                            return response([
-                                'code' => '005',
-                                'message' => 'Echec lors de la modification',
-                                'data' => 'null'
-                            ], 201);
-
-                        }
-                        
-                    }
-
-                } elseif($role == 'mobinaute') {
-
-                    $validator = Validator::make($request->all(), [
-                        'role' => 'required|max:50',
-                        'actif' => 'required'
-                    ]);
-
-                    if ($validator->fails()) {
-            
-                        $erreur = $validator->errors();
-
-                        return response([
-                            'code' => '001',
-                            'message' => $erreur,
-                            'info' => 'erreur lie au champs de saisie' 
-                        ], 202);
-                
-                    }else {
+                    $erreur = $validator->errors();
         
-                        $util = $donnees->update($request->all());
-                        
-                        if ($util) {
-
-                            return response([
-                                'message' => 'success',
-                                'data' => $donnees
-                            ], 200);
-        
-                        }else {
-
-                            return response([
-                                'code' => '005',
-                                'message' => 'Echec lors de la modification',
-                                'data' => 'null'
-                            ], 201);
-
-                        }
-                    }
-                }else{
-
                     return response([
                         'code' => '001',
-                        'message' => 'Echec vous devez indiquer le role de l\'utilisateur pour pouvoir ajouter les champs manquant',
-                        'data' => 'null'
-                    ], 201);
+                        'message' => $erreur,
+                        'info' => 'erreur lie au champs de saisie' 
+                    ], 202);
+            
+                }else {
+        
+                    $Utilisateur = $request->all();
+        
+                    $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+                    
+                    $update = $donnees->update($Utilisateur);
+        
+                    if ($update) {
+                        
+                        return response([
+                            'message' => 'mot de passe modifié',
+                            'info' => $donnees 
+                        ], 200);
+        
+                    } else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'echec lors de la modification',
+                            'info' => 'null' 
+                        ], 200);
+        
+                    }
                     
                 }
+    
+            } else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'info' => 'null' 
+                ], 200);
+            }
+            
+        }
+
+    }
+
+
+    
+    //Ajouter ou Modifier la photo d'utilisateur(Mobinaute et administrateur)
+
+    public function putImage(Request $request, $id)
+    {
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+            $user = Auth::user();
+            $idAuth = Auth::id();
+
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ($idAuth == $idU) {
+
+                $validator = Validator::make($request->all(), [
+            
+                    'photo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => $erreur,
+                        'info' => 'erreur lie au champs de saisie' 
+                    ], 202);
+            
+                }else {
+        
+                    $img = $request->file('photo');
+        
+                    if($request->hasFile('photo')){
+        
+                        $fileName = $request->file('photo')->getClientOriginalName();
+        
+                        $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
+        
+                        $photoURL = url('/utilisateurs/images/'.$fileName);
+        
+                        $Utilisateur['photo'] = $fileName;
+        
+                        $update = $donnees->update($Utilisateur);
+        
+                        if ($update) {
+                                
+                            return response([
+                                'message' => 'mot de passe modifié',
+                                'info' => $donnees 
+                            ], 200);
+        
+                        } else {
+                            
+                            return response([
+                                'code' => '005',
+                                'message' => 'echec lors de la modification',
+                                'info' => 'null' 
+                            ], 200);
+        
+                        }
+        
+                    }else {
+        
+                        return response([
+                            'code' => '001',
+                            'message' => 'image nulle',
+                            'data' => 'null'
+                        ], 201);
+        
+                    }
+        
+                }
+
+            }else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise, vous n\'etes pas le proprietaire du compte',
+                    'data' => 'null'
+                ], 201);
 
             }
 
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Desole l\'identidiant n\'existe pas',
-                'data' => 'null'
-            ], 201);
             
         }
-         
+
     }
+
 
 
     // Affichage des commentaires a partir de l'utilisateur
@@ -696,32 +724,6 @@ class utilisateursController extends Controller
     }
 
 
-    // Affichage des commentaires a partir de l'utilisateur
-
-    // public function Commentaires($id){
-
-    //     $commentaires = utilisateurs::find($id)->Commentaires;
-
-    //     if ($commentaires) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $commentaires
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-        
-    // }
-
-
 
     // Affichage des notes a partir de l'utilisateur
 
@@ -753,25 +755,53 @@ class utilisateursController extends Controller
 
     public function rechercheUtilisateur($valeur){
 
-        $data = utilisateurs::where("login", "like", "%".$valeur."%" )
-                                    ->orWhere("email", "like", "%".$valeur."%" )
-                                    ->orWhere("photo", "like", "%".$valeur."%" )
-                                    ->orWhere("role", "like", "%".$valeur."%" )
-                                    ->orWhere("actif", "like", "%".$valeur."%" )
-                                    ->orWhere("date_creation", "like", "%".$valeur."%" )
-                                    ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
-                                    ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
-                                    ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )->get(); 
+        if ($valeur == null) {
+
+            return response([
+                'code' => '001',
+                'message' => 'Valeur entree est incorrecte',
+                'data' => 'null'
+            ], 201);
+
+        }else {
             
-        return response([
-            'code' => '200',
-            'message' => 'success',
-            'data' => $data
-        ], 200);
-                                    
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == 'administrateur') {
+                
+                $data = utilisateurs::where("login", "like", "%".$valeur."%" )
+                ->orWhere("email", "like", "%".$valeur."%" )
+                ->orWhere("photo", "like", "%".$valeur."%" )
+                ->orWhere("role", "like", "%".$valeur."%" )
+                ->orWhere("actif", "like", "%".$valeur."%" )
+                ->orWhere("date_creation", "like", "%".$valeur."%" )
+                ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
+                ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
+                ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )->get(); 
+
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $data
+                ], 200);
+
+            } else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces nom autorise',
+                    'data' => 'null'
+                ], 201);
+
+            }  
+
+        }                           
 
     }
 
+    
     // Acceder aux images
      
     public function image($fileName){

@@ -220,31 +220,173 @@ class sous_categoriesController extends Controller
 
     // Affichage des etablissements par rapport a la sous categorie
 
+    // public function Etablissements($id){
+
+    //     $etablissements = sous_categories::find($id);
+
+    //     $ets = $etablissements->Etablissements;
+
+    //     $etablissements = sous_categories::find($id)->Etablissements;
+
+    //     if ($ets) {
+            
+    //         return response([
+    //             'code' => '200',
+    //             'message' => 'success',
+    //             'data' => $ets
+    //         ], 200);
+
+    //     } else {
+            
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
+    //             'data' => 'null'
+    //         ], 201);
+    //     }
+
+    // }
+
+
+
+    // Affichage des etablissements par rapport a la sous categorie
+
     public function Etablissements($id){
 
-        $etablissements = sous_categories::find($id);
+        // $cats = categories::find($id)->Etablissements;
 
-        $ets = $etablissements->Etablissements;
+        $cats = sous_categories::from('sous_categories')->where('sous_categories.id', '=', $id)
+        ->join('etablissements_sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('etablissements', function($join)
+            {
+                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id');
+            })
+        ->join('utilisateurs', function($join)
+            {
+                $join->on('utilisateurs.id', '=', 'etablissements.utilisateurs_id');
+            })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.id',
+                    'etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'etablissements.utilisateurs_id',
+                    'utilisateurs.login',
+                    'utilisateurs.email',
+                    'sous_categories.id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.id',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays')->get();
 
-        $etablissements = sous_categories::find($id)->Etablissements;
-
-        if ($ets) {
+        if ($cats) {
             
             return response([
-                'code' => '200',
                 'message' => 'success',
-                'data' => $ets
+                'data' => $cats
             ], 200);
 
         } else {
-            
+
             return response([
                 'code' => '004',
-                'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
+                'message' => 'Identifiant incorrect',
                 'data' => 'null'
             ], 201);
-        }
 
+        }
+        
+    }
+
+
+
+
+    // Affichage des annonces par rapport a la sous categorie
+
+    public function Annonces($id){
+
+        $cats = sous_categories::from('sous_categories')->where('sous_categories.id', '=', $id)
+        ->join('annonces', 'sous_categories.id', '=', 'annonces.sous_categories_id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('utilisateurs', function($join)
+            {
+                $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
+            })
+        ->select(
+                    'annonces.id',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.utilisateurs_id',
+                    'utilisateurs.login',
+                    'utilisateurs.email',
+                    'annonces.etablissement',
+                    'annonces.nom_etablissement',
+                    'annonces.etat',
+                    'sous_categories.id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.id',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    
+                    )->get();
+
+        if ($cats) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $cats
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
     }
 
 

@@ -44,7 +44,7 @@ class annonce_imagesController extends Controller
 
                 $photoURL = url('/annonceImages/images/'.$fileName);
 
-                $imageA['image'] = $imageName;
+                $imageA['image'] = $fileName;
 
                 $annonceI = annonce_images::create($imageA);
 
@@ -94,7 +94,6 @@ class annonce_imagesController extends Controller
         $validator = Validator::make($request->all(), [
             
             'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'annonces_id' => 'required'
         ]);
 
         if ($validator->fails()) {

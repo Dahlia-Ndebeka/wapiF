@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class categoriesController extends Controller
 {
     
-    //Afficher les categories
+    // Afficher les categories
 
     public function Categories(){
 
@@ -67,71 +67,91 @@ class categoriesController extends Controller
 
     public function createCategorie(Request $request){
 
-        $categorie = $request->all();
-
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
-            'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'titre' => 'required'
-        ]);
+            $user = Auth::user();
 
-        if ($validator->fails()) {
+            $role = $user['role'];
 
-            $erreur = $validator->errors();
-            
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur
-            ], 200);
+            if ($role == 'administrateur') {
 
-        }else {
+                $categorie = $request->all();
 
-            $img = $request->file('image');
+                $validator = Validator::make($request->all(), [
+                    
+                    'nomCategorie' => 'required|unique:categories|max:100|regex:/[^0-9.-]/',
+                    'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                    'titre' => 'required'
+                ]);
 
-            if($request->hasFile('image')){
+                if ($validator->fails()) {
 
-                $fileName = $request->file('image')->getClientOriginalName();
-
-                $path = $img->move(public_path("/categories/images/"), $fileName);
-
-                $photoURL = url('/categories/images/'.$fileName);
-
-                $categorie['image'] = $img;
-
-                $cat = categories::create($categorie);
-
-                if ($cat) {
-
+                    $erreur = $validator->errors();
+                    
                     return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $cat,
-                        'url' => $photoURL
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
                     ], 200);
 
                 }else {
 
-                    return response([
-                        'code' => '005',
-                        'message' => 'Echec lors de l\'operation',
-                        'data' => 'null'
-                    ], 201);
+                    $img = $request->file('image');
+
+                    if($request->hasFile('image')){
+
+                        $fileName = $request->file('image')->getClientOriginalName();
+
+                        $path = $img->move(public_path("/categories/images/"), $fileName);
+
+                        $photoURL = url('/categories/images/'.$fileName);
+
+                        $categorie['image'] = $fileName;
+
+                        $cat = categories::create($categorie);
+
+                        if ($cat) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $cat,
+                                'url' => $photoURL
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => 'null'
+                            ], 201);
+
+                        }
+
+                    }else {
+
+                        return response([
+                            'code' => '001',
+                            'message' => 'image nulle',
+                            'data' => 'null'
+                        ], 201);
+                        
+                    }
 
                 }
 
             }else {
 
                 return response([
-                    'code' => '001',
-                    'message' => 'image nulle',
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
                     'data' => 'null'
                 ], 201);
-                
-            }
-        }
 
+            }
+
+        }
 
     }
 
@@ -142,87 +162,105 @@ class categoriesController extends Controller
     public function putCategorie(Request $request, $id)
     {
 
-        $identifiant = categories::findOrFail($id);
-
-        $categorie = $request->all();
-
-        // return $categorie;
-
-        if ($identifiant) {
+        if (Auth::check()) {
             
-            $validator = Validator::make($categorie, [
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == 'administrateur') {
+
+                $identifiant = categories::findOrFail($id);
+
+                if ($identifiant == null) {
+
+                    $categorie = $request->all();
+                    
+                    return response([
+                        'code' => '004',
+                        'message' => 'Identifiant incorrect',
+                        'data' => $erreur
+                    ], 201);
+
+                } else {
+
+                    $validator = Validator::make($categorie, [
+                    
+                        'nomCategorie' => 'required|max:100|regex:/[^0-9.-]/',
+                        'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                        // 'titre' => 'required'
+                    ]);
             
-                'nomCategorie' => 'required|max:100|regex:/[^0-9.-]/',
-                'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                'titre' => 'required'
-            ]);
-    
-            if ($validator->fails()) {
-    
-                $erreur = $validator->errors();
+                    if ($validator->fails()) {
             
-                return response([
-                    'code' => '001',
-                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                    'data' => $erreur
-                ], 200);
-    
-            }else {
-
-                $img = $request->file('image');
-
-                if($request->hasFile('image')){
-
-                    $fileName = $request->file('image')->getClientOriginalName();
-
-                    $path = $img->move(public_path("/categories/images/"), $fileName);
-
-                    $photoURL = url('/categories/images/'.$fileName);
-
-                    $categorie['image'] = $imageName;
-
-                    $cat = $identifiant->update($categorie);
-
-                    if ($cat) {
-
+                        $erreur = $validator->errors();
+                    
                         return response([
-                            'code' => '200',
-                            'message' => 'success',
-                            'data' => $identifiant,
-                            'url' => $photoURL,
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
                         ], 200);
-
+            
                     }else {
 
-                        return response([
-                            'message' => '005',
-                            'message' => 'Erreur 005 : Echec lors de l\'operation',
-                            'data' => 'null'
-                        ], 201);
+                        $img = $request->file('image');
+
+                        if($request->hasFile('image')){
+
+                            $fileName = $request->file('image')->getClientOriginalName();
+
+                            $path = $img->move(public_path("/categories/images/"), $fileName);
+
+                            $photoURL = url('/categories/images/'.$fileName);
+
+                            $categorie['image'] = $fileName;
+
+                            $cat = $identifiant->update($categorie);
+
+                            if ($cat) {
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $identifiant,
+                                    'url' => $photoURL,
+                                ], 200);
+
+                            }else {
+
+                                return response([
+                                    'message' => '005',
+                                    'message' => 'Erreur 005 : Echec lors de l\'operation',
+                                    'data' => 'null'
+                                ], 201);
+                                
+                            }
+
+                        }else {
+
+                            $cat = $identifiant->update($categorie);
+
+                            return response([
+                                'message' => '200',
+                                'message' => 'succes',
+                                'data' => $identifiant
+                            ], 201);
+
+                        }
                         
                     }
 
-                }else {
-
-                    $cat = $identifiant->update($categorie);
-
-                    return response([
-                        'message' => '200',
-                        'message' => 'succes',
-                        'data' => $identifiant
-                    ], 201);
-
                 }
-                
-            }
 
-        }else {
-            
-            return response([
-                'message' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => 'null'
-            ], 201);
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => 'null'
+                ], 201);
+
+            }
 
         }
         
@@ -261,7 +299,7 @@ class categoriesController extends Controller
 
     public function Etablissements($id){
 
-        $cats = categories::find($id)->Etablissements;
+        // $cats = categories::find($id)->Etablissements;
 
         $cats = categories::from('categories')->where('categories.id', '=', $id)
         ->join('sous_categories', 'sous_categories.categories_id', '=', 'categories.id')
@@ -302,6 +340,59 @@ class categoriesController extends Controller
                     'villes.libelle_ville', 
                     'departements.libelle_departement',
                     'pays.libelle_pays')->get();
+
+        if ($cats) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $cats
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => 'null'
+            ], 201);
+
+        }
+        
+    }
+
+
+    // Affichage des annonces à partir de la categorie
+
+    public function Annonces($id){
+
+        $cats = categories::from('categories')
+        ->where('categories.id', '=', $id)
+        // ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'categories.id', '=', 'sous_categories.categories_id')
+        ->join('annonces', function($join)
+            {
+                $join->on('sous_categories.id', '=', 'annonces.sous_categories_id');
+            })
+        ->select(
+                    'annonces.id',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.etablissement',
+                    'annonces.nom_etablissement',
+                    'annonces.etat',
+                    // 'annonces.sous_categories_id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.id',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    )->get();
 
         if ($cats) {
             

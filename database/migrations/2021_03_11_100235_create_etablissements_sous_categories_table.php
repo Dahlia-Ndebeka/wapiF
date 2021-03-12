@@ -14,7 +14,6 @@ class CreateEtablissementsSousCategoriesTable extends Migration
     public function up()
     {
         Schema::create('etablissements_sous_categories', function (Blueprint $table) {
-            
             $table->unsignedBigInteger('etablissements_id')->index();
             $table->foreign('etablissements_id')
             ->references('id')
@@ -31,7 +30,6 @@ class CreateEtablissementsSousCategoriesTable extends Migration
 
             $table->timestamps();
         });
-
     }
 
     /**

@@ -24,6 +24,7 @@ class utilisateurs extends Model
         'remember_token',
         'updated_at',
         'created_at',
+        'email_verified_at',
     ];
 
     protected $casts = [
@@ -51,6 +52,24 @@ class utilisateurs extends Model
     public function Notes() 
     { 
         return $this->hasMany(notes::class); 
+    }
+
+
+    // Verifier l'utilisateur connecte
+
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
+    public function getReminderEmail()
+    {
+        return $this->email;
     }
 
 }
