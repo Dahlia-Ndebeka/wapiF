@@ -241,5 +241,33 @@ class departementsController extends Controller
         
     }
 
+    
+
+    // Supprimer un departement
+     
+    public function deleteDepartement($id){
+
+        $delete = departements::findOrFail($id)->delete();
+
+        if ($delete) {
+
+            return response([
+                'code' => '200',
+                'message' => 'Suppression effectuée avec succes',
+                'data' => null
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
+    }
+
 
 }

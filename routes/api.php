@@ -99,8 +99,7 @@ Route::get('etablissementAnnonces/{id}', [etablissementsController::class, 'Anno
 Route::get('etablissement', [etablissementsController::class, 'ets']);
 Route::get('imageEts/{filename}', [etablissementsController::class, 'image']);
 Route::get('etablissementUtilisateur/{id}', [etablissementsController::class, 'Utilisateur']);
-Route::get('etablissementPlusVisite', [etablissementsController::class, 'plusVisiter']);
-Route::get('etablissementMoinsVisite', [etablissementsController::class, 'moinsVisiter']);
+Route::get('etablissementPlusVisiter', [etablissementsController::class, 'plusVisiter']);
 
 
 
@@ -170,8 +169,9 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
     // Route::put('utilisateurAdd/{id}', [utilisateursController::class, 'addUtilisateur']);
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
+    // Modifier le mot de passe d'un utilisateur
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateurMobile']);
-    // Route::delete('utilisateur/{id}', [utilisateursController::class, 'deleteUtilisateur']);
+    Route::put('utilisateurdel/{id}', [utilisateursController::class, 'deleteUtilisateur']);
     Route::get("utilisateurRecherche/{valeur}", [utilisateursController::class, 'rechercheUtilisateur']);
     Route::get("utilisateurEts/{id}", [utilisateursController::class, 'Etablissements']);
     Route::put("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
@@ -182,6 +182,8 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get("utilisateurNote/{id}", [utilisateursController::class, 'Notes']);
     Route::get('imageUtilisateur/{filename}', [utilisateursController::class, 'image']);
     Route::put('utilisateurAdmin/{id}', [utilisateursController::class, 'putUtilisateur']);
+    // Modifier le login d'un mobinaute
+    Route::put('utilisateurLogin/{id}', [utilisateursController::class, 'putLoginMobile']);
 
 
 
@@ -236,6 +238,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
+    Route::put('etablissementdel/{id}', [etablissementsController::class, 'deleteEtablissement']);
 
 
 
@@ -251,7 +254,8 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
     Route::get('annoncesPublier', [annoncesController::class, 'AnnoncesPublier']);
-    Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
+    Route::put('annoncedel/{id}', [annoncesController::class, 'deleteAnnonce']);
+    // Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
     Route::put('publierAnnonce/{id}', [annoncesController::class, 'Publier']);
 
 

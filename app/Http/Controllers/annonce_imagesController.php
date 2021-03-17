@@ -62,7 +62,7 @@ class annonce_imagesController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Echec lors de l\'operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -72,7 +72,7 @@ class annonce_imagesController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'image nulle',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
                 
             }
@@ -137,7 +137,7 @@ class annonce_imagesController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Echec lors de l\'operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -147,7 +147,7 @@ class annonce_imagesController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'image nulle',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
                 
             }
@@ -202,7 +202,7 @@ class annonce_imagesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -228,7 +228,7 @@ class annonce_imagesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -242,6 +242,34 @@ class annonce_imagesController extends Controller
         
         return response()->download(public_path('/annonceImages/images/' . $fileName));
 
+    }
+
+
+
+    // Supprimer une annonce image
+     
+    public function deleteAnnonceImage($id){
+
+        $delete = annonce_images::findOrFail($id)->delete();
+
+        if ($delete) {
+
+            return response([
+                'code' => '200',
+                'message' => 'Suppression effectuée avec succes',
+                'data' => null
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
     }
 
 

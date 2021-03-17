@@ -269,4 +269,32 @@ class villesController extends Controller
     }
 
 
+
+    // Supprimer une ville
+     
+    public function deleteVille($id){
+
+        $delete = villes::findOrFail($id)->delete();
+
+        if ($delete) {
+
+            return response([
+                'code' => '200',
+                'message' => 'Suppression effectuée avec succes',
+                'data' => null
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
+    }
+
+
 }

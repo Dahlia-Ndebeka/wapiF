@@ -32,6 +32,7 @@ class utilisateursController extends Controller
                 if ($utilisateurs) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $utilisateurs
                     ], 200);
@@ -41,7 +42,7 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '004',
                         'message' => 'Table vide',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -51,7 +52,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Acces non autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -75,10 +76,12 @@ class utilisateursController extends Controller
             if ($role == 'administrateur') {
 
                 $Utilisateur = Utilisateurs::find($id);
+                // where('etablissements.actif', '=', true)
 
                 if ($Utilisateur) {
 
                     return response([
+                        'code' => '200',
                         'message' => 'success',
                         'data' => $Utilisateur
                     ], 200);
@@ -88,7 +91,7 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '004',
                         'message' => 'Identifiant n\'existe pas',
-                        'data' => 'null'
+                        'data' => null
                     ], 200);
         
                 } 
@@ -98,7 +101,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -109,68 +112,88 @@ class utilisateursController extends Controller
 
 
 
-    // Affichage des etablissements a partir a l'utilisateur
+    // Affichage des etablissements a partir de l'utilisateur
 
     public function Etablissements($id){
 
-        $etablissements = utilisateurs::from('utilisateurs')
-        ->where('utilisateurs.id', '=', $id)
-        ->join('etablissements', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
-        ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
-        ->join('categories', function($join)
-            {
-                $join->on('categories.id', '=', 'sous_categories.categories_id');
-            })
-        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
-        ->join('villes', function($join)
-            {
-                $join->on('villes.id', '=', 'arrondissements.villes_id');
-            })
-        ->join('departements', function($join)
-            {
-                $join->on('departements.id', '=', 'villes.departements_id');
-            })
-        ->join('pays', function($join)
-            {
-                $join->on('pays.id', '=', 'departements.pays_id');
-            })
-        ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays',
-                    'utilisateurs.login')->get();
+        if (Auth::check()) {
 
-        if ($etablissements) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $etablissements
-            ], 200);
+            $user = Auth::user();
 
-        } else {
+            $idAuth = Auth::id();
 
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
+            $role = $user['role'];
 
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ( $idAuth == $idU || $role == 'administrateur') {
+
+                $etablissements = utilisateurs::from('utilisateurs')
+                ->where('utilisateurs.id', '=', $id)
+                ->join('etablissements', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+                ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
+                ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
+                ->join('categories', function($join)
+                    {
+                        $join->on('categories.id', '=', 'sous_categories.categories_id');
+                    })
+                ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+                ->join('villes', function($join)
+                    {
+                        $join->on('villes.id', '=', 'arrondissements.villes_id');
+                    })
+                ->join('departements', function($join)
+                    {
+                        $join->on('departements.id', '=', 'villes.departements_id');
+                    })
+                ->join('pays', function($join)
+                    {
+                        $join->on('pays.id', '=', 'departements.pays_id');
+                    })
+                ->select('etablissements.id',
+                            'etablissements.nom_etablissement',
+                            'etablissements.adresse',
+                            'etablissements.telephone',
+                            'etablissements.description',
+                            'etablissements.heure_ouverture',
+                            'etablissements.heure_fermeture',
+                            'etablissements.email',
+                            'etablissements.boite_postale',
+                            'etablissements.site_web',
+                            'etablissements.logo',
+                            'etablissements.latitude',
+                            'etablissements.longitude',
+                            'sous_categories.nom_sous_categorie',
+                            'categories.nomCategorie',
+                            'arrondissements.libelle_arrondissement', 
+                            'villes.libelle_ville', 
+                            'departements.libelle_departement',
+                            'pays.libelle_pays',
+                            'utilisateurs.login',
+                            'utilisateurs.email')
+                ->get();
+
+                if ($etablissements) {
+                    
+                    return response([
+                        'code' => '200',
+                        'message' => 'success',
+                        'data' => $etablissements
+                    ], 200);
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 200);
+
+            }
         }
         
     }
@@ -181,51 +204,76 @@ class utilisateursController extends Controller
 
     public function Annonce($id){
 
-        $annonces = utilisateurs::from('utilisateurs')
-        ->where('utilisateurs.id', '=', $id)
-        ->join('annonces', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-        ->join('categories', function($join)
-            {
-                $join->on('categories.id', '=', 'sous_categories.categories_id');
-            })
-        ->select('annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    'annonces.etat',
-                    'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'annonces.utilisateurs_id',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    )->get();
+        if (Auth::check()) {
 
-        if ($annonces) {
-            
-            return response([
-                'message' => 'success',
-                'data' => $annonces
-            ], 200);
+            $user = Auth::user();
 
-        } else {
+            $idAuth = Auth::id();
 
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
+            $role = $user['role'];
+
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ( $idAuth == $idU || $role == 'administrateur') {
+
+                $annonces = utilisateurs::from('utilisateurs')
+                ->where('utilisateurs.id', '=', $id)
+                ->join('annonces', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+                ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+                ->join('categories', function($join)
+                    {
+                        $join->on('categories.id', '=', 'sous_categories.categories_id');
+                    })
+                ->select('annonces.id',
+                            'annonces.titre',
+                            'annonces.description',
+                            'annonces.date',
+                            'annonces.type',
+                            'annonces.image_couverture',
+                            'annonces.lieu',
+                            'annonces.latitude',
+                            'annonces.longitude',
+                            'annonces.etablissement',
+                            'annonces.nom_etablissement',
+                            'annonces.etat',
+                            'annonces.sous_categories_id',
+                            'sous_categories.nom_sous_categorie',
+                            'categories.id',
+                            'categories.nomCategorie',
+                            'categories.image',
+                            'categories.titre',
+                            'annonces.utilisateurs_id',
+                            'utilisateurs.login',
+                            'utilisateurs.email',
+                )->get();
+
+                foreach ($annonces as $annonce) {
+                    
+                    return response([
+                        'code' => '200',
+                        'message' => 'success',
+                        'data' => $annonces
+                    ], 200);
+
+                }
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Identifiant incorrect',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
 
         }
         
@@ -253,8 +301,8 @@ class utilisateursController extends Controller
             
             return response([
                 'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
+                'message' => 'erreur lie au champs de saisie',
+                'data' => $erreur
             ], 202);
     
         }else {
@@ -268,6 +316,7 @@ class utilisateursController extends Controller
             if ($util) {
 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $util
                 ], 200);
@@ -277,7 +326,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'ajout',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -309,8 +358,8 @@ class utilisateursController extends Controller
             
             return response([
                 'code' => '001',
-                'message' => $erreur,
-                'info' => 'erreur lie au champs de saisie' 
+                'message' => 'erreur lie au champs de saisie',
+                'data' => $erreur
             ], 202);
     
         }else {
@@ -324,6 +373,7 @@ class utilisateursController extends Controller
             if ($util) {
 
                 return response([
+                    'code' => '200',
                     'message' => 'success',
                     'data' => $util
                 ], 200);
@@ -333,7 +383,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'ajout',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -346,7 +396,7 @@ class utilisateursController extends Controller
     /******* Modifier un utilisateur ******/ 
 
 
-    // Modifier tous les info du mobinaute (partie mobile)
+    // Modifier tous le mot de passe d'un mobinaute (partie mobile)
 
     public function putUtilisateurMobile(Request $request, $id){
 
@@ -369,6 +419,7 @@ class utilisateursController extends Controller
                 $validator = Validator::make($request->all(), [
 
                     'password' => 'required|unique:utilisateurs',
+                    'oldPassword' => 'required',
                     
                 ]);
         
@@ -379,22 +430,120 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '001',
                         'message' => $erreur,
-                        'info' => 'erreur lie au champs de saisie' 
+                        'data' => 'erreur lie au champs de saisie' 
                     ], 202);
             
                 }else {
-        
+
                     $Utilisateur = $request->all();
+
+                    if (!Hash::check($request->oldPassword, $donnees->password)) {
+
+                        return response([
+                            'code' => '001',
+                            'message' => 'oldPassword incorrect',
+                            'data' => null
+                        ], 404);
+
+                    }else {
+                                
+                        $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+                        
+                        $update = $donnees->update($Utilisateur);
+            
+                        if ($update) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'mot de passe modifié',
+                                'data' => $donnees 
+                            ], 200);
+            
+                        } else {
+                            
+                            return response([
+                                'code' => '005',
+                                'message' => 'echec lors de la modification',
+                                'data' => null
+                            ], 200);
+            
+                        }
+
+                    }
+                    
+                }
+    
+            } else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 200);
+            }
+            
+            
+        }else {
+
+            return response([
+                'code' => '005',
+                'message' => 'Veuillez vous connecter',
+                'data' => null
+            ], 200);
+
+        }
+
+    }
+
+
+    // Modifier le login d'un mobinaute (partie mobile)
+
+    public function putLoginMobile(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $idAuth = Auth::id();
+
+            $role = $user['role'];
+
+            $donnees = utilisateurs::findOrFail($id);
+
+            $idU = $donnees['id'];
+
+            if ( $idAuth == $idU) {
+
+                $validator = Validator::make($request->all(), [
+
+                    'login' => 'required|unique:utilisateurs'
+                    
+                ]);
         
-                    $Utilisateur['password'] = Hash::make($Utilisateur['password']);
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' =>  $erreur
+                    ], 202);
+            
+                }else {
+
+                    $Utilisateur = $request->all();
                     
                     $update = $donnees->update($Utilisateur);
         
                     if ($update) {
                         
                         return response([
-                            'message' => 'mot de passe modifié',
-                            'info' => $donnees 
+                            'code' => '200',
+                            'message' => 'succes',
+                            'data' => $donnees 
                         ], 200);
         
                     } else {
@@ -402,7 +551,7 @@ class utilisateursController extends Controller
                         return response([
                             'code' => '005',
                             'message' => 'echec lors de la modification',
-                            'info' => 'null' 
+                            'data' => null 
                         ], 200);
         
                     }
@@ -414,15 +563,22 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise',
-                    'info' => 'null' 
+                    'data' => null 
                 ], 200);
             }
             
             
+        }else {
+
+            return response([
+                'code' => '005',
+                'message' => 'Veuillez vous connecter',
+                'data' => null 
+            ], 200);
+
         }
 
     }
-
 
 
 
@@ -461,8 +617,8 @@ class utilisateursController extends Controller
         
                         return response([
                             'code' => '001',
-                            'message' => $erreur,
-                            'info' => 'erreur lie au champs de saisie' 
+                            'message' => 'erreur lie au champs de saisie',
+                            'data' => $erreur
                         ], 202);
                 
                     }else {
@@ -472,6 +628,7 @@ class utilisateursController extends Controller
                         if ($util) {
         
                             return response([
+                                'code' => '200',
                                 'message' => 'success',
                                 'data' => $Utilisateur
                             ], 200);
@@ -481,7 +638,7 @@ class utilisateursController extends Controller
                             return response([
                                 'code' => '005',
                                 'message' => 'Echec lors de la modification',
-                                'data' => 'null'
+                                'data' => null
                             ], 201);
         
                         }       
@@ -492,7 +649,7 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '001',
                         'message' => 'Acces non autorise, Vous netes pas le proprietaire du compte',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
                     
                 }
@@ -502,7 +659,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'Acces non autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -531,7 +688,7 @@ class utilisateursController extends Controller
 
             $idU = $donnees['id'];
 
-            if ( $idAuth == $idU && $role == 'administrateur') {
+            if ( ($idAuth == $idU && $role == 'administrateur') || $role == 'administrateur') {
 
                 $validator = Validator::make($request->all(), [
 
@@ -545,8 +702,8 @@ class utilisateursController extends Controller
         
                     return response([
                         'code' => '001',
-                        'message' => $erreur,
-                        'info' => 'erreur lie au champs de saisie' 
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' =>  $erreur
                     ], 202);
             
                 }else {
@@ -560,8 +717,9 @@ class utilisateursController extends Controller
                     if ($update) {
                         
                         return response([
+                            'code' => '200',
                             'message' => 'mot de passe modifié',
-                            'info' => $donnees 
+                            'data' => $donnees 
                         ], 200);
         
                     } else {
@@ -569,7 +727,7 @@ class utilisateursController extends Controller
                         return response([
                             'code' => '005',
                             'message' => 'echec lors de la modification',
-                            'info' => 'null' 
+                            'data' => null 
                         ], 200);
         
                     }
@@ -581,7 +739,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise',
-                    'info' => 'null' 
+                    'data' => null 
                 ], 200);
             }
             
@@ -619,8 +777,8 @@ class utilisateursController extends Controller
         
                     return response([
                         'code' => '001',
-                        'message' => $erreur,
-                        'info' => 'erreur lie au champs de saisie' 
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' => $erreur
                     ], 202);
             
                 }else {
@@ -642,8 +800,9 @@ class utilisateursController extends Controller
                         if ($update) {
                                 
                             return response([
-                                'message' => 'mot de passe modifié',
-                                'info' => $donnees 
+                                'code' => '200',                                
+                                'message' => 'succes',
+                                'data' => $donnees 
                             ], 200);
         
                         } else {
@@ -651,7 +810,7 @@ class utilisateursController extends Controller
                             return response([
                                 'code' => '005',
                                 'message' => 'echec lors de la modification',
-                                'info' => 'null' 
+                                'data' => null
                             ], 200);
         
                         }
@@ -661,7 +820,7 @@ class utilisateursController extends Controller
                         return response([
                             'code' => '001',
                             'message' => 'image nulle',
-                            'data' => 'null'
+                            'data' => null
                         ], 201);
         
                     }
@@ -673,7 +832,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise, vous n\'etes pas le proprietaire du compte',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -707,6 +866,7 @@ class utilisateursController extends Controller
         if ($commentaires) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $commentaires
             ], 200);
@@ -716,7 +876,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -734,6 +894,7 @@ class utilisateursController extends Controller
         if ($Notes) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $Notes
             ], 200);
@@ -743,7 +904,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -760,7 +921,7 @@ class utilisateursController extends Controller
             return response([
                 'code' => '001',
                 'message' => 'Valeur entree est incorrecte',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }else {
@@ -771,7 +932,7 @@ class utilisateursController extends Controller
 
             if ($role == 'administrateur') {
                 
-                $data = utilisateurs::where("login", "like", "%".$valeur."%" )
+                $data = utilisateurs::where('utilisateurs.actif', '=', true)->where("login", "like", "%".$valeur."%" )
                 ->orWhere("email", "like", "%".$valeur."%" )
                 ->orWhere("photo", "like", "%".$valeur."%" )
                 ->orWhere("role", "like", "%".$valeur."%" )
@@ -792,7 +953,7 @@ class utilisateursController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Acces nom autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }  
@@ -807,6 +968,25 @@ class utilisateursController extends Controller
     public function image($fileName){
         
         return response()->download(public_path('/utilisateurs/images/' . $fileName));
+
+    }
+
+
+    // supprimer un utilisateur
+
+    public function deleteUtilisateur($id){
+
+        $valeur = utilisateurs::findOrFail($id);
+
+        $valeur['actif'] = 0;
+
+        $modif = $valeur->update();
+
+        return response([
+            'code' => '200',
+            'message' => 'succes',
+            'data' => null
+        ], 201);
 
     }
 

@@ -171,4 +171,30 @@ class paysController extends Controller
 
 
 
+    // Supprimer un pays
+     
+    public function deletePays($id){
+
+        $delete = pays::findOrFail($id)->delete();
+
+        if ($delete) {
+
+            return response([
+                'code' => '200',
+                'message' => 'Suppression effectuée avec succes',
+                'data' => null
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
+    }
+
 }

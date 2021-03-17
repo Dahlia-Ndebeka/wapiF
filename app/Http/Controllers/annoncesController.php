@@ -42,7 +42,7 @@ class annoncesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -62,7 +62,8 @@ class annoncesController extends Controller
 
         // if ($id == true) {
             
-            $ets = annonces::from('annonces')->where('annonces.id', '=', $id)
+            $ets = annonces::from('annonces')
+            ->where('annonces.id', '=', $id)
             ->join('annonces_etablissements', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
             ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
             ->join('categories', function($join)
@@ -132,7 +133,7 @@ class annoncesController extends Controller
                 return response([
                     'code' => '004',
                     'message' => 'Identifiant incorrect',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -183,7 +184,7 @@ class annoncesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -253,7 +254,7 @@ class annoncesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -396,6 +397,7 @@ class annoncesController extends Controller
     public function Annonces(){
 
         $annonces = annonces::from('annonces')
+        ->where('annonces.actif', '=', true)
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
@@ -452,7 +454,9 @@ class annoncesController extends Controller
 
     public function AnnoncesPublier(){
 
-        $annonces = annonces::from('annonces')->where('etat', '=', true)
+        $annonces = annonces::from('annonces')
+        ->where('etat', '=', true)
+        ->where('annonces.actif', '=', true)
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
@@ -523,7 +527,7 @@ class annoncesController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }else {
@@ -609,7 +613,7 @@ class annoncesController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -632,7 +636,8 @@ class annoncesController extends Controller
 
         $annonces = annonces::from('annonces')
         ->where('annonces.id', '=', $id)
-        ->where('etat', '=', true)
+        // ->where('etat', '=', true)
+        ->where('annonces.actif', '=', true)
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
@@ -672,7 +677,7 @@ class annoncesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -686,6 +691,7 @@ class annoncesController extends Controller
     public function rechercheAnnonce($valeur){
 
         $data = annonces::where('etat', '=', true )
+                        ->where('annonces.actif', '=', true)
                         ->where("annonces.titre", "like", "%".$valeur."%" )
                         ->orWhere("description", "like", "%".$valeur."%" )
                         ->orWhere("etat", "like", "%".$valeur."%" )
@@ -751,35 +757,6 @@ class annoncesController extends Controller
     }
 
 
-    // Supprimer une annonce
-     
-    public function deleteAnnonce($id){
-
-        // $identifiant = annonces::findOrFail($id);
-
-        $delete = annonces::where('annonces.id', '=', $id)->delete();
-
-        if ($delete) {
-
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => 'null'
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
-        }
-        
-    }
-
-
     
     // Creer une annonce
 
@@ -797,7 +774,7 @@ class annoncesController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }else {
@@ -898,7 +875,7 @@ class annoncesController extends Controller
                                             return response([
                                                 'code' => '005',
                                                 'message' => 'Echec lors de l\'operation',
-                                                'data' => 'null'
+                                                'data' => null
                                             ], 201);
                     
                                         }
@@ -908,7 +885,7 @@ class annoncesController extends Controller
                                         return response([
                                             'code' => '005',
                                             'message' => "L'etablissement n'existe pas",
-                                            'data' => 'null'
+                                            'data' => null
                                         ], 201);
 
                                     }
@@ -945,7 +922,7 @@ class annoncesController extends Controller
                                             return response([
                                                 'code' => '005',
                                                 'message' => 'Echec lors de l\'operation',
-                                                'data' => 'null'
+                                                'data' => null
                                             ], 201);
                     
                                         }
@@ -955,7 +932,7 @@ class annoncesController extends Controller
                                         return response([
                                             'code' => '005',
                                             'message' => "L'etablissement n'existe pas",
-                                            'data' => 'null'
+                                            'data' => null
                                         ], 201);
 
                                     }
@@ -993,7 +970,7 @@ class annoncesController extends Controller
                                     return response([
                                         'code' => '005',
                                         'message' => 'Echec lors de l\'operation',
-                                        'data' => 'null'
+                                        'data' => null
                                     ], 201);
 
                                 }
@@ -1005,7 +982,7 @@ class annoncesController extends Controller
                                 return response([
                                     'code' => '200',
                                     'message' => $annonces,
-                                    'data' => 'null'
+                                    'data' => null
                                 ], 201);
                                 
                             }
@@ -1019,7 +996,7 @@ class annoncesController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -1051,7 +1028,7 @@ class annoncesController extends Controller
                 return response([
                     'code' => '001',
                     'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }else {
@@ -1164,7 +1141,7 @@ class annoncesController extends Controller
                                                     return response([
                                                         'code' => '005',
                                                         'message' => 'Echec lors de l\'operation',
-                                                        'data' => 'null'
+                                                        'data' => null
                                                     ], 201);
                             
                                                 }
@@ -1174,7 +1151,7 @@ class annoncesController extends Controller
                                                 return response([
                                                     'code' => '004',
                                                     'message' => "L'etablissement n'existe pas",
-                                                    'data' => 'null'
+                                                    'data' => null
                                                 ], 201);
                 
                                             }
@@ -1215,7 +1192,7 @@ class annoncesController extends Controller
                                                     return response([
                                                         'code' => '005',
                                                         'message' => 'Echec lors de l\'operation',
-                                                        'data' => 'null'
+                                                        'data' => null
                                                     ], 201);
                             
                                                 }
@@ -1225,7 +1202,7 @@ class annoncesController extends Controller
                                                 return response([
                                                     'code' => '004',
                                                     'message' => "L'etablissement n'existe pas",
-                                                    'data' => 'null'
+                                                    'data' => null
                                                 ], 201);
                 
                                             }
@@ -1264,7 +1241,7 @@ class annoncesController extends Controller
                                             return response([
                                                 'code' => '005',
                                                 'message' => 'Echec lors de l\'operation',
-                                                'data' => 'null'
+                                                'data' => null
                                             ], 201);
                     
                                         }
@@ -1276,7 +1253,7 @@ class annoncesController extends Controller
                                         return response([
                                             'code' => '200',
                                             'message' => $annonces,
-                                            'data' => 'null'
+                                            'data' => null
                                         ], 201);
                                         
                                     }
@@ -1385,7 +1362,7 @@ class annoncesController extends Controller
                                                     return response([
                                                         'code' => '005',
                                                         'message' => 'Echec lors de l\'operation',
-                                                        'data' => 'null'
+                                                        'data' => null
                                                     ], 201);
                             
                                                 }
@@ -1395,7 +1372,7 @@ class annoncesController extends Controller
                                                 return response([
                                                     'code' => '004',
                                                     'message' => "L'etablissement n'existe pas",
-                                                    'data' => 'null'
+                                                    'data' => null
                                                 ], 201);
 
                                             }
@@ -1436,7 +1413,7 @@ class annoncesController extends Controller
                                                     return response([
                                                         'code' => '005',
                                                         'message' => 'Echec lors de l\'operation',
-                                                        'data' => 'null'
+                                                        'data' => null
                                                     ], 201);
                             
                                                 }
@@ -1446,7 +1423,7 @@ class annoncesController extends Controller
                                                 return response([
                                                     'code' => '004',
                                                     'message' => "L'etablissement n'existe pas",
-                                                    'data' => 'null'
+                                                    'data' => null
                                                 ], 201);
 
                                             }
@@ -1485,7 +1462,7 @@ class annoncesController extends Controller
                                             return response([
                                                 'code' => '005',
                                                 'message' => 'Echec lors de l\'operation',
-                                                'data' => 'null'
+                                                'data' => null
                                             ], 201);
                     
                                         }
@@ -1497,7 +1474,7 @@ class annoncesController extends Controller
                                         return response([
                                             'code' => '200',
                                             'message' => $annonces,
-                                            'data' => 'null'
+                                            'data' => null
                                         ], 201);
                                         
                                     }
@@ -1526,6 +1503,54 @@ class annoncesController extends Controller
         
         
     }
+
+
+    // supprimer une annonce
+    
+    public function deleteAnnonce($id){
+
+        $valeur = annonces::findOrFail($id);
+
+        $valeur['actif'] = 0;
+
+        $modif = $valeur->update();
+
+        return response([
+            'code' => '200',
+            'message' => 'succes',
+            'data' => null
+        ], 201);
+
+    }
+
+
+    // Supprimer une annonce
+     
+    // public function deleteAnnonce($id){
+
+    //     // $identifiant = annonces::findOrFail($id);
+
+    //     $delete = annonces::where('annonces.id', '=', $id)->delete();
+
+    //     if ($delete) {
+
+    //         return response([
+    //             'code' => '200',
+    //             'message' => 'Suppression effectuée avec succes',
+    //             'data' => null
+    //         ], 200);
+
+    //     } else {
+
+    //         return response([
+    //             'code' => '004',
+    //             'message' => 'L\'identifiant incorrect',
+    //             'data' => null
+    //         ], 201);
+
+    //     }
+        
+    // }
     
 
 }
