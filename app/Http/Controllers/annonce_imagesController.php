@@ -112,8 +112,6 @@ class annonce_imagesController extends Controller
 
             if($request->hasFile('image')){
 
-                // $imageName = rand() . '.' . $request->file('image')->getClientOriginalExtension();
-
                 $fileName = $request->file('image')->getClientOriginalName();
 
                 $path = $img->move(public_path("/annonceImages/images/"), $fileName);
@@ -155,6 +153,7 @@ class annonce_imagesController extends Controller
 
     }
 
+    
 
     //Afficher les images annonces
 

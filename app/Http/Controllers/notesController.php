@@ -55,7 +55,7 @@ class notesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -102,7 +102,7 @@ class notesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -155,7 +155,7 @@ class notesController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Erreur lors de l\'operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -167,7 +167,7 @@ class notesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -193,7 +193,7 @@ class notesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -219,7 +219,7 @@ class notesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }

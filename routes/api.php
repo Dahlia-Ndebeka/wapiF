@@ -34,7 +34,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+
 Route::post('utilisateur', [utilisateursController::class, 'createUtilisateur']);
+Route::get('imageUtilisateur/{filename}', [utilisateursController::class, 'image']);
 Route::post('utilisateurAdmin', [utilisateursController::class, 'createUtilisateurAdministrateur']);
 Route::post("login", [authentificationsController::class, 'login']);
 
@@ -180,7 +182,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get("utilisateurAnnonces/{id}", [utilisateursController::class, 'Annonce']);
     Route::get("utilisateurCommentaire/{id}", [utilisateursController::class, 'Commentaires']);
     Route::get("utilisateurNote/{id}", [utilisateursController::class, 'Notes']);
-    Route::get('imageUtilisateur/{filename}', [utilisateursController::class, 'image']);
     Route::put('utilisateurAdmin/{id}', [utilisateursController::class, 'putUtilisateur']);
     // Modifier le login d'un mobinaute
     Route::put('utilisateurLogin/{id}', [utilisateursController::class, 'putLoginMobile']);
@@ -192,6 +193,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('categorie', [categoriesController::class, 'createCategorie']);
     Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
+    Route::delete('categorie/{id}', [categoriesController::class, 'deleteCategorie']);
 
 
 
@@ -199,6 +201,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('sousCategorie', [sous_categoriesController::class, 'createSousCategorie']);
     Route::put('sousCategorie/{id}', [sous_categoriesController::class, 'putSousCategorie']);
+    Route::delete('sousCategorie/{id}', [sous_categoriesController::class, 'deleteSousCategorie']);
     
 
 
@@ -207,6 +210,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('pays', [paysController::class, 'createPays']);
     Route::put('pays/{id}', [paysController::class, 'putPays']);
+    Route::delete('pays/{id}', [paysController::class, 'deletePays']);
 
 
 
@@ -214,6 +218,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('departement', [departementsController::class, 'createDepartement']);
     Route::put('departement/{id}', [departementsController::class, 'putDepartement']);
+    Route::delete('departement/{id}', [departementsController::class, 'deleteDepartement']);
     // Route::get('departementEts/{id}', [departementsController::class, 'Etablissements']);
 
 
@@ -222,6 +227,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('ville', [villesController::class, 'createVille']);
     Route::put('ville/{id}', [villesController::class, 'putVille']);
+    Route::delete('ville/{id}', [villesController::class, 'deleteVille']);
 
 
 
@@ -229,6 +235,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('arrondissement', [arrondissementsController::class, 'createArrondissement']);
     Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
+    Route::delete('arrondissement/{id}', [arrondissementsController::class, 'deleteArrondissement']);
 
 
 
@@ -246,6 +253,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('calendrier', [calendriersController::class, 'createCalendrier']);
     Route::put('calendrier/{id}', [calendriersController::class, 'putCalendrier']);
+    Route::delete('calendrier/{id}', [calendriersController::class, 'deleteCalendrier']);
 
 
 
@@ -264,6 +272,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('commentaire', [commentairesController::class, 'createCommentaire']);
     Route::put('commentaire/{id}', [commentairesController::class, 'putCommentaire']);
+    Route::delete('commentaire/{id}', [commentairesController::class, 'deleteCommentaire']);
 
 
 
@@ -271,6 +280,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
     Route::put('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
+    Route::delete('imageAnnonce/{id}', [annonce_imagesController::class, 'deleteAnnonceImage']);
     
 
 
@@ -282,6 +292,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
     Route::post('note', [notesController::class, 'createNote']);
     Route::put('note/{id}', [notesController::class, 'putNote']);
+    Route::delete('note/{id}', [notesController::class, 'deleteNote']);
 
 
 });

@@ -234,27 +234,28 @@ class etablissementsController extends Controller
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'etablissements.nombre_visite',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays')->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'etablissements.nombre_visite',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
 
         if ($ets) {
                     
@@ -308,27 +309,28 @@ class etablissementsController extends Controller
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'etablissements.nombre_visite',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays')->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'etablissements.nombre_visite',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
 
         foreach ($etablissement as $ets) {
 
@@ -339,23 +341,12 @@ class etablissementsController extends Controller
             ], 200);
             
         }
-        // if ($etablissement) {
-                    
-        //     return response([
-        //         'code' => '200',
-        //         'message' => 'success',
-        //         'data' => $etablissement
-        //     ], 200);
 
-        // } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
-        // }
+        return response([
+            'code' => '004',
+            'message' => 'Identifiant incorrect',
+            'data' => null
+        ], 201);
         
     }
 
@@ -366,59 +357,62 @@ class etablissementsController extends Controller
     public function rechercheEtablissement($valeur){
 
         $data = etablissements::where('etablissements.actif', '=', true)
-                            ->where("nom_etablissement", "like", "%".$valeur."%" )
-                            ->orWhere("adresse", "like", "%".$valeur."%" )
-                            ->orWhere("telephone", "like", "%".$valeur."%" )
-                            ->orWhere("description", "like", "%".$valeur."%" )
-                            ->orWhere("heure_ouverture", "like", "%".$valeur."%" )
-                            ->orWhere("heure_fermeture", "like", "%".$valeur."%" )
-                            ->orWhere("email", "like", "%".$valeur."%" )
-                            ->orWhere("boite_postale", "like", "%".$valeur."%" )
-                            ->orWhere("site_web", "like", "%".$valeur."%" )
-                            ->orWhere("logo", "like", "%".$valeur."%" )
-                            ->orWhere("latitude", "like", "%".$valeur."%" )
-                            ->orWhere("longitude", "like", "%".$valeur."%" )
-                            ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
-                            ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
-                            ->join('categories', function($join)
-                                {
-                                    $join->on('categories.id', '=', 'sous_categories.categories_id');
-                                })
-                            ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
-                            ->join('villes', function($join)
-                                {
-                                    $join->on('villes.id', '=', 'arrondissements.villes_id');
-                                })
-                            ->join('departements', function($join)
-                                {
-                                    $join->on('departements.id', '=', 'villes.departements_id');
-                                })
-                            ->join('pays', function($join)
-                                {
-                                    $join->on('pays.id', '=', 'departements.pays_id');
-                                })
-                            ->select('etablissements.id',
-                                        'etablissements.nom_etablissement',
-                                        'etablissements.adresse',
-                                        'etablissements.telephone',
-                                        'etablissements.description',
-                                        'etablissements.heure_ouverture',
-                                        'etablissements.heure_fermeture',
-                                        'etablissements.email',
-                                        'etablissements.boite_postale',
-                                        'etablissements.site_web',
-                                        'etablissements.logo',
-                                        'etablissements.latitude',
-                                        'etablissements.longitude',
-                                        'sous_categories.nom_sous_categorie',
-                                        'categories.nomCategorie',
-                                        'categories.image',
-                                        'categories.titre',
-                                        'arrondissements.libelle_arrondissement', 
-                                        'villes.libelle_ville', 
-                                        'departements.libelle_departement',
-                                        'pays.libelle_pays')
-                            ->get(); 
+        // ->where(function ($query) {
+        //     $query->where('etablissements.actif', '=', true);
+        // })
+        ->where("nom_etablissement", "like", "%".$valeur."%" )
+        ->orWhere("adresse", "like", "%".$valeur."%" )
+        ->orWhere("telephone", "like", "%".$valeur."%" )
+        ->orWhere("description", "like", "%".$valeur."%" )
+        ->orWhere("heure_ouverture", "like", "%".$valeur."%" )
+        ->orWhere("heure_fermeture", "like", "%".$valeur."%" )
+        ->orWhere("email", "like", "%".$valeur."%" )
+        ->orWhere("boite_postale", "like", "%".$valeur."%" )
+        ->orWhere("site_web", "like", "%".$valeur."%" )
+        ->orWhere("logo", "like", "%".$valeur."%" )
+        ->orWhere("latitude", "like", "%".$valeur."%" )
+        ->orWhere("longitude", "like", "%".$valeur."%" )
+        ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
+        ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.id',
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays')
+        ->get(); 
 
         foreach ($data as $datas) {
 
@@ -596,30 +590,28 @@ class etablissementsController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select(                    
-                'annonces.id',
-                'annonces.titre',
-                'annonces.description',
-                'annonces.date',
-                'annonces.type',
-                'annonces.image_couverture',
-                'annonces.lieu',
-                'annonces.latitude',
-                'annonces.longitude',
-                'annonces.etablissement',
-                'annonces.nom_etablissement',
-                'calendriers.date_evenement',
-                'calendriers.label',
-                'calendriers.heure_debut',
-                'calendriers.heure_fin',
-                'annonces.sous_categories_id',
-                'sous_categories.nom_sous_categorie',
-                'categories.nomCategorie',
-                'categories.image',
-                'categories.titre',
-                // 'etablissements.id',
-                    )->get();
-
-
+            'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            'calendriers.date_evenement',
+            'calendriers.label',
+            'calendriers.heure_debut',
+            'calendriers.heure_fin',
+            'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            // 'etablissements.id',
+        )->get();
 
         if ($annonces) {
             
@@ -648,18 +640,18 @@ class etablissementsController extends Controller
         $utilisateur = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
         ->join('utilisateurs', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
         ->select(                    
-                    'etablissements.utilisateurs_id',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    'utilisateurs.photo',
-                    'utilisateurs.role',
-                    'utilisateurs.date_creation',
-                    'utilisateurs.nomAdministrateur',
-                    'utilisateurs.prenomAdministrateur',
-                    'utilisateurs.telephoneAdministrateur',
-                    'etablissements.id',
-                    'etablissements.nom_etablissement',
-                    )->get();
+            'etablissements.utilisateurs_id',
+            'utilisateurs.login',
+            'utilisateurs.email',
+            'utilisateurs.photo',
+            'utilisateurs.role',
+            'utilisateurs.date_creation',
+            'utilisateurs.nomAdministrateur',
+            'utilisateurs.prenomAdministrateur',
+            'utilisateurs.telephoneAdministrateur',
+            'etablissements.id',
+            'etablissements.nom_etablissement',
+        )->get();
 
         if ($utilisateur == true) {
             
@@ -862,6 +854,7 @@ class etablissementsController extends Controller
                     'etablissements.latitude',
                     'etablissements.longitude',
                     'etablissements.nombre_visite',
+                    'sous_categories.id',
                     'sous_categories.nom_sous_categorie',
                     'categories.nomCategorie',
                     'categories.image',

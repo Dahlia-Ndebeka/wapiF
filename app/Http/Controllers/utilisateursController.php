@@ -153,27 +153,27 @@ class utilisateursController extends Controller
                         $join->on('pays.id', '=', 'departements.pays_id');
                     })
                 ->select('etablissements.id',
-                            'etablissements.nom_etablissement',
-                            'etablissements.adresse',
-                            'etablissements.telephone',
-                            'etablissements.description',
-                            'etablissements.heure_ouverture',
-                            'etablissements.heure_fermeture',
-                            'etablissements.email',
-                            'etablissements.boite_postale',
-                            'etablissements.site_web',
-                            'etablissements.logo',
-                            'etablissements.latitude',
-                            'etablissements.longitude',
-                            'sous_categories.nom_sous_categorie',
-                            'categories.nomCategorie',
-                            'arrondissements.libelle_arrondissement', 
-                            'villes.libelle_ville', 
-                            'departements.libelle_departement',
-                            'pays.libelle_pays',
-                            'utilisateurs.login',
-                            'utilisateurs.email')
-                ->get();
+                    'etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays',
+                    'utilisateurs.login',
+                    'utilisateurs.email'
+                )->get();
 
                 if ($etablissements) {
                     
@@ -227,26 +227,26 @@ class utilisateursController extends Controller
                         $join->on('categories.id', '=', 'sous_categories.categories_id');
                     })
                 ->select('annonces.id',
-                            'annonces.titre',
-                            'annonces.description',
-                            'annonces.date',
-                            'annonces.type',
-                            'annonces.image_couverture',
-                            'annonces.lieu',
-                            'annonces.latitude',
-                            'annonces.longitude',
-                            'annonces.etablissement',
-                            'annonces.nom_etablissement',
-                            'annonces.etat',
-                            'annonces.sous_categories_id',
-                            'sous_categories.nom_sous_categorie',
-                            'categories.id',
-                            'categories.nomCategorie',
-                            'categories.image',
-                            'categories.titre',
-                            'annonces.utilisateurs_id',
-                            'utilisateurs.login',
-                            'utilisateurs.email',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.etablissement',
+                    'annonces.nom_etablissement',
+                    'annonces.etat',
+                    'annonces.sous_categories_id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.id',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    'annonces.utilisateurs_id',
+                    'utilisateurs.login',
+                    'utilisateurs.email',
                 )->get();
 
                 foreach ($annonces as $annonce) {
@@ -289,7 +289,7 @@ class utilisateursController extends Controller
         $Utilisateur = $request->all();
 
         $validator = Validator::make($request->all(), [
-            
+
             'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
             'password' => 'required|unique:utilisateurs',
             'email' => 'required|email|unique:utilisateurs',
@@ -481,8 +481,7 @@ class utilisateursController extends Controller
                     'data' => null
                 ], 200);
             }
-            
-            
+    
         }else {
 
             return response([
@@ -566,7 +565,6 @@ class utilisateursController extends Controller
                     'data' => null 
                 ], 200);
             }
-            
             
         }else {
 
@@ -856,12 +854,11 @@ class utilisateursController extends Controller
                 $join->on('annonces.id', '=', 'commentaires.annonces_id');
             })
         ->select('commentaires.commentaire',
-                    'commentaires.created_at',
-                    'annonces.titre',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-
-                    )->get();
+            'commentaires.created_at',
+            'annonces.titre',
+            'utilisateurs.login',
+            'utilisateurs.email',
+        )->get();
 
         if ($commentaires) {
             

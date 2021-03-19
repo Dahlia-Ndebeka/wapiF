@@ -201,26 +201,26 @@ class departementsController extends Controller
             })
         
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.id', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays'
-                    )->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.id', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
 
         if ($ets) {
             
@@ -268,6 +268,5 @@ class departementsController extends Controller
         }
         
     }
-
 
 }

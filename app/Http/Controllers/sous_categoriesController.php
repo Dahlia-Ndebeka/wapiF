@@ -28,7 +28,7 @@ class sous_categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Table vide',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -41,9 +41,7 @@ class sous_categoriesController extends Controller
     public function sous_categoriesCat(){
 
         $sous_categories = sous_categories::join('categories', 'sous_categories.categories_id', '=' , 'categories.id')
-                                            ->select('sous_categories.id',
-                                            'sous_categories.nom_sous_categorie', 
-                                            'categories.nomCategorie')->get();
+        ->select('sous_categories.id', 'sous_categories.nom_sous_categorie', 'categories.nomCategorie')->get();
 
         if ($sous_categories) {
             
@@ -58,14 +56,12 @@ class sous_categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Table vide',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
         
     }
-
-
 
 
     // Consulter ou afficher une sous categorie
@@ -76,19 +72,19 @@ class sous_categoriesController extends Controller
 
         if ($sous_categories) {
             
-        return response([
-            'code' => '200',
-            'message' => 'success',
-            'data' => $sous_categories
-        ], 200);
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $sous_categories
+            ], 200);
 
         } else {
             
-        return response([
-            'message' => '004',
-            'message' => 'Indentifiant incorrect',
-            'data' => 'null'
-        ], 201);
+            return response([
+                'message' => '004',
+                'message' => 'Indentifiant incorrect',
+                'data' => null
+            ], 201);
         
         }
          
@@ -133,7 +129,7 @@ class sous_categoriesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Erreur lors de l\'operation',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
             }
             
@@ -182,7 +178,7 @@ class sous_categoriesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'operation',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
             }
              
@@ -200,6 +196,7 @@ class sous_categoriesController extends Controller
         if ($categories) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $categories
             ], 200);
@@ -209,7 +206,7 @@ class sous_categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -241,7 +238,7 @@ class sous_categoriesController extends Controller
     //         return response([
     //             'code' => '004',
     //             'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
-    //             'data' => 'null'
+    //             'data' => null
     //         ], 201);
     //     }
 
@@ -283,31 +280,32 @@ class sous_categoriesController extends Controller
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'etablissements.utilisateurs_id',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    'sous_categories.id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays')->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'etablissements.utilisateurs_id',
+            'utilisateurs.login',
+            'utilisateurs.email',
+            'sous_categories.id',
+            'sous_categories.nom_sous_categorie',
+            'categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
 
         if ($cats) {
             
@@ -321,7 +319,7 @@ class sous_categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -345,30 +343,28 @@ class sous_categoriesController extends Controller
             {
                 $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
             })
-        ->select(
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.utilisateurs_id',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    'annonces.etat',
-                    'sous_categories.id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    
-                    )->get();
+        ->select('annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.utilisateurs_id',
+            'utilisateurs.login',
+            'utilisateurs.email',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            'annonces.etat',
+            'sous_categories.id',
+            'sous_categories.nom_sous_categorie',
+            'categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+        )->get();
 
         if ($cats) {
             
@@ -382,7 +378,7 @@ class sous_categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }

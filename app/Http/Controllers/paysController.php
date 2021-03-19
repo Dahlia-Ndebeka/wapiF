@@ -54,7 +54,7 @@ class paysController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -98,7 +98,7 @@ class paysController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'operation',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -150,7 +150,7 @@ class paysController extends Controller
                     return response([
                         'message' => '005',
                         'message' => 'echec lors de l\'operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -162,7 +162,7 @@ class paysController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'Nul'
+                'data' => null
             ], 201);
 
         }

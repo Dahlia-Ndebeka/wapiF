@@ -32,7 +32,6 @@ class villesController extends Controller
                 'data' => 'null'
             ], 201);
 
-            
         }
     }
 
@@ -83,7 +82,6 @@ class villesController extends Controller
                 'message' => 'L\'un des champs est vide ou ne respecte pas le format',
                 'data' => $erreur
             ], 201);
-
 
         }else {
 
@@ -228,26 +226,26 @@ class villesController extends Controller
             })
         
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.id', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays'
-                    )->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'arrondissements.libelle_arrondissement', 
+            'villes.id', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
 
         if ($ets) {
             
@@ -295,6 +293,5 @@ class villesController extends Controller
         }
         
     }
-
 
 }

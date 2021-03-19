@@ -218,6 +218,4 @@ class calendriersController extends Controller
         
     }
 
-
-
 }

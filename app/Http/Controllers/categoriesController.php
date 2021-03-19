@@ -322,24 +322,25 @@ class categoriesController extends Controller
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays')->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays')
+        ->get();
 
         if ($cats) {
             
@@ -374,25 +375,26 @@ class categoriesController extends Controller
                 $join->on('sous_categories.id', '=', 'annonces.sous_categories_id');
             })
         ->select(
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    'annonces.etat',
-                    // 'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    )->get();
+            'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            'annonces.etat',
+            // 'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            'categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+        
+        )->get();
 
         if ($cats) {
             

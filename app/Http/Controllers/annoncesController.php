@@ -55,94 +55,78 @@ class annoncesController extends Controller
     // Affichage des etablissements a partir de l'annonce
 
     public function Etablissements($id){
-
-        // $ets = annonces::find($id)->Etablissements;
-
-        // $id = annonces::find($id);
-
-        // if ($id == true) {
             
-            $ets = annonces::from('annonces')
-            ->where('annonces.id', '=', $id)
-            ->join('annonces_etablissements', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
-            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-            ->join('categories', function($join)
-                {
-                    $join->on('categories.id', '=', 'sous_categories.categories_id');
-                })
-            ->join('etablissements', function($join)
-                {
-                    $join->on('etablissements.id', '=', 'annonces_etablissements.etablissements_id');
-                })
-            ->join('utilisateurs', function($join)
-                {
-                    $join->on('utilisateurs.id', '=', 'etablissements.utilisateurs_id');
-                })
-            ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
-            ->join('villes', function($join)
-                {
-                    $join->on('villes.id', '=', 'arrondissements.villes_id');
-                })
-            ->join('departements', function($join)
-                {
-                    $join->on('departements.id', '=', 'villes.departements_id');
-                })
-            ->join('pays', function($join)
-                {
-                    $join->on('pays.id', '=', 'departements.pays_id');
-                })
-            ->select('etablissements.id',
-                        'etablissements.nom_etablissement',
-                        'etablissements.adresse',
-                        'etablissements.telephone',
-                        'etablissements.description',
-                        'etablissements.heure_ouverture',
-                        'etablissements.heure_fermeture',
-                        'etablissements.email',
-                        'etablissements.boite_postale',
-                        'etablissements.site_web',
-                        'etablissements.logo',
-                        'etablissements.latitude',
-                        'etablissements.longitude',
-                        // 'etablissements.utilisateurs_id',
-                        // 'utilisateurs.login',
-                        // 'utilisateurs.email',
-                        // 'sous_categories.id',
-                        'sous_categories.nom_sous_categorie',
-                        // 'categories.id',
-                        'categories.nomCategorie',
-                        'categories.image',
-                        'categories.titre',
-                        'arrondissements.libelle_arrondissement', 
-                        'villes.libelle_ville', 
-                        'departements.libelle_departement',
-                        'pays.libelle_pays',
-                        'annonces.id',
-                        'annonces.titre',
-                        'annonces.description',)->get();
+        $ets = annonces::from('annonces')
+        ->where('annonces.id', '=', $id)
+        ->join('annonces_etablissements', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('etablissements', function($join)
+            {
+                $join->on('etablissements.id', '=', 'annonces_etablissements.etablissements_id');
+            })
+        ->join('utilisateurs', function($join)
+            {
+                $join->on('utilisateurs.id', '=', 'etablissements.utilisateurs_id');
+            })
+        ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
+        ->join('villes', function($join)
+            {
+                $join->on('villes.id', '=', 'arrondissements.villes_id');
+            })
+        ->join('departements', function($join)
+            {
+                $join->on('departements.id', '=', 'villes.departements_id');
+            })
+        ->join('pays', function($join)
+            {
+                $join->on('pays.id', '=', 'departements.pays_id');
+            })
+        ->select('etablissements.id',
+                    'etablissements.nom_etablissement',
+                    'etablissements.adresse',
+                    'etablissements.telephone',
+                    'etablissements.description',
+                    'etablissements.heure_ouverture',
+                    'etablissements.heure_fermeture',
+                    'etablissements.email',
+                    'etablissements.boite_postale',
+                    'etablissements.site_web',
+                    'etablissements.logo',
+                    'etablissements.latitude',
+                    'etablissements.longitude',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.id',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre',
+                    'arrondissements.libelle_arrondissement', 
+                    'villes.libelle_ville', 
+                    'departements.libelle_departement',
+                    'pays.libelle_pays',
+                    'annonces.id',
+                    'annonces.titre',
+                    'annonces.description',)->get();
 
-            if ($ets) {
-                
-                return response([
-                    'message' => 'success',
-                    'data' => $ets
-                ], 200);
+        if ($ets) {
+            
+            return response([
+                'message' => 'success',
+                'data' => $ets
+            ], 200);
 
-            } else {
+        } else {
 
-                return response([
-                    'code' => '004',
-                    'message' => 'Identifiant incorrect',
-                    'data' => null
-                ], 201);
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
 
-            }
-
-        // }else {
-        //     return 'Id incorrect';
-        // }
-
-        
+        }
         
     }
 
@@ -158,19 +142,19 @@ class annoncesController extends Controller
         $utilisateur = annonces::from('annonces')->where('annonces.id', '=', $id)
         ->join('utilisateurs', 'utilisateurs.id', '=', 'annonces.utilisateurs_id')
         ->select(
-                    // 'utilisateurs.id',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    'utilisateurs.photo',
-                    'utilisateurs.role',
-                    'utilisateurs.date_creation',
-                    'utilisateurs.nomAdministrateur',
-                    'utilisateurs.prenomAdministrateur',
-                    'utilisateurs.telephoneAdministrateur',
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    )->get();
+            'utilisateurs.id',
+            'utilisateurs.login',
+            'utilisateurs.email',
+            'utilisateurs.photo',
+            'utilisateurs.role',
+            'utilisateurs.date_creation',
+            'utilisateurs.nomAdministrateur',
+            'utilisateurs.prenomAdministrateur',
+            'utilisateurs.telephoneAdministrateur',
+            'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+        )->get();
 
         if ($utilisateur == true) {
             
@@ -226,21 +210,21 @@ class annoncesController extends Controller
                     $join->on('pays.id', '=', 'departements.pays_id');
                 })
             ->select(
-                    // 'calendriers.id',
-                    'calendriers.date',
-                    'calendriers.heure_debut',
-                    'calendriers.heure_fin',
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'etablissements.nom_etablissement',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays',
-                    )->get();
+                'calendriers.id',
+                'calendriers.date',
+                'calendriers.heure_debut',
+                'calendriers.heure_fin',
+                'annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'etablissements.nom_etablissement',
+                'arrondissements.libelle_arrondissement', 
+                'villes.libelle_ville', 
+                'departements.libelle_departement',
+                'pays.libelle_pays',
+            )->get();
 
         if ($calendrier) {
             
@@ -274,17 +258,17 @@ class annoncesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select(
-                    // 'sous_categories.id',
-                    'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    // 'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    )->get();
+            // 'sous_categories.id',
+            'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            // 'categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+        )->get();
 
         if ($SousCat) {
 
@@ -320,15 +304,15 @@ class annoncesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select(
-                    // 'categories.id',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'sous_categories.nom_sous_categorie',
-                    'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    )->get();
+            // 'categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+            'sous_categories.nom_sous_categorie',
+            'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+        )->get();
 
         if ($cat == true) {
 
@@ -360,15 +344,15 @@ class annoncesController extends Controller
         ->join('commentaires', 'commentaires.annonces_id', '=', 'annonces.id')
         ->join('utilisateurs', 'utilisateurs.id', '=', 'commentaires.utilisateurs_id')
         ->select(
-                    // 'annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'commentaires.id',
-                    'commentaires.commentaire',
-                    'commentaires.created_at',
-                    'utilisateurs.login',
-                    'utilisateurs.email',
-                    )->get();
+            // 'annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'commentaires.id',
+            'commentaires.commentaire',
+            'commentaires.created_at',
+            'utilisateurs.login',
+            'utilisateurs.email',
+        )->get();
 
         if ($com == true) {
 
@@ -406,27 +390,27 @@ class annoncesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select('annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    // 'annonces.etat',
-                    // 'annonces.actif',
-                    'calendriers.label',
-                    'calendriers.heure_debut',
-                    'calendriers.heure_fin',
-                    'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre'
-                    )->get();
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            // 'annonces.etat',
+            // 'annonces.actif',
+            'calendriers.label',
+            'calendriers.heure_debut',
+            'calendriers.heure_fin',
+            'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre'
+        )->get();
 
         if ($annonces) {
 
@@ -465,27 +449,27 @@ class annoncesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select('annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    // 'annonces.etat',
-                    // 'annonces.actif',
-                    'calendriers.label',
-                    'calendriers.heure_debut',
-                    'calendriers.heure_fin',
-                    'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre'
-                    )->get();
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            // 'annonces.etat',
+            // 'annonces.actif',
+            'calendriers.label',
+            'calendriers.heure_debut',
+            'calendriers.heure_fin',
+            'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre'
+        )->get();
 
         if ($annonces) {
 
@@ -518,6 +502,7 @@ class annoncesController extends Controller
             
             // utilisateur actuellement authentifie
             $user = Auth::user();
+
             $idAuth = Auth::id();
 
             $role = $user['role'];
@@ -619,7 +604,6 @@ class annoncesController extends Controller
                 }
 
             }
-
             
         }
 
@@ -645,24 +629,24 @@ class annoncesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         ->select('annonces.id',
-                    'annonces.titre',
-                    'annonces.description',
-                    'annonces.date',
-                    'annonces.type',
-                    'annonces.image_couverture',
-                    'annonces.lieu',
-                    'annonces.latitude',
-                    'annonces.longitude',
-                    'annonces.etablissement',
-                    'annonces.nom_etablissement',
-                    // 'annonces.etat',
-                    // 'annonces.actif',
-                    'annonces.sous_categories_id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre'
-                    )->get();
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.etablissement',
+            'annonces.nom_etablissement',
+            // 'annonces.etat',
+            // 'annonces.actif',
+            'annonces.sous_categories_id',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre'
+        )->get();
 
         if ($annonces) {
             
@@ -691,41 +675,40 @@ class annoncesController extends Controller
     public function rechercheAnnonce($valeur){
 
         $data = annonces::where('etat', '=', true )
-                        ->where('annonces.actif', '=', true)
-                        ->where("annonces.titre", "like", "%".$valeur."%" )
-                        ->orWhere("description", "like", "%".$valeur."%" )
-                        ->orWhere("etat", "like", "%".$valeur."%" )
-                        ->orWhere("date", "like", "%".$valeur."%" )
-                        ->orWhere("type", "like", "%".$valeur."%" )
-                        ->orWhere("image_couverture", "like", "%".$valeur."%" )
-                        ->orWhere("lieu", "like", "%".$valeur."%" )
-                        ->orWhere("nom_etablissement", "like", "%".$valeur."%" )
-                        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-                        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-                        ->join('categories', function($join)
-                            {
-                                $join->on('categories.id', '=', 'sous_categories.categories_id');
-                            })
-                        ->select('annonces.id',
-                                    'annonces.titre',
-                                    'annonces.description',
-                                    'annonces.date',
-                                    'annonces.type',
-                                    'annonces.image_couverture',
-                                    'annonces.lieu',
-                                    'annonces.latitude',
-                                    'annonces.longitude',
-                                    'annonces.etablissement',
-                                    'annonces.nom_etablissement',
-                                    // 'annonces.etat',
-                                    // 'annonces.actif',
-                                    'annonces.sous_categories_id',
-                                    'sous_categories.nom_sous_categorie',
-                                    'categories.nomCategorie',
-                                    'categories.image',
-                                    'categories.titre'
-                                    )
-                        ->get();
+            ->where('annonces.actif', '=', true)
+            ->where("annonces.titre", "like", "%".$valeur."%" )
+            ->orWhere("description", "like", "%".$valeur."%" )
+            ->orWhere("etat", "like", "%".$valeur."%" )
+            ->orWhere("date", "like", "%".$valeur."%" )
+            ->orWhere("type", "like", "%".$valeur."%" )
+            ->orWhere("image_couverture", "like", "%".$valeur."%" )
+            ->orWhere("lieu", "like", "%".$valeur."%" )
+            ->orWhere("nom_etablissement", "like", "%".$valeur."%" )
+            ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.etablissement',
+                'annonces.nom_etablissement',
+                // 'annonces.etat',
+                // 'annonces.actif',
+                'annonces.sous_categories_id',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'categories.image',
+                'categories.titre')
+            ->get();
 
         if ($data == true) {
             
@@ -1018,7 +1001,9 @@ class annoncesController extends Controller
         if (Auth::check()) {
             
             // utilisateur actuellement authentifie
+
             $user = Auth::user();
+
             $idAuth = Auth::id();
 
             $role = $user['role'];
@@ -1389,7 +1374,6 @@ class annoncesController extends Controller
                         
                                                 $nomEts = $data['nom_etablissement'];
                         
-                            
                                                 $id1 = $result->id;
                             
                                                 $id2 = $annonces['id'];
@@ -1487,7 +1471,7 @@ class annoncesController extends Controller
                             
                             return response([
                                 'code' => '005',
-                                'message' => 'Vous ne pouvez pas effectuer cette operation. Acces interdit',
+                                'message' => 'Acces non autorise',
                                 'data' => $erreur
                             ], 201);
 
