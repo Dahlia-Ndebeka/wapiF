@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\annonces;
 use App\Models\annonces_etablissements;
 use App\Models\etablissements;
+use App\Models\utilisateurs;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -55,6 +56,13 @@ class annoncesController extends Controller
     // Affichage des etablissements a partir de l'annonce
 
     public function Etablissements($id){
+
+        if (condition) {
+            # code...
+        } else {
+            # code...
+        }
+        
             
         $ets = annonces::from('annonces')
         ->where('annonces.id', '=', $id)
@@ -380,10 +388,8 @@ class annoncesController extends Controller
 
     public function Annonces(){
 
-        $annonces = annonces::from('annonces')
-        ->where('annonces.actif', '=', true)
+        $annonces = annonces::where('annonces.actif', '=', true)
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
@@ -398,13 +404,7 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.etablissement',
             'annonces.nom_etablissement',
-            // 'annonces.etat',
-            // 'annonces.actif',
-            'calendriers.label',
-            'calendriers.heure_debut',
-            'calendriers.heure_fin',
             'annonces.sous_categories_id',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
@@ -413,7 +413,7 @@ class annoncesController extends Controller
         )->get();
 
         if ($annonces) {
-
+            
             return response([
                 'code' => '200',
                 'message' => 'success',
@@ -421,11 +421,11 @@ class annoncesController extends Controller
             ], 200);
 
         }else {
-
+            
             return response([
-                'code' => '005',
-                'message' => 'La table est vide',
-                'data' => $annonces
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
             ], 201);
 
         }
@@ -438,11 +438,9 @@ class annoncesController extends Controller
 
     public function AnnoncesPublier(){
 
-        $annonces = annonces::from('annonces')
-        ->where('etat', '=', true)
+        $annonces = annonces::where('etat', '=', true)
         ->where('annonces.actif', '=', true)
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
@@ -457,13 +455,7 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.etablissement',
             'annonces.nom_etablissement',
-            // 'annonces.etat',
-            // 'annonces.actif',
-            'calendriers.label',
-            'calendriers.heure_debut',
-            'calendriers.heure_fin',
             'annonces.sous_categories_id',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
@@ -472,7 +464,7 @@ class annoncesController extends Controller
         )->get();
 
         if ($annonces) {
-
+            
             return response([
                 'code' => '200',
                 'message' => 'success',
@@ -480,11 +472,11 @@ class annoncesController extends Controller
             ], 200);
 
         }else {
-
+            
             return response([
-                'code' => '005',
-                'message' => 'La table est vide',
-                'data' => $annonces
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
             ], 201);
 
         }
@@ -548,6 +540,12 @@ class annoncesController extends Controller
                             }else {
 
                                 $publier = $annonces->update($data);
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'succes',
+                                    'data' => $annonces
+                                ], 200);
                             }
                             
                         } elseif ($role == 'administrateur') {
@@ -571,6 +569,12 @@ class annoncesController extends Controller
                             }else {
 
                                 $publier = $annonces->update($data);
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'succes',
+                                    'data' => $annonces
+                                ], 200);
                             }
 
                         }else {
@@ -616,53 +620,109 @@ class annoncesController extends Controller
 
     public function getAnnonce($id){
 
-        // $annonces = annonces::find($id); 
+        $datas = annonces::findOrFail($id);
 
-        $annonces = annonces::from('annonces')
-        ->where('annonces.id', '=', $id)
-        // ->where('etat', '=', true)
-        ->where('annonces.actif', '=', true)
-        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-        ->join('categories', function($join)
-            {
-                $join->on('categories.id', '=', 'sous_categories.categories_id');
-            })
-        ->select('annonces.id',
-            'annonces.titre',
-            'annonces.description',
-            'annonces.date',
-            'annonces.type',
-            'annonces.image_couverture',
-            'annonces.lieu',
-            'annonces.latitude',
-            'annonces.longitude',
-            'annonces.etablissement',
-            'annonces.nom_etablissement',
-            // 'annonces.etat',
-            // 'annonces.actif',
-            'annonces.sous_categories_id',
-            'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie',
-            'categories.image',
-            'categories.titre'
-        )->get();
+        $etablissement = $datas['nom_etablissement'];
 
-        if ($annonces) {
+        if ($etablissement == true) {
             
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $annonces
-            ], 200);
+            $annonces = annonces::where('annonces.id', '=', $id)
+            ->where('etat', '=', true)
+            ->where('annonces.actif', '=', true)
+            ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+            ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.nom_etablissement',
+                'annonces.sous_categories_id',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'categories.image',
+                'categories.titre',
+                'calendriers.id',
+                'calendriers.date_evenement',
+                'calendriers.heure_debut',
+                'calendriers.heure_fin',
+            )->get();
 
-        }else {
+            if ($annonces) {
+                
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonces
+                ], 200);
+
+            }else {
+                
+                return response([
+                    'code' => '004',
+                    'message' => 'Identifiant incorrect',
+                    'data' => null
+                ], 201);
+
+            }
+
+        } else {
             
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
+            $annonces = annonces::where('annonces.id', '=', $id)
+            // ->whereColumn([
+            //     ['annonces.actif', '=', true],
+            //     ['annonces.etat', '=', true],
+            // ])
+            ->where('etat', '=', true)
+            ->where('annonces.actif', '=', true)
+            ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.sous_categories_id',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'categories.image',
+                'categories.titre'
+            )->get();
+
+            if ($annonces) {
+                
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonces
+                ], 200);
+
+            }else {
+                
+                return response([
+                    'code' => '004',
+                    'message' => 'Identifiant incorrect',
+                    'data' => null
+                ], 201);
+
+            }
 
         }
 
@@ -699,10 +759,7 @@ class annoncesController extends Controller
                 'annonces.lieu',
                 'annonces.latitude',
                 'annonces.longitude',
-                'annonces.etablissement',
                 'annonces.nom_etablissement',
-                // 'annonces.etat',
-                // 'annonces.actif',
                 'annonces.sous_categories_id',
                 'sous_categories.nom_sous_categorie',
                 'categories.nomCategorie',
@@ -710,7 +767,7 @@ class annoncesController extends Controller
                 'categories.titre')
             ->get();
 
-        if ($data == true) {
+        if ($data) {
             
             return response([
                 'code' => '200',
@@ -747,794 +804,727 @@ class annoncesController extends Controller
 
         if (Auth::check()) {
             
-            // utilisateur actuellement authentifie
             $user = Auth::user();
+
+            $idUser = Auth::id();
 
             $role = $user['role'];
 
-            if ($role == null) {
+            if ($role == 'administrateur' || $role == 'mobinaute') {
 
-                return response([
-                    'code' => '001',
-                    'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => null
-                ], 201);
+                $data = $request->all();
 
-            }else {
+                $data['utilisateurs_id'] = $idUser;
+                $data['date'] = date_create(now());
 
-                if ($role == 'administrateur' || $role == 'mobinaute') {
+                $validator = Validator::make($data, [
+                    'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
+                    'description' => 'required',
+                    'type' => 'required',
+                    'sous_categories_id' => 'required',
+                ]);
 
-                    $data = $request->all();
+                if ($validator->fails()) {
 
-                    $valeur = $data['etablissement'];
-
-                    $validator = Validator::make($data, [
-                        'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
-                        'description' => 'required',
-                        'date' => 'required|date',
-                        'type' => 'required',
-                        'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                        'lieu' => 'required',
-                        'etablissement'=> 'required',
-                        'etat',
-                        'actif',
-                        'utilisateurs_id' => 'required',
-                        'sous_categories_id' => 'required',
-                        'calendriers_id' => 'required',
-                    ]);
-
-                    if ($validator->fails()) {
-
-                        $erreur = $validator->errors();
-                        
-                        return response([
-                            'code' => '001',
-                            'message' => 'L\'un des champs est vide ou ne respecte pas au format',
-                            'data' => $erreur
-                        ], 201);
-
-                    }else {
-
-                        if ($valeur == true) {
-
-                            $validator = Validator::make($request->all(), [
-
-                                'nom_etablissement' => 'required',
-                            ]);
-
-                            if ($validator->fails()) {
-
-                                $erreur = $validator->errors();
-                                
-                                return response([
-                                    'code' => '001',
-                                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                                    'data' => $erreur
-                                ], 201);
+                    $erreur = $validator->errors();
                     
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+
+                    $type = $data['type'];
+
+                    if ($type == "evenement") {
+
+                        $validator = Validator::make($data, [
+                            'calendriers_id' => 'required',
+                        ]);
+
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
+                            
+                            return response([
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                                'data' => $erreur
+                            ], 201);
+        
+                        }else {
+                            
+                            $annonces = annonces::create($data);
+
+                            if ($annonces) {
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $annonces
+                                ], 200);
+
                             }else {
 
-                                $img = $request->file('image_couverture');
-
-                                if($request->hasFile('image_couverture')){
-                
-                                    $fileName = $request->file('image_couverture')->getClientOriginalName();
-
-                                    $path = $img->move(public_path("/annonces/images/"), $fileName);
-
-                                    $photoURL = url('/annonces/images/'.$fileName);
-
-                                    $data['image_couverture'] = $fileName;
-
-                                    // Dim soir
-
-                                    $nomEts = $data['nom_etablissement'];
-
-                                    $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
-
-                                    if ($result == true) {
-                                        
-                                        $annonces = annonces::create($data);
-
-                                        $id1 = $result->id;
-                
-                                        $id2 = $annonces['id'];
-                    
-                                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                            'etablissements_id' => $id1,
-                                            'annonces_id' => $id2,
-                                        ]);
-                    
-                                        if ($annonces) {
-                    
-                                            return response([
-                                                'code' => '200',
-                                                'message' => 'success',
-                                                'data' => $annonces
-                                            ], 200);
-                    
-                                        }else {
-                    
-                                            return response([
-                                                'code' => '005',
-                                                'message' => 'Echec lors de l\'operation',
-                                                'data' => null
-                                            ], 201);
-                    
-                                        }
-
-                                    } else {
-
-                                        return response([
-                                            'code' => '005',
-                                            'message' => "L'etablissement n'existe pas",
-                                            'data' => null
-                                        ], 201);
-
-                                    }
-                
-                                }else {
-
-                                    $nomEts = $data['nom_etablissement'];
-
-                                    $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
-
-                                    if ($result == true) {
-                                        
-                                        $annonces = annonces::create($data);
-
-                                        $id1 = $result->id;
-                
-                                        $id2 = $annonces['id'];
-                    
-                                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                            'etablissements_id' => $id1,
-                                            'annonces_id' => $id2,
-                                        ]);
-                    
-                                        if ($annonces) {
-                    
-                                            return response([
-                                                'code' => '200',
-                                                'message' => 'success',
-                                                'data' => $annonces
-                                            ], 200);
-                    
-                                        }else {
-                    
-                                            return response([
-                                                'code' => '005',
-                                                'message' => 'Echec lors de l\'operation',
-                                                'data' => null
-                                            ], 201);
-                    
-                                        }
-
-                                    } else {
-
-                                        return response([
-                                            'code' => '005',
-                                            'message' => "L'etablissement n'existe pas",
-                                            'data' => null
-                                        ], 201);
-
-                                    }
-                
-                                } 
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'Echec lors de l\'operation',
+                                    'data' => null
+                                ], 201);
 
                             }
 
-                        } else {
+                        }
+
+                    }
+
+                    $annonces = annonces::create($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonces
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+
+    }
+
+
+    // Creer une annonce liée à un établissement
+
+    public function createAnnonceEtablissement(Request $request){
+
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            if ($role == 'administrateur') {
+
+                $data = $request->all();
+
+                $data['utilisateurs_id'] = $idUser;
+
+                $data['date'] = date_create(now());
+
+                $validator = Validator::make($data, [
+                    'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
+                    'description' => 'required',
+                    'type' => 'required',
+                    'nom_etablissement' => 'required',
+                    'sous_categories_id' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+
+                    $type = $data['type'];
+
+                    if ($type == "evenement") {
+
+                        $validator = Validator::make($data, [
+                            'calendriers_id' => 'required',
+                        ]);
+
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
                             
-                            $img = $request->file('image_couverture');
+                            return response([
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                                'data' => $erreur
+                            ], 201);
+        
+                        }else {
+                            
+                            $nomEts = $data['nom_etablissement'];
 
-                            if($request->hasFile('image_couverture')){
+                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
 
-                                $fileName = $request->file('image_couverture')->getClientOriginalName();
-
-                                $path = $img->move(public_path("/annonces/images/"), $fileName);
-
-                                $photoURL = url('/annonces/images/'.$fileName);
-
-                                $data['image_couverture'] = $imageName;
-
+                            if ($result == true) {
+                                
                                 $annonces = annonces::create($data);
 
+                                $id1 = $result->id;
+        
+                                $id2 = $annonces['id'];
+            
+                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                                    'etablissements_id' => $id1,
+                                    'annonces_id' => $id2,
+                                ]);
+            
                                 if ($annonces) {
-
+            
                                     return response([
                                         'code' => '200',
                                         'message' => 'success',
                                         'data' => $annonces
                                     ], 200);
-
+            
                                 }else {
-
+            
                                     return response([
                                         'code' => '005',
                                         'message' => 'Echec lors de l\'operation',
                                         'data' => null
                                     ], 201);
-
+            
                                 }
 
-                            }else {
-
-                                $annonces = annonces::create($data);
+                            } else {
 
                                 return response([
-                                    'code' => '200',
-                                    'message' => $annonces,
+                                    'code' => '005',
+                                    'message' => "L'etablissement n'existe pas",
                                     'data' => null
                                 ], 201);
-                                
+
                             }
 
                         }
-                        
+
                     }
 
-                }else {
+                    $nomEts = $data['nom_etablissement'];
 
-                    return response([
-                        'code' => '005',
-                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
-                        'data' => null
-                    ], 201);
+                    $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+
+                    if ($result == true) {
+                        
+                        $annonces = annonces::create($data);
+
+                        $id1 = $result->id;
+
+                        $id2 = $annonces['id'];
+    
+                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                            'etablissements_id' => $id1,
+                            'annonces_id' => $id2,
+                        ]);
+    
+                        if ($annonces) {
+    
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonces
+                            ], 200);
+    
+                        }else {
+    
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+    
+                        }
+
+                    } else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => "L'etablissement n'existe pas",
+                            'data' => null
+                        ], 201);
+
+                    }
 
                 }
 
-            }
-            
-        }
+            }else {
 
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
 
     }
 
 
 
-    // Modifier annonce
+    // Ajouter ou modifier l'image d'une annonce
 
-    public function putAnnonce(Request $request, $id){
-
+    public function createImageAnnonce(Request $request, $id)
+    {
 
         if (Auth::check()) {
             
             // utilisateur actuellement authentifie
-
             $user = Auth::user();
 
             $idAuth = Auth::id();
 
-            $role = $user['role'];
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idAuth)->addSelect('id')->first();
 
-            if ($role == null) {
+            $idU = $donnees['id'];
 
-                return response([
-                    'code' => '001',
-                    'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => null
-                ], 201);
+            if (($idAuth == $idU) || $role == "administrateur") {
+
+                $data = annonces::findOrFail($id);
+
+                $imageAnnonce = $request->all();
+
+                $validator = Validator::make($imageAnnonce, [
+            
+                    'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' => $erreur
+                    ], 202);
+            
+                }else {
+
+                    $img = $request->file('image_couverture');
+
+                    if($request->hasFile('image_couverture')){
+
+                        $fileName = $request->file('image_couverture')->getClientOriginalName();
+
+                        $path = $img->move(public_path("/annonces/images/"), $fileName);
+
+                        $photoURL = url('/annonces/images/'.$fileName);
+
+                        $imageAnnonce['image_couverture'] = $fileName;
+
+                        $annonces = $data->update($imageAnnonce);
+
+                        if ($annonces) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $data
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+
+                        }
+        
+                    }else {
+        
+                        return response([
+                            'code' => '001',
+                            'message' => 'image nulle',
+                            'data' => null
+                        ], 201);
+        
+                    }
+        
+                }
 
             }else {
 
-                // On verifie le role de l'utilisateur connecte
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
 
-                if ($role == 'administrateur' || $role == 'mobinaute') {
+            }
+            
+        }
 
-                    $identifiant = annonces::findOrFail($id);
+    }
 
-                    if ($identifiant == true) {
-                        
-                        $idU = $identifiant['utilisateurs_id'];
 
-                        if ($role == 'mobinaute' && $idU == $idAuth) {
-                            
-                            $valeur = $data['etablissement'];
 
-                            $validator = Validator::make($data, [
-                                'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
-                                'description' => 'required',
-                                'date' => 'required',
-                                'type' => 'required',
-                                'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                                'lieu' => 'required',
-                                'latitude',
-                                'longitude',
-                                'etablissement'=> 'required',
-                                'etat',
-                                'actif',
-                                'utilisateurs_id' => 'required',
-                                'sous_categories_id' => 'required',
-                                'calendriers_id' => 'required',
-                            ]);
-                    
-                            if ($validator->fails()) {
-                    
-                                $erreur = $validator->errors();
-                                
-                                return response([
-                                    'code' => '001',
-                                    'message' => 'L\'un des champs est vide ou ne respecte pas au format',
-                                    'data' => $erreur
-                                ], 201);
-                    
-                            }else {
-                    
-                                if ($valeur == true) {
-                    
-                                    $validator = Validator::make($request->all(), [
-                    
-                                        'nom_etablissement' => 'required',
-                                    ]);
-                    
-                                    if ($validator->fails()) {
-                    
-                                        $erreur = $validator->errors();
-                                        
-                                        return response([
-                                            'code' => '001',
-                                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                                            'data' => $erreur
-                                        ], 201);
-                            
-                                    }else {
-                    
-                                        $img = $request->file('image_couverture');
-                    
-                                        if($request->hasFile('image_couverture')){
-                        
-                                            $fileName = $request->file('image_couverture')->getClientOriginalName();
-                
-                                            $path = $img->move(public_path("/annonces/images/"), $fileName);
-                
-                                            $photoURL = url('/annonces/images/'.$fileName);
-                        
-                                            $data['image_couverture'] = $imageName;
-                
-                                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
-                
-                                            if ($result == true) {
-                                                
-                                                $annonces = $identifiant->update($data);
-                    
-                                                // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
-                        
-                                                $nomEts = $data['nom_etablissement'];
-                        
-                            
-                                                $id1 = $result->id;
-                            
-                                                $id2 = $annonces['id'];
-                            
-                                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                                    'etablissements_id' => $id1,
-                                                    'annonces_id' => $id2,
-                                                ]);
-                            
-                                                if ($annonces) {
-                            
-                                                    return response([
-                                                        'code' => '200',
-                                                        'message' => 'success',
-                                                        'data' => $annonces,
-                                                        'url' => $photoURL
-                                                    ], 200);
-                            
-                                                }else {
-                            
-                                                    return response([
-                                                        'code' => '005',
-                                                        'message' => 'Echec lors de l\'operation',
-                                                        'data' => null
-                                                    ], 201);
-                            
-                                                }
-                
-                                            } else {
-                
-                                                return response([
-                                                    'code' => '004',
-                                                    'message' => "L'etablissement n'existe pas",
-                                                    'data' => null
-                                                ], 201);
-                
-                                            }
-                        
-                                        }else {
-                
-                                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
-                
-                                            if ($result == true) {
-                                                
-                                                $annonces = $identifiant->update($data);
-                    
-                                                // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
-                        
-                                                $nomEts = $data['nom_etablissement'];
-                        
-                            
-                                                $id1 = $result->id;
-                            
-                                                $id2 = $annonces['id'];
-                            
-                                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                                    'etablissements_id' => $id1,
-                                                    'annonces_id' => $id2,
-                                                ]);
-                            
-                                                if ($annonces) {
-                            
-                                                    return response([
-                                                        'code' => '200',
-                                                        'message' => 'success',
-                                                        'data' => $annonces,
-                                                        'url' => $photoURL
-                                                    ], 200);
-                            
-                                                }else {
-                            
-                                                    return response([
-                                                        'code' => '005',
-                                                        'message' => 'Echec lors de l\'operation',
-                                                        'data' => null
-                                                    ], 201);
-                            
-                                                }
-                
-                                            } else {
-                
-                                                return response([
-                                                    'code' => '004',
-                                                    'message' => "L'etablissement n'existe pas",
-                                                    'data' => null
-                                                ], 201);
-                
-                                            }
-                        
-                                        } 
-                    
-                                    }
-                    
-                                } else {
-                                    
-                                    $img = $request->file('image_couverture');
-                    
-                                    if($request->hasFile('image_couverture')){
-                    
-                                        $fileName = $request->file('image_couverture')->getClientOriginalName();
-                
-                                        $path = $img->move(public_path("/annonces/images/"), $fileName);
-                
-                                        $photoURL = url('/annonces/images/'.$fileName);
-                    
-                                        $data['image_couverture'] = $imageName;
-                    
-                                        $annonces = $identifiant->update($data);
-                    
-                                        if ($annonces) {
-                    
-                                            return response([
-                                                'code' => '200',
-                                                'message' => 'success',
-                                                'data' => $annonces,
-                                                'url' => $photoURL
-                                            ], 200);
-                    
-                                        }else {
-                    
-                                            return response([
-                                                'code' => '005',
-                                                'message' => 'Echec lors de l\'operation',
-                                                'data' => null
-                                            ], 201);
-                    
-                                        }
-                    
-                                    }else {
-                    
-                                        $annonces = $identifiant->update($data);
-                    
-                                        return response([
-                                            'code' => '200',
-                                            'message' => $annonces,
-                                            'data' => null
-                                        ], 201);
-                                        
-                                    }
-                    
-                                }
-                                 
-                            }
-                            
-                        } elseif ($role == 'administrateur') {
 
-                            $data = $request->all();
+    // Modifier une annonce creer par un mobinaute
 
-                            $valeur = $data['etablissement'];
+    public function putAnnonce(Request $request, $id){
+        
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-                            $validator = Validator::make($data, [
-                                'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
-                                'description' => 'required',
-                                'date' => 'required',
-                                'type' => 'required',
-                                'image_couverture' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                                'lieu' => 'required',
-                                'latitude',
-                                'longitude',
-                                'etablissement'=> 'required',
-                                'etat',
-                                'actif',
-                                'utilisateurs_id' => 'required',
-                                'sous_categories_id' => 'required',
-                                'calendriers_id' => 'required',
-                            ]);
-                    
-                            if ($validator->fails()) {
-                    
-                                $erreur = $validator->errors();
-                                
-                                return response([
-                                    'code' => '001',
-                                    'message' => 'L\'un des champs est vide ou ne respecte pas au format',
-                                    'data' => $erreur
-                                ], 201);
-                    
-                            }else {
-                    
-                                if ($valeur == true) {
-                    
-                                    $validator = Validator::make($request->all(), [
-                    
-                                        'nom_etablissement' => 'required',
-                                    ]);
-                    
-                                    if ($validator->fails()) {
-                    
-                                        $erreur = $validator->errors();
-                                        
-                                        return response([
-                                            'code' => '001',
-                                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                                            'data' => $erreur
-                                        ], 201);
-                            
-                                    }else {
-                    
-                                        $img = $request->file('image_couverture');
-                    
-                                        if($request->hasFile('image_couverture')){
-                        
-                                            $fileName = $request->file('image_couverture')->getClientOriginalName();
+            $idUser = Auth::id();
 
-                                            $path = $img->move(public_path("/annonces/images/"), $fileName);
+            $role = $user['role'];
 
-                                            $photoURL = url('/annonces/images/'.$fileName);
-                        
-                                            $data['image_couverture'] = $imageName;
+            $annonce = annonces::findOrFail($id);
 
-                                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idUser)->addSelect('id')->first();
 
-                                            if ($result == true) {
-                                                
-                                                $annonces = $identifiant->update($data);
-                    
-                                                // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
-                        
-                                                $nomEts = $data['nom_etablissement'];
-                        
-                            
-                                                $id1 = $result->id;
-                            
-                                                $id2 = $annonces['id'];
-                            
-                                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                                    'etablissements_id' => $id1,
-                                                    'annonces_id' => $id2,
-                                                ]);
-                            
-                                                if ($annonces) {
-                            
-                                                    return response([
-                                                        'code' => '200',
-                                                        'message' => 'success',
-                                                        'data' => $annonces,
-                                                        'url' => $photoURL
-                                                    ], 200);
-                            
-                                                }else {
-                            
-                                                    return response([
-                                                        'code' => '005',
-                                                        'message' => 'Echec lors de l\'operation',
-                                                        'data' => null
-                                                    ], 201);
-                            
-                                                }
+            $idU = $donnees['id'];
 
-                                            } else {
+            if ( ($idUser == $idU) || $role == "administrateur") {
 
-                                                return response([
-                                                    'code' => '004',
-                                                    'message' => "L'etablissement n'existe pas",
-                                                    'data' => null
-                                                ], 201);
+                $data = $request->all();
 
-                                            }
-                        
-                                        }else {
+                $data['utilisateurs_id'] = $idUser;
 
-                                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                $validator = Validator::make($data, [
+                    'titre' => 'required|max:250|regex:/[^0-9.-]/',
+                    'description' => 'required',
+                    'type' => 'required',
+                    'sous_categories_id' => 'required',
+                ]);
 
-                                            if ($result == true) {
-                                                
-                                                $annonces = $identifiant->update($data);
-                    
-                                                // On enregistre automatiquement les identifiants dans la table pivot (annonces_etablissements)
-                        
-                                                $nomEts = $data['nom_etablissement'];
-                        
-                                                $id1 = $result->id;
-                            
-                                                $id2 = $annonces['id'];
-                            
-                                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
-                                                    'etablissements_id' => $id1,
-                                                    'annonces_id' => $id2,
-                                                ]);
-                            
-                                                if ($annonces) {
-                            
-                                                    return response([
-                                                        'code' => '200',
-                                                        'message' => 'success',
-                                                        'data' => $annonces,
-                                                        'url' => $photoURL
-                                                    ], 200);
-                            
-                                                }else {
-                            
-                                                    return response([
-                                                        'code' => '005',
-                                                        'message' => 'Echec lors de l\'operation',
-                                                        'data' => null
-                                                    ], 201);
-                            
-                                                }
+                if ($validator->fails()) {
 
-                                            } else {
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
 
-                                                return response([
-                                                    'code' => '004',
-                                                    'message' => "L'etablissement n'existe pas",
-                                                    'data' => null
-                                                ], 201);
+                }else {
 
-                                            }
-                        
-                                        } 
-                    
-                                    }
-                    
-                                } else {
-                                    
-                                    $img = $request->file('image_couverture');
-                    
-                                    if($request->hasFile('image_couverture')){
-                    
-                                        $fileName = $request->file('image_couverture')->getClientOriginalName();
+                    $type = $data['type'];
 
-                                        $path = $img->move(public_path("/annonces/images/"), $fileName);
+                    if ($type == "evenement") {
 
-                                        $photoURL = url('/annonces/images/'.$fileName);
-                    
-                                        $data['image_couverture'] = $imageName;
-                    
-                                        $annonces = $identifiant->update($data);
-                    
-                                        if ($annonces) {
-                    
-                                            return response([
-                                                'code' => '200',
-                                                'message' => 'success',
-                                                'data' => $annonces,
-                                                'url' => $photoURL
-                                            ], 200);
-                    
-                                        }else {
-                    
-                                            return response([
-                                                'code' => '005',
-                                                'message' => 'Echec lors de l\'operation',
-                                                'data' => null
-                                            ], 201);
-                    
-                                        }
-                    
-                                    }else {
-                    
-                                        $annonces = $identifiant->update($data);
-                    
-                                        return response([
-                                            'code' => '200',
-                                            'message' => $annonces,
-                                            'data' => null
-                                        ], 201);
-                                        
-                                    }
-                    
-                                }
-                                
-                            }
+                        $validator = Validator::make($data, [
+                            'calendriers_id' => 'required',
+                        ]);
 
-                        }else {
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
                             
                             return response([
-                                'code' => '005',
-                                'message' => 'Acces non autorise',
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
                                 'data' => $erreur
                             ], 201);
+        
+                        }else {
+                            
+                            $annonces = $annonce->update($data);
+
+                            if ($annonces) {
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $annonce
+                                ], 200);
+
+                            }else {
+
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'Echec lors de l\'operation',
+                                    'data' => null
+                                ], 201);
 
                             }
 
                         }
 
+                    }
+
+                    $annonces = $annonce->update($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonce
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
                 }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
 
             }
 
         }
         
-        
     }
 
 
+
+    // Modifier une annonce liée à un établissement
+
+    public function putAnnonceEtablissement(Request $request){
+
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idAuth)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU && $role == "administrateur") || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $data['utilisateurs_id'] = $idUser;
+
+                $validator = Validator::make($data, [
+                    'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
+                    'description' => 'required',
+                    'date' => 'required|date',
+                    'type' => 'required',
+                    'nom_etablissement' => 'required',
+                    'sous_categories_id' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+
+                    $type = $data['type'];
+
+                    if ($type == "evenement") {
+
+                        $validator = Validator::make($data, [
+                            'calendriers_id' => 'required',
+                        ]);
+
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
+                            
+                            return response([
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                                'data' => $erreur
+                            ], 201);
+        
+                        }else {
+                            
+                            $nomEts = $data['nom_etablissement'];
+
+                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+
+                            if ($result == true) {
+                                
+                                $annonces = $annonce->update($data);
+
+                                $id1 = $result->id;
+        
+                                $id2 = $annonces['id'];
+            
+                                $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                                    'etablissements_id' => $id1,
+                                    'annonces_id' => $id2,
+                                ]);
+            
+                                if ($annonces) {
+            
+                                    return response([
+                                        'code' => '200',
+                                        'message' => 'success',
+                                        'data' => $annonces
+                                    ], 200);
+            
+                                }else {
+            
+                                    return response([
+                                        'code' => '005',
+                                        'message' => 'Echec lors de l\'operation',
+                                        'data' => null
+                                    ], 201);
+            
+                                }
+
+                            } else {
+
+                                return response([
+                                    'code' => '005',
+                                    'message' => "L'etablissement n'existe pas",
+                                    'data' => null
+                                ], 201);
+
+                            }
+
+                        }
+
+                    }
+
+                    $nomEts = $data['nom_etablissement'];
+
+                    $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+
+                    if ($result == true) {
+                        
+                        $annonces = $annonce->update($data);
+
+                        $id1 = $result->id;
+
+                        $id2 = $annonces['id'];
+    
+                        $EtsAnnonces = annonces_etablissements::firstOrCreate([
+                            'etablissements_id' => $id1,
+                            'annonces_id' => $id2,
+                        ]);
+    
+                        if ($annonces) {
+    
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonces
+                            ], 200);
+    
+                        }else {
+    
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+    
+                        }
+
+                    } else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => "L'etablissement n'existe pas",
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+
+    }
+
+
+    
     // supprimer une annonce
     
     public function deleteAnnonce($id){
 
-        $valeur = annonces::findOrFail($id);
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        $valeur['actif'] = 0;
+            $idUser = Auth::id();
 
-        $modif = $valeur->update();
+            $role = $user['role'];
 
-        return response([
-            'code' => '200',
-            'message' => 'succes',
-            'data' => null
-        ], 201);
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $valeur = annonces::findOrFail($id);
+
+                $valeur['actif'] = 0;
+
+                $modif = $valeur->update();
+
+                return response([
+                    'code' => '200',
+                    'message' => 'succes',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
 
     }
-
-
-    // Supprimer une annonce
-     
-    // public function deleteAnnonce($id){
-
-    //     // $identifiant = annonces::findOrFail($id);
-
-    //     $delete = annonces::where('annonces.id', '=', $id)->delete();
-
-    //     if ($delete) {
-
-    //         return response([
-    //             'code' => '200',
-    //             'message' => 'Suppression effectuée avec succes',
-    //             'data' => null
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'L\'identifiant incorrect',
-    //             'data' => null
-    //         ], 201);
-
-    //     }
-        
-    // }
-    
 
 }

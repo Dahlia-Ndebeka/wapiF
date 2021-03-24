@@ -185,7 +185,8 @@ class departementsController extends Controller
             })
         ->join('etablissements', function($join)
             {
-                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id');
+                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id')
+                ->where('etablissements.actif', '=', true);
             })
         ->join('etablissements_sous_categories', function($join)
             {

@@ -55,7 +55,7 @@ class arrondissementsController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -100,7 +100,7 @@ class arrondissementsController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -151,7 +151,7 @@ class arrondissementsController extends Controller
                     return response([
                         'code' => '005',
                         'message' => 'Erreur lors de l\'operation',
-                        'data' => 'null'
+                        'data' => null
                     ], 201);
 
                 }
@@ -163,7 +163,7 @@ class arrondissementsController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -188,7 +188,8 @@ class arrondissementsController extends Controller
             })
         ->join('etablissements', function($join)
             {
-                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id');
+                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id')
+                ->where('etablissements.actif', '=', true);
             })
         ->join('etablissements_sous_categories', function($join)
             {
@@ -237,7 +238,7 @@ class arrondissementsController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -260,7 +261,7 @@ class arrondissementsController extends Controller
     //         return response([
     //             'code' => '004',
     //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
+    //             'data' => null
     //         ], 201);
 
     //     }

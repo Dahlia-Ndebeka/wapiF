@@ -582,7 +582,13 @@ class etablissementsController extends Controller
 
         $annonces = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
         ->join('annonces_etablissements', 'annonces_etablissements.etablissements_id', '=', 'etablissements.id')
-        ->join('annonces', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
+        // ->join('annonces', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
+        ->join('annonces', function($join)
+            {
+                $join->on('annonces_etablissements.annonces_id', '=', 'annonces.id')
+                ->where('annonces.actif', '=', true)
+                ->where('annonces.etat', '=', true);
+            })
         ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
@@ -599,7 +605,6 @@ class etablissementsController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.etablissement',
             'annonces.nom_etablissement',
             'calendriers.date_evenement',
             'calendriers.label',
@@ -637,8 +642,14 @@ class etablissementsController extends Controller
 
     public function Utilisateur($id){
 
-        $utilisateur = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
-        ->join('utilisateurs', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+        $utilisateur = etablissements::from('etablissements')
+        ->where('etablissements.id', '=', $id)
+        // ->join('utilisateurs', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('utilisateurs', function($join)
+        {
+            $join->on('etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+            ->where('utilisateurs.actif', '=', true);
+        })
         ->select(                    
             'etablissements.utilisateurs_id',
             'utilisateurs.login',
@@ -820,7 +831,9 @@ class etablissementsController extends Controller
 
     public function plusVisiter(){
 
-        $etablissement = etablissements::from('etablissements')->orderBy('etablissements.nombre_visite', 'desc')->limit(10)
+        $etablissement = etablissements::from('etablissements')
+        ->where('etablissement.actif', '=', true)
+        ->orderBy('etablissements.nombre_visite', 'desc')->limit(10)
         ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
         ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)

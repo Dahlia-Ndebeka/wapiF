@@ -28,7 +28,7 @@ class categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'La table est vide',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -42,21 +42,21 @@ class categoriesController extends Controller
 
         $categorie = categories::find($id);
 
-        if ($categorie) {
+        if (!$categorie) {
             
+            return response([
+                'code' => '004',
+                'message' => 'L\'identifiant incorrect',
+                'data' => null
+            ], 201);
+            
+        }else {
+        
             return response([
                 'code' => '200',
                 'message' => 'success',
                 'data' => $categorie
             ], 200);
-            
-        }else {
-            
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => 'null'
-            ], 201);
 
         }
 
@@ -124,7 +124,7 @@ class categoriesController extends Controller
                             return response([
                                 'code' => '005',
                                 'message' => 'Echec lors de l\'operation',
-                                'data' => 'null'
+                                'data' => null
                             ], 201);
 
                         }
@@ -134,7 +134,7 @@ class categoriesController extends Controller
                         return response([
                             'code' => '001',
                             'message' => 'image nulle',
-                            'data' => 'null'
+                            'data' => null
                         ], 201);
                         
                     }
@@ -146,7 +146,7 @@ class categoriesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Acces non autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -231,7 +231,7 @@ class categoriesController extends Controller
                                 return response([
                                     'message' => '005',
                                     'message' => 'Erreur 005 : Echec lors de l\'operation',
-                                    'data' => 'null'
+                                    'data' => null
                                 ], 201);
                                 
                             }
@@ -257,7 +257,7 @@ class categoriesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Acces non autorise',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -286,7 +286,7 @@ class categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -306,7 +306,8 @@ class categoriesController extends Controller
         ->join('etablissements_sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
         ->join('etablissements', function($join)
             {
-                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id');
+                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id')
+                ->where('etablissements.actif', '=', true);
             })
         ->join('arrondissements', 'etablissements.arrondissements_id', '=', 'arrondissements.id')
         ->join('villes', function($join)
@@ -354,7 +355,7 @@ class categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -372,7 +373,9 @@ class categoriesController extends Controller
         ->join('sous_categories', 'categories.id', '=', 'sous_categories.categories_id')
         ->join('annonces', function($join)
             {
-                $join->on('sous_categories.id', '=', 'annonces.sous_categories_id');
+                $join->on('sous_categories.id', '=', 'annonces.sous_categories_id')
+                    ->where('annonces.actif', '=', true)
+                    ->where('annonces.etat', '=', true);
             })
         ->select(
             'annonces.id',
@@ -384,7 +387,6 @@ class categoriesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.etablissement',
             'annonces.nom_etablissement',
             'annonces.etat',
             // 'annonces.sous_categories_id',
@@ -408,7 +410,7 @@ class categoriesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }

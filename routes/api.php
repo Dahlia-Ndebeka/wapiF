@@ -56,7 +56,7 @@ Route::get('imageCategorie/{filename}', [categoriesController::class, 'image']);
 
 Route::get('sousCategorieEts/{id}', [sous_categoriesController::class, 'Etablissements']);
 Route::get('sousCategorie/{id}', [sous_categoriesController::class, 'sousCategorie']);
-Route::get('sousCategories', [sous_categoriesController::class, 'sousCategories']);
+Route::get('sous_categories', [sous_categoriesController::class, 'sous_categories']);
 Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'Categories']);
 Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'sous_categoriesCat']);
 Route::get('sousCategorieAnnonces/{id}', [sous_categoriesController::class, 'Annonces']);
@@ -98,7 +98,7 @@ Route::get('etablissementSousCategories/{id}', [etablissementsController::class,
 Route::get('etablissementCategories/{id}', [etablissementsController::class, 'Categories']);
 Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
 Route::get('etablissementAnnonces/{id}', [etablissementsController::class, 'Annonces']);
-Route::get('etablissement', [etablissementsController::class, 'ets']);
+// Route::get('etablissement', [etablissementsController::class, 'ets']);
 Route::get('imageEts/{filename}', [etablissementsController::class, 'image']);
 Route::get('etablissementUtilisateur/{id}', [etablissementsController::class, 'Utilisateur']);
 Route::get('etablissementPlusVisiter', [etablissementsController::class, 'plusVisiter']);
@@ -115,7 +115,8 @@ Route::get('calendrierAnnonce/{id}', [calendriersController::class, 'Annonces'])
 
 // Routes concernant les annonces
 
-Route::get('annonces', [annoncesController::class, 'Annonces']);
+Route::get('annonces', [annoncesController::class, 'AnnoncesPublier']);
+Route::get('annoncesAll', [annoncesController::class, 'Annonces']);
 Route::get('annonceRecherche/{valeur}', [annoncesController::class, 'rechercheAnnonce']);
 Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
 Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
@@ -245,7 +246,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
-    Route::put('etablissementdel/{id}', [etablissementsController::class, 'deleteEtablissement']);
+    Route::put('etablissementActif/{id}', [etablissementsController::class, 'deleteEtablissement']);
 
 
 
@@ -262,9 +263,10 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
     Route::get('annoncesPublier', [annoncesController::class, 'AnnoncesPublier']);
-    Route::put('annoncedel/{id}', [annoncesController::class, 'deleteAnnonce']);
+    Route::put('annonceActif/{id}', [annoncesController::class, 'deleteAnnonce']);
     // Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
-    Route::put('publierAnnonce/{id}', [annoncesController::class, 'Publier']);
+    Route::put('annonceEtat/{id}', [annoncesController::class, 'Publier']);
+    Route::put('imgAnnonce/{id}', [annoncesController::class, 'createImageAnnonce']);
 
 
 

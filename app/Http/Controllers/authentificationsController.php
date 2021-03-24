@@ -15,7 +15,8 @@ class authentificationsController extends Controller
 
     public function login(Request $request){
 
-        $utilisateur = utilisateurs::where('email', $request->email)->first();
+        $utilisateur = utilisateurs::where('email', $request->email)
+        ->where('utilisateurs.actif', '=', true)->first();
 
         if (!$utilisateur || !Hash::check($request->password, $utilisateur->password)) {
 

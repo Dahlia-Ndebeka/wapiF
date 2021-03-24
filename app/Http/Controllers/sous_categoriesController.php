@@ -9,39 +9,16 @@ use App\Models\sous_categories;
 class sous_categoriesController extends Controller
 {
     
-    //Afficher tous les sous categories
+    //Afficher toutes les sous categories et ses categories
 
     public function sous_categories(){
 
-        $sous_categories = sous_categories::all();
-
-        if ($sous_categories) {
-            
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $sous_categories
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Table vide',
-                'data' => null
-            ], 201);
-
-        }
-        
-    }
-
-
-    //Afficher tous les sous categories et ses categories
-
-    public function sous_categoriesCat(){
-
         $sous_categories = sous_categories::join('categories', 'sous_categories.categories_id', '=' , 'categories.id')
-        ->select('sous_categories.id', 'sous_categories.nom_sous_categorie', 'categories.nomCategorie')->get();
+        ->select('sous_categories.id', 
+            'sous_categories.nom_sous_categorie', 
+            'categories.id',
+            'categories.nomCategorie'
+        )->get();
 
         if ($sous_categories) {
             
@@ -81,7 +58,7 @@ class sous_categoriesController extends Controller
         } else {
             
             return response([
-                'message' => '004',
+                'code' => '004',
                 'message' => 'Indentifiant incorrect',
                 'data' => null
             ], 201);
@@ -217,37 +194,6 @@ class sous_categoriesController extends Controller
 
     // Affichage des etablissements par rapport a la sous categorie
 
-    // public function Etablissements($id){
-
-    //     $etablissements = sous_categories::find($id);
-
-    //     $ets = $etablissements->Etablissements;
-
-    //     $etablissements = sous_categories::find($id)->Etablissements;
-
-    //     if ($ets) {
-            
-    //         return response([
-    //             'code' => '200',
-    //             'message' => 'success',
-    //             'data' => $ets
-    //         ], 200);
-
-    //     } else {
-            
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Echec, aucun etablissement existe pour cette sous categorie',
-    //             'data' => null
-    //         ], 201);
-    //     }
-
-    // }
-
-
-
-    // Affichage des etablissements par rapport a la sous categorie
-
     public function Etablissements($id){
 
         // $cats = categories::find($id)->Etablissements;
@@ -260,7 +206,8 @@ class sous_categoriesController extends Controller
             })
         ->join('etablissements', function($join)
             {
-                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id');
+                $join->on('etablissements.id', '=', 'etablissements_sous_categories.etablissements_id')
+                ->where('etablissements.actif', '=', true);
             })
         ->join('utilisateurs', function($join)
             {
@@ -292,9 +239,7 @@ class sous_categoriesController extends Controller
             'etablissements.logo',
             'etablissements.latitude',
             'etablissements.longitude',
-            'etablissements.utilisateurs_id',
             'utilisateurs.login',
-            'utilisateurs.email',
             'sous_categories.id',
             'sous_categories.nom_sous_categorie',
             'categories.id',
@@ -310,6 +255,7 @@ class sous_categoriesController extends Controller
         if ($cats) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $cats
             ], 200);
@@ -334,7 +280,12 @@ class sous_categoriesController extends Controller
     public function Annonces($id){
 
         $cats = sous_categories::from('sous_categories')->where('sous_categories.id', '=', $id)
-        ->join('annonces', 'sous_categories.id', '=', 'annonces.sous_categories_id')
+        ->join('annonces', function($join)
+            {
+                $join->on('sous_categories.id', '=', 'annonces.sous_categories_id')
+                ->where('annonces.actif', '=', true)
+                ->where('annonces.etat', '=', true);
+            })
         ->join('categories', function($join)
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
@@ -354,10 +305,7 @@ class sous_categoriesController extends Controller
             'annonces.longitude',
             'annonces.utilisateurs_id',
             'utilisateurs.login',
-            'utilisateurs.email',
-            'annonces.etablissement',
             'annonces.nom_etablissement',
-            'annonces.etat',
             'sous_categories.id',
             'sous_categories.nom_sous_categorie',
             'categories.id',

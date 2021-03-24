@@ -27,7 +27,9 @@ class utilisateursController extends Controller
 
             if ($role == 'administrateur') { 
                 
-                $utilisateurs = Utilisateurs::All();
+                // $utilisateurs = Utilisateurs::All();
+
+                $utilisateurs = Utilisateurs::where('utilisateurs.actif', '=', true)->get();
         
                 if ($utilisateurs) {
 
@@ -75,8 +77,12 @@ class utilisateursController extends Controller
 
             if ($role == 'administrateur') {
 
-                $Utilisateur = Utilisateurs::find($id);
+                // $Utilisateur = Utilisateurs::find($id);
                 // where('etablissements.actif', '=', true)
+
+                $Utilisateur = utilisateurs::where('utilisateurs.id', '=', $id)
+                ->where('utilisateurs.actif', '=', true)
+                ->get();
 
                 if ($Utilisateur) {
 
@@ -132,7 +138,12 @@ class utilisateursController extends Controller
 
                 $etablissements = utilisateurs::from('utilisateurs')
                 ->where('utilisateurs.id', '=', $id)
-                ->join('etablissements', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+                // ->join('etablissements', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+                ->join('etablissements', function($join)
+                    {
+                        $join->on('etablissements.utilisateurs_id', '=', 'utilisateurs.id')
+                            ->where('etablissements.actif', '=', true);
+                    })
                 ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
                 ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
                 ->join('categories', function($join)
@@ -220,7 +231,13 @@ class utilisateursController extends Controller
 
                 $annonces = utilisateurs::from('utilisateurs')
                 ->where('utilisateurs.id', '=', $id)
-                ->join('annonces', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+                // ->join('annonces', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+                ->join('annonces', function($join)
+                    {
+                        $join->on('annonces.utilisateurs_id', '=', 'utilisateurs.id')
+                        ->where('annonces.actif', '=', true)
+                        ->where('annonces.etat', '=', true);
+                    })
                 ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
                 ->join('categories', function($join)
                     {
@@ -235,18 +252,16 @@ class utilisateursController extends Controller
                     'annonces.lieu',
                     'annonces.latitude',
                     'annonces.longitude',
-                    'annonces.etablissement',
                     'annonces.nom_etablissement',
-                    'annonces.etat',
                     'annonces.sous_categories_id',
                     'sous_categories.nom_sous_categorie',
-                    'categories.id',
+                    // 'categories.id',
                     'categories.nomCategorie',
                     'categories.image',
-                    'categories.titre',
-                    'annonces.utilisateurs_id',
+                    // 'categories.titre',
+                    // 'annonces.utilisateurs_id',
                     'utilisateurs.login',
-                    'utilisateurs.email',
+                    // 'utilisateurs.email',
                 )->get();
 
                 foreach ($annonces as $annonce) {
@@ -307,6 +322,8 @@ class utilisateursController extends Controller
     
         }else {
 
+            $Utilisateur['date_creation'] = date_create(now());
+
             $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
             $Utilisateur['role'] = 'mobinaute';
@@ -363,6 +380,8 @@ class utilisateursController extends Controller
             ], 202);
     
         }else {
+
+            $Utilisateur['date_creation'] = date_create(now());
 
             $Utilisateur['password'] = Hash::make($Utilisateur['password']);
 
@@ -756,6 +775,7 @@ class utilisateursController extends Controller
             
             // utilisateur actuellement authentifie
             $user = Auth::user();
+
             $idAuth = Auth::id();
 
             $donnees = utilisateurs::findOrFail($id);
@@ -796,6 +816,7 @@ class utilisateursController extends Controller
                         $update = $donnees->update($Utilisateur);
         
                         if ($update) {
+
                                 
                             return response([
                                 'code' => '200',                                
@@ -829,7 +850,7 @@ class utilisateursController extends Controller
 
                 return response([
                     'code' => '004',
-                    'message' => 'Acces non autorise, vous n\'etes pas le proprietaire du compte',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
 
@@ -937,7 +958,8 @@ class utilisateursController extends Controller
                 ->orWhere("date_creation", "like", "%".$valeur."%" )
                 ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
                 ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
-                ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )->get(); 
+                ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )
+                ->get(); 
 
                 return response([
                     'code' => '200',
