@@ -41,7 +41,6 @@ Route::post('utilisateurAdmin', [utilisateursController::class, 'createUtilisate
 Route::post("login", [authentificationsController::class, 'login']);
 
 
-
 //Routes concernanats les Categories 
 
 Route::get('categories', [categoriesController::class, 'Categories']);

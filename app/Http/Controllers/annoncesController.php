@@ -815,6 +815,7 @@ class annoncesController extends Controller
                 $data = $request->all();
 
                 $data['utilisateurs_id'] = $idUser;
+                
                 $data['date'] = date_create(now());
 
                 $validator = Validator::make($data, [
@@ -1185,7 +1186,6 @@ class annoncesController extends Controller
         }
 
     }
-
 
 
 

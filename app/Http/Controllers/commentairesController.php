@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\commentaires;
+use App\Models\utilisateurs;
+use App\Models\annonces;
+use Illuminate\Support\Facades\Auth;
+
 
 class commentairesController extends Controller
 {
@@ -13,55 +17,93 @@ class commentairesController extends Controller
 
     public function createCommentaire(Request $request){
 
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'commentaire' => 'required',
-            'utilisateurs_id' => 'required',
-            'annonces_id' => 'required'
-        ]);
+            $user = Auth::user();
 
-        if ($validator->fails()) {
+            $idUser = Auth::id();
 
-            $erreur = $validator->errors();
-            
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur
-            ], 201);
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idUser)->addSelect('id')->first();
 
-        }else {
+            $idU = $donnees['id'];
 
-            $commentaires = commentaires::create($request->all());
+            if ( $idUser == $idU) {
 
-            if ($commentaires) {
+                $datas = $request->all();
+
+                $validator = Validator::make($datas, [
+
+                    'commentaire' => 'required',
+                    'annonces_id' => 'required'
+
+                ]);
                 
-                return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $commentaires
-                ], 200);
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+        
+                }else {
 
-            }else {
-                
-                return response([
-                    'code' => '005',
-                    'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
-                ], 201);
+                    $datas['utilisateurs_id'] = $idUser;
+
+                    $datas['date_commentaire'] = date_create(now());
+
+                    // $datas['date_commentaire'] =  date('Format String', time());
+
+                    $commentaires = commentaires::create($datas);
+                    
+        
+                    if ($commentaires) {
+                        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $commentaires
+                        ], 200);
+        
+                    }else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'opération',
+                            'data' => null
+                        ], 201);
+        
+                    }
+                    
+                }
 
             }
-            
+
         }
 
     }
 
 
+    
     // Afficher les commentaires
 
     public function Commentaires(){
 
-        $commentaires = commentaires::all();
+        $commentaires = commentaires::join('utilisateurs', 'utilisateurs.id', '=', 'commentaires.utilisateurs_id')
+            ->join('annonces', 'annonces.id', '=', 'commentaires.annonces_id')
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->select('commentaires.id',
+                'commentaires.commentaire',
+                'commentaires.date_commentaire',
+                'annonces.titre',
+                'utilisateurs.login',
+            )->get();
 
         if ($commentaires) {
 
@@ -95,9 +137,8 @@ class commentairesController extends Controller
         ->select(
             'commentaires.id',
             'commentaires.commentaire',
-            'commentaires.created_at',
+            'commentaires.date_commentaire',
             'utilisateurs.login',
-            'utilisateurs.email',
         )->get();
 
         if ($commentaires) {
@@ -115,7 +156,7 @@ class commentairesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -132,6 +173,7 @@ class commentairesController extends Controller
         if ($utilisateur) {
             
             return response([
+                'code' => 'success',
                 'message' => 'success',
                 'data' => $utilisateur
             ], 200);
@@ -141,12 +183,61 @@ class commentairesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
         
     }
+
+
+        // Afficher les annonces a partir des commentaires
+
+        public function CommentaireAnnonces(){
+
+            // $commentaires = commentaires::all();
+            $commentaires = commentaires::join('utilisateurs', 'utilisateurs.id', '=', 'commentaires.utilisateurs_id')
+                ->join('annonces', 'annonces.id', '=', 'commentaires.annonces_id')
+                ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+                ->join('categories', function($join)
+                    {
+                        $join->on('categories.id', '=', 'sous_categories.categories_id');
+                    })
+                ->select('annonces.id',
+                    'annonces.titre',
+                    'annonces.description',
+                    'annonces.date',
+                    'annonces.type',
+                    'annonces.image_couverture',
+                    'annonces.lieu',
+                    'annonces.latitude',
+                    'annonces.longitude',
+                    'annonces.sous_categories_id',
+                    'sous_categories.nom_sous_categorie',
+                    'categories.nomCategorie',
+                    'categories.image',
+                    'categories.titre'
+                )->get();
+    
+            if ($commentaires) {
+    
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $commentaires
+                ], 200);
+    
+            }else {
+    
+                return response([
+                    'code' => '005',
+                    'message' => 'La table est vide',
+                    'data' => $commentaires
+                ], 201);
+    
+            }
+    
+        }
 
 
     // Modifier un commentaire
@@ -160,7 +251,6 @@ class commentairesController extends Controller
         $validator = Validator::make($request->all(), [
             
             'commentaire' => 'required',
-            'utilisateurs_id' => 'required',
             'annonces_id' => 'required'
         ]);
 
@@ -191,7 +281,7 @@ class commentairesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
