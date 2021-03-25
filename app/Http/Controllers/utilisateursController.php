@@ -772,91 +772,97 @@ class utilisateursController extends Controller
     {
 
         if (Auth::check()) {
-            
+
             // utilisateur actuellement authentifie
+
             $user = Auth::user();
-
+    
             $idAuth = Auth::id();
-
+    
             $donnees = utilisateurs::findOrFail($id);
-
+    
             $idU = $donnees['id'];
-
+    
             if ($idAuth == $idU) {
+    
+                // Si il existe un champ photo
 
-                $validator = Validator::make($request->all(), [
-            
-                    'photo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                ]);
+                if($request->has('photo')) {
+                // Vérification du champ photo: est-il une image ou non
+                     $validator = Validator::make($request->all(), ['photo' =>
+                     'required|image|mimes:jpeg,png,jpg,svg|max:2048']);
+    
+                        // Si photo n'est pas une image
+                    if ($validator->fails()) {
         
-                if ($validator->fails()) {
-        
-                    $erreur = $validator->errors();
-        
-                    return response([
-                        'code' => '001',
-                        'message' => 'erreur lie au champs de saisie',
-                        'data' => $erreur
-                    ], 202);
-            
-                }else {
-        
-                    $img = $request->file('photo');
-        
-                    if($request->hasFile('photo')){
-        
-                        $fileName = $request->file('photo')->getClientOriginalName();
-        
-                        $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
-        
-                        $photoURL = url('/utilisateurs/images/'.$fileName);
-        
-                        $Utilisateur['photo'] = $fileName;
-        
-                        $update = $donnees->update($Utilisateur);
-        
-                        if ($update) {
-
-                                
-                            return response([
-                                'code' => '200',                                
-                                'message' => 'succes',
-                                'data' => $donnees 
-                            ], 200);
-        
-                        } else {
-                            
-                            return response([
-                                'code' => '005',
-                                'message' => 'echec lors de la modification',
-                                'data' => null
-                            ], 200);
-        
-                        }
-        
-                    }else {
+                        $erreur = $validator->errors();
         
                         return response([
                             'code' => '001',
-                            'message' => 'image nulle',
-                            'data' => null
-                        ], 201);
+                            'message' => "Le champ photo ne contient pas une image",
+                            'data' => $erreur
+                        ], 202);
+        
+                    }else {
+                        $img = $request->file('photo');
+                            // Si photo est une image
+                        if($request->hasFile('photo')){
+        
+                            $fileName = $request->file('photo')->getClientOriginalName();
+        
+                            $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
+        
+                            $photoURL = url('/utilisateurs/images/'.$fileName);
+        
+                            $Utilisateur['photo'] = $fileName;
+        
+                            $update = $donnees->update($Utilisateur);
+        
+                            if ($update) {
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'succes',
+                                    'data' => $donnees
+                                ], 200);
+        
+                            } else {
+        
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'echec lors de la modification',
+                                    'data' => null
+                                ], 200);
+        
+                            }
+        
+                        }else {
+                            return response([
+                                'code' => '001',
+                                'message' => 'Le champ photo ne contient pas en réalité une image',
+                                'data' => null
+                            ], 201);
+        
+                        }
         
                     }
-        
+                } else {
+                    return response([
+                        'code' => '001',
+                        'message' => "Le champ photo n'existe pas",
+                        'data' => null
+                    ], 202);
                 }
-
+    
             }else {
-
+    
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
-
+    
             }
-
-            
+    
         }
 
     }
@@ -1008,6 +1014,5 @@ class utilisateursController extends Controller
         ], 201);
 
     }
-
 
 }
