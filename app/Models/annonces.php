@@ -17,6 +17,7 @@ class annonces extends Model
                             'description', 
                             'date', 
                             'type',                
+                            'prix',                
                             'image_couverture', 
                             'lieu',
                             'latitude',
@@ -31,7 +32,7 @@ class annonces extends Model
 
     protected $hidden = [
         'updated_at',
-        // 'created_at',
+        'created_at',
     ];
 
 

@@ -96,13 +96,11 @@ class categoriesController extends Controller
 
                 }else {
 
-                    $img = $request->file('image');
+                    if ($file = $request->file('image')) {
 
-                    if($request->hasFile('image')){
+                        $fileName = $file->getClientOriginalName();
 
-                        $fileName = $request->file('image')->getClientOriginalName();
-
-                        $path = $img->move(public_path("/categories/images/"), $fileName);
+                        $path = $file->move(public_path("/categories/images/"), $fileName);
 
                         $photoURL = url('/categories/images/'.$fileName);
 
@@ -188,7 +186,7 @@ class categoriesController extends Controller
                     
                         'nomCategorie' => 'required|max:100|regex:/[^0-9.-]/',
                         'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
-                        // 'titre' => 'required'
+
                     ]);
             
                     if ($validator->fails()) {
@@ -203,13 +201,11 @@ class categoriesController extends Controller
             
                     }else {
 
-                        $img = $request->file('image');
+                        if ($file = $request->file('image')) {
 
-                        if($request->hasFile('image')){
+                            $fileName = $file->getClientOriginalName();
 
-                            $fileName = $request->file('image')->getClientOriginalName();
-
-                            $path = $img->move(public_path("/categories/images/"), $fileName);
+                            $path = $file->move(public_path("/categories/images/"), $fileName);
 
                             $photoURL = url('/categories/images/'.$fileName);
 
@@ -229,7 +225,7 @@ class categoriesController extends Controller
                             }else {
 
                                 return response([
-                                    'message' => '005',
+                                    'code' => '005',
                                     'message' => 'Erreur 005 : Echec lors de l\'operation',
                                     'data' => null
                                 ], 201);
@@ -241,7 +237,7 @@ class categoriesController extends Controller
                             $cat = $identifiant->update($categorie);
 
                             return response([
-                                'message' => '200',
+                                'code' => '200',
                                 'message' => 'succes',
                                 'data' => $identifiant
                             ], 201);
@@ -267,16 +263,25 @@ class categoriesController extends Controller
     }
 
 
+    
 
     // Affichage des sous categories a partir des categories
 
     public function Souscategories($id){
 
-        $Souscategories = categories::find($id)->sousCategorie;
+        // $Souscategories = categories::find($id)->sousCategorie;
+
+        $Souscategories = categories::where('categories.id', '=', $id)
+        ->join('sous_categories', 'sous_categories.categories_id', '=', 'categories.id')
+        ->select('sous_categories.id',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie')
+        ->get();
 
         if ($Souscategories) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $Souscategories
             ], 200);
@@ -298,8 +303,6 @@ class categoriesController extends Controller
     // Affichage des etablissements à partir de la categorie
 
     public function Etablissements($id){
-
-        // $cats = categories::find($id)->Etablissements;
 
         $cats = categories::from('categories')->where('categories.id', '=', $id)
         ->join('sous_categories', 'sous_categories.categories_id', '=', 'categories.id')
@@ -346,6 +349,7 @@ class categoriesController extends Controller
         if ($cats) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $cats
             ], 200);
@@ -369,16 +373,15 @@ class categoriesController extends Controller
 
         $cats = categories::from('categories')
         ->where('categories.id', '=', $id)
-        // ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('sous_categories', 'categories.id', '=', 'sous_categories.categories_id')
         ->join('annonces', function($join)
             {
                 $join->on('sous_categories.id', '=', 'annonces.sous_categories_id')
-                    ->where('annonces.actif', '=', true)
-                    ->where('annonces.etat', '=', true);
+                ->where('annonces.actif', '=', true)
+                ->where('annonces.etat', '=', true);
             })
-        ->select(
-            'annonces.id',
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->select('annonces.id',
             'annonces.titre',
             'annonces.description',
             'annonces.date',
@@ -388,19 +391,14 @@ class categoriesController extends Controller
             'annonces.latitude',
             'annonces.longitude',
             'annonces.nom_etablissement',
-            'annonces.etat',
-            // 'annonces.sous_categories_id',
             'sous_categories.nom_sous_categorie',
-            'categories.id',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
-        
         )->get();
 
         if ($cats) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $cats
             ], 200);
@@ -431,24 +429,43 @@ class categoriesController extends Controller
      
     public function deleteCategorie($id){
 
-        $delete = categories::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur") {
 
-        } else {
+                $delete = categories::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
 
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+            }
+            
         }
         
     }

@@ -15,8 +15,7 @@ class calendriersController extends Controller
     public function createCalendrier(Request $request){
 
         $validator = Validator::make($request->all(), [
-            
-            'date' => 'required',
+            'date_evenement' => 'required',
             'heure_debut' => 'required',
             'heure_fin' => 'required'
         ]);
@@ -48,7 +47,7 @@ class calendriersController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -62,11 +61,34 @@ class calendriersController extends Controller
 
     public function Annonces($id){
 
-        $annonces = calendriers::find($id)->Annonces;
+        $annonces = calendriers::where('calendriers.id', '=', $id)
+        ->join('annonces', function($join)
+            {
+                $join->on('calendriers.id', '=', 'annonces.calendriers_id');
+            })
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.nom_etablissement',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+        )->get();
 
         if ($annonces) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $annonces
             ], 200);
@@ -76,7 +98,7 @@ class calendriersController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -131,7 +153,7 @@ class calendriersController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -147,9 +169,9 @@ class calendriersController extends Controller
 
         $modif = calendriers::findOrFail($id);
 
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($data, [
             
-            'date' => 'required|date',
+            'date_evenement' => 'required|date',
             'heure_debut' => 'required',
             'heure_fin' => 'required'
         ]);
@@ -181,7 +203,7 @@ class calendriersController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'Echec lors de l\'opération',
-                    'data' => 'null'
+                    'data' => null
                 ], 201);
 
             }
@@ -196,24 +218,43 @@ class calendriersController extends Controller
      
     public function deleteCalendrier($id){
 
-        $delete = calendriers::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur" || $role == "mobinaute") {
 
-        } else {
+                $delete = calendriers::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
 
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+            }
+            
         }
         
     }

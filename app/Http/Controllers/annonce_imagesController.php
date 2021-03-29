@@ -34,13 +34,11 @@ class annonce_imagesController extends Controller
 
         }else {
 
-            $img = $request->file('image');
+            if ($file = $request->file('image')) {
 
-            if($request->hasFile('image')){
+                $fileName = $file->getClientOriginalName();
 
-                $fileName = $request->file('image')->getClientOriginalName();
-
-                $path = $img->move(public_path("/annonceImages/images/"), $fileName);
+                $path = $file->move(public_path("/annonceImages/images/"), $fileName);
 
                 $photoURL = url('/annonceImages/images/'.$fileName);
 
@@ -53,8 +51,8 @@ class annonce_imagesController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $annonceI,
-                        'data' => $photoURL
+                        'datas' => $annonceI,
+                        'url' => $photoURL
                     ], 200);
 
                 }else {
@@ -108,13 +106,11 @@ class annonce_imagesController extends Controller
 
         }else {
 
-            $img = $request->file('image');
+            if ($file = $request->file('image')) {
 
-            if($request->hasFile('image')){
+                $fileName = $file->getClientOriginalName();
 
-                $fileName = $request->file('image')->getClientOriginalName();
-
-                $path = $img->move(public_path("/annonceImages/images/"), $fileName);
+                $path = $file->move(public_path("/annonceImages/images/"), $fileName);
 
                 $photoURL = url('/annonceImages/images/'.$fileName);
 
@@ -159,7 +155,19 @@ class annonce_imagesController extends Controller
 
     public function AnnonceImage(){
 
-        $annonce_images = annonce_images::all();
+        // $annonce_images = annonce_images::all();
+
+        $annonce_images = annonce_images::join('annonces', function($join)
+            {
+                $join->on('annonces.id', '=', 'annonce_images.annonces_id')
+                ->where('annonces.etat', '=', true )
+                ->where('annonces.actif', '=', true);
+            })
+        ->select('annonce_images.id',
+            'annonce_images.image',
+            'annonces.titre',
+            'annonces.description')
+        ->get();
 
         if ($annonce_images) {
 
@@ -186,7 +194,20 @@ class annonce_imagesController extends Controller
 
     public function getAnnonceImage($id){
 
-        $annonce_images = annonce_images::find($id);
+        // $annonce_images = annonce_images::find($id);
+
+        $annonce_images = annonce_images::where('annonce_images.id', '=', $id )
+        ->join('annonces', function($join)
+            {
+                $join->on('annonces.id', '=', 'annonce_images.annonces_id')
+                ->where('annonces.etat', '=', true )
+                ->where('annonces.actif', '=', true);
+            })
+        ->select('annonce_images.id',
+            'annonce_images.image',
+            'annonces.titre',
+            'annonces.description')
+        ->get();
 
         if ($annonce_images) {
             
@@ -209,15 +230,43 @@ class annonce_imagesController extends Controller
     }
 
 
+    
     // Affichage des annonces a partir de l'image annonce
 
     public function Annonce($id){
 
-        $annonce = annonce_images::find($id)->Annonces;
+        $annonce = annonce_images::where('annonce_images.id', '=', $id )
+        ->join('annonces', function($join)
+            {
+                $join->on('annonces.id', '=', 'annonce_images.annonces_id')
+                ->where('annonces.etat', '=', true )
+                ->where('annonces.actif', '=', true);
+            })
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.nom_etablissement',
+            'sous_categories.nom_sous_categorie',
+            'utilisateurs.login',
+            'categories.nomCategorie')
+        ->get();
 
         if ($annonce) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $annonce
             ], 200);
@@ -249,27 +298,38 @@ class annonce_imagesController extends Controller
      
     public function deleteAnnonceImage($id){
 
-        $delete = annonce_images::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur" || $role == "mobinaute") {
 
-        } else {
+                $delete = annonce_images::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
+
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }
+                
+            }
 
         }
         
     }
-
 
 }

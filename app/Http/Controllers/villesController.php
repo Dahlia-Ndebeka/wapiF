@@ -14,7 +14,14 @@ class villesController extends Controller
 
     public function Villes(){
 
-        $villes = villes::all();
+        $villes = villes::join('departements', function($join)
+        {
+            $join->on('departements.id', '=', 'villes.departements_id');
+        })
+        ->select('villes.id',
+            'villes.libelle_ville', 
+            'departements.libelle_departement', 
+        )->get();
 
         if ($villes) {
 
@@ -29,18 +36,27 @@ class villesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Table est vide',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
     }
 
 
+    
     // Consulter ou afficher une ville
 
     public function getVille($id){
 
-        $ville = villes::find($id);
+        $ville = villes::where('villes.id', '=', $id)
+        ->join('departements', function($join)
+        {
+            $join->on('departements.id', '=', 'villes.departements_id');
+        })
+        ->select('villes.id',
+            'villes.libelle_ville', 
+            'departements.libelle_departement', 
+        )->get();
 
         if ($ville) {
             
@@ -55,7 +71,7 @@ class villesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -63,44 +79,65 @@ class villesController extends Controller
     }
 
 
+    
     // Creer une ville
 
     public function createVille(Request $request){
 
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-            'departements_id' => 'required'
-        ]);
+            $user = Auth::user();
 
-        if ($validator->fails()) {
+            $role = $user['role'];
 
-            $erreur = $validator->errors();
+            if ($role == "administrateur") {
 
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur
-            ], 201);
+                $validator = Validator::make($request->all(), [
+            
+                    'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                    'departements_id' => 'required'
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+        
+                }else {
+        
+                    $ville = villes::create($request->all());
+        
+                    if ($ville) {
+                        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $ville
+                        ], 200);
+        
+                    }else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec, lors de l\'operation',
+                            'data' => null
+                        ], 201);
+        
+                    }
+                    
+                }
 
-        }else {
+            }else{
 
-            $ville = villes::create($request->all());
-
-            if ($ville) {
-                
                 return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $ville
-                ], 200);
-
-            }else {
-                
-                return response([
-                    'code' => '005',
-                    'message' => 'Echec, lors de l\'operation',
-                    'data' => 'null'
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
                 ], 201);
 
             }
@@ -114,87 +151,81 @@ class villesController extends Controller
 
     public function putVille(Request $request, $id){
 
-        $ville = villes::findOrFail($id);
-
-        if ($ville) {
+        if (Auth::check()) {
             
-            $validator = Validator::make($request->all(), [
-            
-                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-                'departements_id' => 'required'
-            ]);
-    
-            if ($validator->fails()) {
+            $user = Auth::user();
 
-                $erreur = $validator->errors();
-    
+            $role = $user['role'];
+
+            if ($role == "administrateur") {
+
+                $ville = villes::findOrFail($id);
+
+                if ($ville) {
+                    
+                    $validator = Validator::make($request->all(), [
+                    
+                        'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                        'departements_id' => 'required'
+                    ]);
+            
+                    if ($validator->fails()) {
+        
+                        $erreur = $validator->errors();
+            
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+        
+                    }else {
+                        
+                        $modif = $ville->update($request->all());
+        
+                        if ($modif) {
+        
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $ville
+                            ], 200);
+        
+                        }else {
+                            
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+        
+                        }
+                        
+                    }
+        
+                }else {
+        
+                    return response([
+                        'code' => '004',
+                        'message' => 'Identifiant incorrect',
+                        'data' => null
+                    ], 201);
+        
+                }
+
+            }else{
+
                 return response([
-                    'code' => '001',
-                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                    'data' => $erreur
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
                 ], 201);
 
-            }else {
-                
-                $modif = $ville->update($request->all());
-
-                if ($modif) {
-
-                    return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $ville
-                    ], 200);
-
-                }else {
-                    
-                    return response([
-                        'code' => '005',
-                        'message' => 'Echec lors de l\'operation',
-                        'data' => 'null'
-                    ], 201);
-
-                }
-                
             }
-
-        }else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => 'null'
-            ], 201);
-
+            
         }
 
     }
-
-
-    // // Affichage des etablissements a partir de la ville
-
-    // public function Etablissements($id){
-
-    //     $etablissements = villes::find($id)->Etablissements;
-
-    //     if ($etablissements) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $etablissements
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => 'null'
-    //         ], 201);
-
-    //     }
-        
-    // }
 
 
     // Affichage des etablissements par rapport a la ville
@@ -210,7 +241,8 @@ class villesController extends Controller
             })
         ->join('etablissements', function($join)
             {
-                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id');
+                $join->on('arrondissements.id', '=', 'etablissements.arrondissements_id')
+                ->where('etablissements.actif', '=', true);
             })
         ->join('etablissements_sous_categories', function($join)
             {
@@ -225,7 +257,7 @@ class villesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         
-        ->select('etablissements.id',
+        ->select('etablissements.id as etablissements_id',
             'etablissements.nom_etablissement',
             'etablissements.adresse',
             'etablissements.telephone',
@@ -241,7 +273,7 @@ class villesController extends Controller
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
             'arrondissements.libelle_arrondissement', 
-            'villes.id', 
+            'villes.id as villes_id', 
             'villes.libelle_ville', 
             'departements.libelle_departement',
             'pays.libelle_pays'
@@ -250,6 +282,7 @@ class villesController extends Controller
         if ($ets) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $ets
             ], 200);
@@ -259,7 +292,7 @@ class villesController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }
@@ -272,24 +305,44 @@ class villesController extends Controller
      
     public function deleteVille($id){
 
-        $delete = villes::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur") {
 
-        } else {
+                $delete = villes::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
+        
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+        
+                } else {
+        
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+        
+                }
 
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+            
         }
         
     }

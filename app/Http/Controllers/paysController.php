@@ -18,6 +18,7 @@ class paysController extends Controller
         if ($pays) {
 
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $pays
             ], 200);
@@ -66,43 +67,61 @@ class paysController extends Controller
 
     public function createPays(Request $request){
 
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-        ]);
+            $user = Auth::user();
 
-        if ($validator->fails()) {
+            $role = $user['role'];
 
-            $erreur = $validator->errors();
+            if ($role == "administrateur") {
 
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur
-            ], 201);
+                $validator = Validator::make($request->all(), [
+                    'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+        
+                }else {
+        
+                    $pays = pays::create($request->all());
+        
+                    if ($pays) {
+        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $pays
+                        ], 200);
+        
+                    }else {
+        
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+        
+                    }
+        
+                }
 
-        }else {
-
-            $pays = pays::create($request->all());
-
-            if ($pays) {
+            }else{
 
                 return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $pays
-                ], 200);
-
-            }else {
-
-                return response([
-                    'code' => '005',
-                    'message' => 'Echec lors de l\'operation',
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
 
             }
-
             
         }
 
@@ -113,58 +132,77 @@ class paysController extends Controller
 
     public function putPays(Request $request, $id){
 
-        $pays = pays::findOrFail($id);
-
-        if($pays){
-
-            $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-            ]);
-    
-            if ($validator->fails()) {
+            $user = Auth::user();
 
-                $erreur = $validator->errors();
+            $role = $user['role'];
 
-                return response([
-                    'code' => '001',
-                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                    'data' => $erreur
-                ], 201);
+            if ($role == "administrateur") {
 
-    
-            }else {
-    
-               $modif = $pays->update($request->all());
+                $pays = pays::findOrFail($id);
 
-               if ($modif) {
+                if($pays){
+
+                    $validator = Validator::make($request->all(), [
+                    
+                        'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                    ]);
+            
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+            
+                    }else {
+            
+                        $modif = $pays->update($request->all());
+
+                        if ($modif) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $pays
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+
+                        }
+                        
+                    }
+
+                }else {
 
                     return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $pays
-                    ], 200);
-
-               }else {
-
-                    return response([
-                        'message' => '005',
-                        'message' => 'echec lors de l\'operation',
+                        'code' => '004',
+                        'message' => 'Identifiant incorrect',
                         'data' => null
                     ], 201);
 
                 }
-                
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
             }
-
-        }else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
+            
         }
 
     }
@@ -175,24 +213,44 @@ class paysController extends Controller
      
     public function deletePays($id){
 
-        $delete = pays::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur") {
 
-        } else {
+                $delete = pays::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
 
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+            
         }
         
     }

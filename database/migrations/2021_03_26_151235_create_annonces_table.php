@@ -17,14 +17,14 @@ class CreateAnnoncesTable extends Migration
             $table->id();
             $table->string('titre', 100);
             $table->text('description');
-            $table->date('date');
+            $table->dateTime('date');
             $table->string('type', 200);
-            $table->string('image_couverture');
-            $table->string('lieu', 200);
+            $table->integer('prix')->nullable();
+            $table->string('image_couverture')->nullable();
+            $table->string('lieu', 200)->nullable();
             $table->float('latitude')->nullable();
             $table->float('longitude')->nullable();
-            $table->boolean('etablissement');
-            $table->string('nom_etablissement');
+            $table->string('nom_etablissement')->nullable();;
             $table->boolean('etat')->default(0);
             $table->boolean('actif')->default(1);
 
@@ -47,10 +47,9 @@ class CreateAnnoncesTable extends Migration
             ->references('id')
             ->on('calendriers')
             ->onDelete('restrict')
-            ->onUpdate('restrict');
+            ->onUpdate('restrict')->nullable();
 
             $table->timestamps();
-            
         });
     }
 

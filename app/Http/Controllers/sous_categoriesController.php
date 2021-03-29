@@ -16,7 +16,6 @@ class sous_categoriesController extends Controller
         $sous_categories = sous_categories::join('categories', 'sous_categories.categories_id', '=' , 'categories.id')
         ->select('sous_categories.id', 
             'sous_categories.nom_sous_categorie', 
-            'categories.id',
             'categories.nomCategorie'
         )->get();
 
@@ -45,7 +44,12 @@ class sous_categoriesController extends Controller
 
     public function sousCategorie($id){
 
-        $sous_categories = sous_categories::find($id);
+        $sous_categories = sous_categories::where('sous_categories.id', '=', $id)
+        ->join('categories', 'sous_categories.categories_id', '=' , 'categories.id')
+        ->select('sous_categories.id', 
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie'
+        )->get();
 
         if ($sous_categories) {
             
@@ -68,50 +72,71 @@ class sous_categoriesController extends Controller
     }
 
 
+    
     // Creation de la sous categorie
 
     public function createSousCategorie(Request $request){
 
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
-            'categories_id' => 'required',
-        ]);
+            $user = Auth::user();
+    
+            $role = $user['role'];
+    
+            if ($role == "administrateur") {
+    
+                $validator = Validator::make($request->all(), [
+                    'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
+                    'categories_id' => 'required',
+                ]);
+        
+                if ($validator->fails()) {
+                    
+                    $erreur = $validator->errors();
+        
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur,
+        
+                    ], 202);
+        
+                }else {
+        
+                    $data = sous_categories::create($request->all());
+        
+                    if ($data) {
+                        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $data
+                        ], 200);
+        
+                    } else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'Erreur lors de l\'operation',
+                            'data' => null
+                        ], 201);
+                        
+                    }
+                    
+                }
 
-        if ($validator->fails()) {
-            
-            $erreur = $validator->errors();
-
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur,
-
-            ], 202);
-
-        }else {
-
-            $data = sous_categories::create($request->all());
-
-            if ($data) {
-                
+            }else{
+    
                 return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $data
-                ], 200);
-
-            } else {
-                
-                return response([
-                    'code' => '005',
-                    'message' => 'Erreur lors de l\'operation',
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
+    
             }
             
-            
         }
+
     }
 
 
@@ -119,47 +144,67 @@ class sous_categoriesController extends Controller
 
     public function putSousCategorie(Request $request, $id)
     {
-        //
-        $souscategorie = sous_categories::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
+        
+        if (Auth::check()) {
             
-            'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
-            'categories_id' => 'required',
-        ]);
+            $user = Auth::user();
+    
+            $role = $user['role'];
+    
+            if ($role == "administrateur") {
+    
+                $souscategorie = sous_categories::findOrFail($id);
 
-        if ($validator->fails()) {
+                $validator = Validator::make($request->all(), [
+                    'nom_sous_categorie' => 'required|unique:sous_categories|max:100|regex:/[^0-9.-]/',
+                    'categories_id' => 'required',
+                ]);
 
-            $erreur = $validator->errors();
+                if ($validator->fails()) {
 
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur, 
-            ], 202);
-            
-        }else {
+                    $erreur = $validator->errors();
 
-            $datas = $souscategorie->update($request->all());
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur, 
+                    ], 202);
+                    
+                }else {
 
-            if ($datas) {
-                
+                    $datas = $souscategorie->update($request->all());
+
+                    if ($datas) {
+                        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $souscategorie
+                        ], 200);
+
+                    } else {
+                    
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+                    }
+                    
+                }
+
+            }else{
+    
                 return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $souscategorie
-                ], 200);
-
-            } else {
-            
-                return response([
-                    'code' => '005',
-                    'message' => 'Echec lors de l\'operation',
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
+    
             }
-             
+            
         }
+
     }
     
 
@@ -168,7 +213,15 @@ class sous_categoriesController extends Controller
 
     public function Categories($id){
 
-        $categories = sous_categories::find($id)->Categories;
+        // $categories = sous_categories::find($id)->Categories;
+
+        $categories = sous_categories::where('sous_categories.id', '=', $id)
+        ->join('categories', 'sous_categories.categories_id', '=' , 'categories.id')
+        ->select('categories.id',
+            'categories.nomCategorie',
+            'categories.image',
+            'categories.titre',
+        )->get();
 
         if ($categories) {
             
@@ -198,7 +251,7 @@ class sous_categoriesController extends Controller
 
         // $cats = categories::find($id)->Etablissements;
 
-        $cats = sous_categories::from('sous_categories')->where('sous_categories.id', '=', $id)
+        $cats = sous_categories::where('sous_categories.id', '=', $id)
         ->join('etablissements_sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
@@ -240,12 +293,8 @@ class sous_categoriesController extends Controller
             'etablissements.latitude',
             'etablissements.longitude',
             'utilisateurs.login',
-            'sous_categories.id',
             'sous_categories.nom_sous_categorie',
-            'categories.id',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
             'arrondissements.libelle_arrondissement', 
             'villes.libelle_ville', 
             'departements.libelle_departement',
@@ -303,20 +352,16 @@ class sous_categoriesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.utilisateurs_id',
-            'utilisateurs.login',
             'annonces.nom_etablissement',
-            'sous_categories.id',
+            'utilisateurs.login',
             'sous_categories.nom_sous_categorie',
-            'categories.id',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
         )->get();
 
         if ($cats) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $cats
             ], 200);
@@ -339,27 +384,46 @@ class sous_categoriesController extends Controller
      
     public function deleteSousCategorie($id){
 
-        $delete = sous_categories::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+    
+            $role = $user['role'];
+    
+            if ($role == "administrateur") {
+    
+                $delete = sous_categories::findOrFail($id)->delete();
 
-        if ($delete) {
+                if ($delete) {
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
 
-        } else {
+                } else {
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
 
+                }
+
+            }else{
+    
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+    
+            }
+            
         }
-        
+                
     }
-
 
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\etablissements;
 use App\Models\sous_categories;
 use App\Models\etablissements_sous_categories;
+use App\Models\utilisateurs;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,186 +21,205 @@ class etablissementsController extends Controller
         if (Auth::check()) {
             
             // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $idAuth = Auth::id();
+
+            $donnees = utilisateurs::where('utilisateurs.id', '=', $idAuth)->addSelect('id')->first();
+
+            $idUtilisateur = $donnees['id'];
+
+            $role = $user['role'];
+
+            if ($role == 'administrateur') {
+
+                $etablissement = $request->all();
+
+                $validator = Validator::make($etablissement, [
+                    
+                    'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
+                    'adresse'=> 'required', 
+                    'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
+                    'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
+                    'heure_ouverture'=> 'required|int', 
+                    'heure_fermeture'=> 'required|int', 
+                    'email'=> 'required|unique:etablissements|max:200|email', 
+                    'boite_postale'=> 'unique:etablissements|max:100', 
+                    'site_web'=> 'unique:etablissements|max:100|regex:/[^0-9.-]/',
+                    'latitude'=> 'required|max:100', 
+                    'longitude'=> 'required|max:100', 
+                    'arrondissements_id'=> 'required',
+                    'nom_sous_categorie' => 'required'
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+
+                    $heure_ouverture = $etablissement['heure_ouverture'];
+
+                    $heure_fermeture = $etablissement['heure_fermeture'];
+
+                    $valeur_ouverture = ($heure_ouverture * 3600);
+
+                    $valeur_fermeture = ($heure_fermeture * 3600);
+
+                    $etablissement['heure_ouverture'] = $valeur_ouverture;
+
+                    $etablissement['heure_fermeture'] = $valeur_fermeture;
+
+                    $etablissement['utilisateurs_id'] = $idUtilisateur;
+
+                    $idSousCat = $etablissement['nom_sous_categorie'];
+
+                    $result = sous_categories::where('nom_sous_categorie', '=', $idSousCat)->addSelect('id')->first();
+
+                    $id2 = $result->id;
+
+                    if ($id2) {
+
+                        $ets = etablissements::create($etablissement);
+
+                        $id1 = $ets['id'];
+
+                        $EtsSousCat = etablissements_sous_categories::firstOrCreate([
+                            'etablissements_id' => $id1,
+                            'sous_categories_id' => $id2,
+                        ]);
+
+                        foreach ($ets as $etablissements) {
+                
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $ets
+                            ], 200);
+                            
+                        }
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Erreur lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }else {
+
+                        return response([
+                            'code' => '004',
+                            'message' => 'La sous categorie n\'existe pas',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+            
+        }
+
+    }
+
+
+    
+    // Ajouter ou modifier le logo d'un etablissement
+
+    public function logoEts(Request $request, $id){
+
+
+        if (Auth::check()) {
+
             $user = Auth::user();
 
             $role = $user['role'];
 
-            if ($role == null) {
+            $idAuth = Auth::id();
 
-                return response([
-                    'code' => '001',
-                    'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
-                    'data' => 'null'
-                ], 201);
+            $donnees = etablissements::where('utilisateurs_id', '=', $idAuth)->addSelect('id')->first();
 
-            }else {
+            $idU = $donnees['id'];
 
-                if ($role == 'administrateur') {
+            if ($idAuth == $idU || $role == "administrateur") {
 
-                    $etablissement = $request->all();
+                $imageEts = $request->all();
 
-                    $validator = Validator::make($etablissement, [
-                        
-                        'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-                        'adresse'=> 'required', 
-                        'telephone'=> 'unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
-                        'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
-                        'heure_ouverture'=> 'required|int', 
-                        'heure_fermeture'=> 'required|int', 
-                        'email'=> 'required|unique:etablissements|max:200|email', 
-                        'boite_postale'=> 'unique:etablissements|max:100', 
-                        'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-                        // 'logo'=> 'image|mimes:jpeg,png,jpg,svg|max:2048',
-                        // 'actif'=> 'required', 
-                        'latitude'=> 'required|max:100', 
-                        'longitude'=> 'required|max:100', 
-                        'arrondissements_id'=> 'required', 
-                        'utilisateurs_id'=> 'required',
-                        // 'sous_categories_id' => 'required',
-                        'nom_sous_categorie' => 'required'
-                    ]);
+                $validator = Validator::make($request->all(),[
+                    'logo' => 'required|mimes:png,jpg,jpeg'
+                ]);
+                
+                if($validator->fails()) {
 
-                    if ($validator->fails()) {
+                    $erreur = $validator->errors();
 
-                        $erreur = $validator->errors();
-                        
+                    return response([
+                        'code' => '001',
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' =>  $erreur
+                    ], 401);
+                }
+                
+                if ($file = $request->file('logo')) {
+
+                    $fileName = $file->getClientOriginalName();
+
+                    $path = $file->move(public_path('/etablissements/images/'), $fileName);
+
+                    $photoURL = url('/etablissements/images/'.$fileName);
+
+                    $imageEts['logo'] = $fileName;
+                
+                    $update = $donnees->update($imageEts);
+                    
+                    if ($update) {
+
                         return response([
-                            'code' => '001',
-                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                            'data' => $erreur
-                        ], 201);
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $donnees
+                        ], 200);
 
-                    }else {
-
-                        $heure_ouverture = $etablissement['heure_ouverture'];
-
-                        $heure_fermeture = $etablissement['heure_fermeture'];
-    
-                        $valeur_ouverture = ($heure_ouverture * 3600);
-    
-                        $valeur_fermeture = ($heure_fermeture * 3600);
-
-                        $img = $request->file('logo');
-
-                        if($request->hasFile('logo')){
-
-                            $fileName = $request->file('logo')->getClientOriginalName();
-
-                            $path = $img->move(public_path("/uploads/images/"), $fileName);
-
-                            $photoURL = url('/uploads/images/'.$fileName);
-
-                            $etablissement['logo'] = $fileName;
-
-                            $etablissement['heure_ouverture'] = $valeur_ouverture;
-
-                            $etablissement['heure_fermeture'] = $valeur_fermeture;
-
-                            $idSousCat = $etablissement['nom_sous_categorie'];
-
-                            $result = sous_categories::where('nom_sous_categorie', '=', $idSousCat)->addSelect('id')->first();
-
-                            $id2 = $result->id;
-
-                            if ($id2) {
-
-                                $ets = etablissements::create($etablissement);
-    
-                                $id1 = $ets['id'];
-    
-                                $EtsSousCat = etablissements_sous_categories::firstOrCreate([
-                                    'etablissements_id' => $id1,
-                                    'sous_categories_id' => $id2,
-                                ]);
-    
-    
-                                foreach ($ets as $etablissements) {
+                    } else {
                         
-                                    return response([
-                                        'code' => '200',
-                                        'message' => 'success',
-                                        'data' => $ets
-                                    ], 200);
-                                    
-                                }
-
-                                return response([
-                                    'code' => '005',
-                                    'message' => 'Erreur lors de l\'operation',
-                                    'data' => null
-                                ], 201);
-
-                            }else {
-
-                                return response([
-                                    'code' => '004',
-                                    'message' => 'La sous categorie n\'existe pas',
-                                    'data' => null
-                                ], 201);
-
-                            }
-
-                        }else {
-
-                            $etablissement['heure_ouverture'] = $valeur_ouverture;
-
-                            $etablissement['heure_fermeture'] = $valeur_fermeture;
-
-                            $idSousCat = $etablissement['nom_sous_categorie'];
-
-                            $result = sous_categories::where('nom_sous_categorie', '=', $idSousCat)->addSelect('id')->first();
-
-                            $id2 = $result->id;
-
-                            if ($id2) {
-
-                                $ets = etablissements::create($etablissement);
-    
-                                $id1 = $ets['id'];
-    
-                                $EtsSousCat = etablissements_sous_categories::firstOrCreate([
-                                    'etablissements_id' => $id1,
-                                    'sous_categories_id' => $id2,
-                                ]);
-    
-    
-                                foreach ($ets as $etablissements) {
-                        
-                                    return response([
-                                        'code' => '200',
-                                        'message' => 'success',
-                                        'data' => $ets
-                                    ], 200);
-                                    
-                                }
-
-                                return response([
-                                    'code' => '005',
-                                    'message' => 'Erreur lors de l\'operation',
-                                    'data' => null
-                                ], 201);
-
-                            }else {
-
-                                return response([
-                                    'code' => '004',
-                                    'message' => 'La sous categorie n\'existe pas',
-                                    'data' => null
-                                ], 201);
-
-                            }                        }
-                        
-                        }
-
-                    }else {
-
                         return response([
                             'code' => '005',
-                            'message' => 'Acces non autorise',
-                            'data' => 'null'
-                        ], 201);
-
+                            'message' => 'echec lors de la modification',
+                            'data' => null
+                        ], 200);
                     }
+                }else{
+
+                    return response()->json([
+                        "code" => '004',
+                        "message" => "Verifiez les données envoyées",
+                        "data" => $file
+                    ], 201);
+                    
+                }
+            }else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
 
             }
             
@@ -249,8 +269,6 @@ class etablissementsController extends Controller
             'etablissements.nombre_visite',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
             'arrondissements.libelle_arrondissement', 
             'villes.libelle_ville', 
             'departements.libelle_departement',
@@ -324,8 +342,6 @@ class etablissementsController extends Controller
             'etablissements.nombre_visite',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
             'arrondissements.libelle_arrondissement', 
             'villes.libelle_ville', 
             'departements.libelle_departement',
@@ -357,9 +373,6 @@ class etablissementsController extends Controller
     public function rechercheEtablissement($valeur){
 
         $data = etablissements::where('etablissements.actif', '=', true)
-        // ->where(function ($query) {
-        //     $query->where('etablissements.actif', '=', true);
-        // })
         ->where("nom_etablissement", "like", "%".$valeur."%" )
         ->orWhere("adresse", "like", "%".$valeur."%" )
         ->orWhere("telephone", "like", "%".$valeur."%" )
@@ -404,10 +417,9 @@ class etablissementsController extends Controller
             'etablissements.logo',
             'etablissements.latitude',
             'etablissements.longitude',
+            'etablissements.nombre_visite',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
             'arrondissements.libelle_arrondissement', 
             'villes.libelle_ville', 
             'departements.libelle_departement',
@@ -418,7 +430,7 @@ class etablissementsController extends Controller
 
             $id = $datas->id;
 
-            etablissements::find($id)->increment('nombre_visite');
+            // etablissements::find($id)->increment('nombre_visite');
 
             return response([
                 'code' => '200',
@@ -454,7 +466,7 @@ class etablissementsController extends Controller
 
                 return response([
                     'code' => '001',
-                    'message' => 'Vous n\'avez aucun role veuillez completer vos informations avant de poursuivre ',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
 
@@ -468,21 +480,18 @@ class etablissementsController extends Controller
 
                     $validator = Validator::make($request->all(), [
                         
-                        'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
-                        'adresse'=> 'required|unique:etablissements|max:100', 
-                        'telephone'=> 'unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
-                        'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
+                        'nom_etablissement'=> 'required|max:100|regex:/[^0-9.-]/', 
+                        'adresse'=> 'required|max:100', 
+                        'telephone'=> 'max:100|regex:/[^a-zA-Z]/', 
+                        'description'=> 'required|max:255|regex:/[^0-9.-]/', 
                         'heure_ouverture'=> 'required', 
                         'heure_fermeture'=> 'required', 
-                        'email'=> 'required|unique:etablissements|max:200|email', 
-                        'boite_postale'=> 'required|unique:etablissements|max:100', 
-                        'site_web'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/',
-                        'actif'=> 'required', 
+                        'email'=> 'required|max:200|email', 
+                        'boite_postale'=> 'required|max:100', 
+                        'site_web'=> 'required|max:100|regex:/[^0-9.-]/',
                         'latitude'=> 'required|max:100', 
                         'longitude'=> 'required|max:100', 
                         'arrondissements_id'=> 'required', 
-                        'utilisateurs_id'=> 'required',
-                        'sous_categories_id' => 'required'
                     ]);
 
                     if ($validator->fails()) {
@@ -497,60 +506,23 @@ class etablissementsController extends Controller
 
                     }else {
 
-                        $img = $request->file('logo');
+                        $ets = $identif->update($etablissement);
 
-                        if($request->hasFile('logo')){
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
 
-                            $fileName = $request->file('logo')->getClientOriginalName();
+                        } else {
 
-                            $path = $img->move(public_path("/uploads/images/"), $fileName);
-
-                            $photoURL = url('/uploads/images/'.$fileName);
-
-                            $etablissement['logo'] = $fileName;
-
-                            $ets = $identif->update($etablissement);
-
-                            if ($ets) {
-                                
-                                return response([
-                                    'code' => '200',
-                                    'message' => 'success',
-                                    'data' => $identif,
-                                    'url' => $photoURL
-                                ], 200);
-
-                            } else {
-
-                                return response([
-                                    'code' => '005',
-                                    'message' => 'Erreur lors de l\'operation',
-                                    'data' => null
-                                ], 201);
-                                
-                            }
-
-                        }else {
-
-                            $ets = $identif->update($etablissement);
-
-                            if ($ets) {
-                                
-                                return response([
-                                    'code' => '200',
-                                    'message' => 'success',
-                                    'data' => $identif
-                                ], 200);
-
-                            } else {
-
-                                return response([
-                                    'message' => '005',
-                                    'message' => 'Echec lors de l\'operation',
-                                    'data' => null
-                                ], 201);
-                                
-                            }
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
                             
                         }
                         
@@ -582,7 +554,6 @@ class etablissementsController extends Controller
 
         $annonces = etablissements::from('etablissements')->where('etablissements.id', '=', $id)
         ->join('annonces_etablissements', 'annonces_etablissements.etablissements_id', '=', 'etablissements.id')
-        // ->join('annonces', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
         ->join('annonces', function($join)
             {
                 $join->on('annonces_etablissements.annonces_id', '=', 'annonces.id')
@@ -595,8 +566,7 @@ class etablissementsController extends Controller
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
-        ->select(                    
-            'annonces.id',
+        ->select('annonces.id',
             'annonces.titre',
             'annonces.description',
             'annonces.date',
@@ -610,17 +580,14 @@ class etablissementsController extends Controller
             'calendriers.label',
             'calendriers.heure_debut',
             'calendriers.heure_fin',
-            'annonces.sous_categories_id',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'categories.image',
-            'categories.titre',
-            // 'etablissements.id',
         )->get();
 
         if ($annonces) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $annonces
             ], 200);
@@ -638,20 +605,20 @@ class etablissementsController extends Controller
     }
 
 
+    
     // Affichage les utilisateurs a partir de l'etablissement
 
     public function Utilisateur($id){
 
         $utilisateur = etablissements::from('etablissements')
         ->where('etablissements.id', '=', $id)
-        // ->join('utilisateurs', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('utilisateurs', function($join)
         {
             $join->on('etablissements.utilisateurs_id', '=', 'utilisateurs.id')
             ->where('utilisateurs.actif', '=', true);
         })
         ->select(                    
-            'etablissements.utilisateurs_id',
+            'utilisateurs.id',
             'utilisateurs.login',
             'utilisateurs.email',
             'utilisateurs.photo',
@@ -660,13 +627,12 @@ class etablissementsController extends Controller
             'utilisateurs.nomAdministrateur',
             'utilisateurs.prenomAdministrateur',
             'utilisateurs.telephoneAdministrateur',
-            'etablissements.id',
-            'etablissements.nom_etablissement',
         )->get();
 
         if ($utilisateur == true) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $utilisateur
             ], 200);
@@ -695,24 +661,17 @@ class etablissementsController extends Controller
         $Notes = etablissements::where('etablissements.id', '=', $id)
         ->join('notes', 'notes.etablissements_id', '=', 'etablissements.id')
         ->join('utilisateurs', 'notes.utilisateurs_id', '=', 'utilisateurs.id')
-        // ->join('categories', function($join)
-        //     {
-        //         $join->on('categories.id', '=', 'sous_categories.categories_id');
-        //     })
-        ->select(
-                'notes.id',
+        ->select('notes.id',
                 'notes.commentaire',
                 'notes.score',
                 'notes.created_at',
-                'utilisateurs.login',
-                'utilisateurs.email',
-                // 'etablissements.id',
-                'etablissements.nom_etablissement',)
+                'utilisateurs.login',)
         ->get();
 
         if ($Notes) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $Notes
             ], 200);
@@ -735,10 +694,6 @@ class etablissementsController extends Controller
 
     public function sousCategories($id){
 
-        // $sousCategories = etablissements::find($id);
-        // $sousCat = $sousCategories->sousCategories;
-        // return $sousCat;
-
         $sousCat = etablissements::where('etablissements.id', '=', $id)
         ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
         ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
@@ -749,16 +704,13 @@ class etablissementsController extends Controller
         ->select(
                 'sous_categories.id',
                 'sous_categories.nom_sous_categorie',
-                'categories.nomCategorie',
-                'categories.image',
-                'categories.titre',
-                // 'etablissements.id',
-                'etablissements.nom_etablissement',)
+                'categories.nomCategorie',)
         ->get();
 
         if ($sousCat) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $sousCat
             ], 200);
@@ -788,18 +740,16 @@ class etablissementsController extends Controller
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
-        ->select(
-                'categories.id',
+        ->select('categories.id',
                 'categories.nomCategorie',
                 'categories.image',
-                'categories.titre',
-                // 'etablissements.id',
-                'etablissements.nom_etablissement',)
+                'categories.titre',)
         ->get();
 
         if ($sousCat) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $sousCat
             ], 200);
@@ -832,7 +782,7 @@ class etablissementsController extends Controller
     public function plusVisiter(){
 
         $etablissement = etablissements::from('etablissements')
-        ->where('etablissement.actif', '=', true)
+        ->where('etablissements.actif', '=', true)
         ->orderBy('etablissements.nombre_visite', 'desc')->limit(10)
         ->join('etablissements_sous_categories', 'etablissements_sous_categories.etablissements_id', '=', 'etablissements.id')
         ->join('sous_categories', 'etablissements_sous_categories.sous_categories_id', '=', 'sous_categories.id')
@@ -854,28 +804,27 @@ class etablissementsController extends Controller
                 $join->on('pays.id', '=', 'departements.pays_id');
             })
         ->select('etablissements.id',
-                    'etablissements.nom_etablissement',
-                    'etablissements.adresse',
-                    'etablissements.telephone',
-                    'etablissements.description',
-                    'etablissements.heure_ouverture',
-                    'etablissements.heure_fermeture',
-                    'etablissements.email',
-                    'etablissements.boite_postale',
-                    'etablissements.site_web',
-                    'etablissements.logo',
-                    'etablissements.latitude',
-                    'etablissements.longitude',
-                    'etablissements.nombre_visite',
-                    'sous_categories.id',
-                    'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
-                    'categories.image',
-                    'categories.titre',
-                    'arrondissements.libelle_arrondissement', 
-                    'villes.libelle_ville', 
-                    'departements.libelle_departement',
-                    'pays.libelle_pays')->get();
+            'etablissements.nom_etablissement',
+            'etablissements.adresse',
+            'etablissements.telephone',
+            'etablissements.description',
+            'etablissements.heure_ouverture',
+            'etablissements.heure_fermeture',
+            'etablissements.email',
+            'etablissements.boite_postale',
+            'etablissements.site_web',
+            'etablissements.logo',
+            'etablissements.latitude',
+            'etablissements.longitude',
+            'etablissements.nombre_visite',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+            'departements.libelle_departement',
+            'pays.libelle_pays'
+        )->get();
+
         if ($etablissement) {
                     
             return response([
@@ -889,7 +838,7 @@ class etablissementsController extends Controller
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
-                'data' => 'null'
+                'data' => null
             ], 201);
 
         }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
@@ -901,20 +850,38 @@ class etablissementsController extends Controller
     
     public function deleteEtablissement($id){
 
-        $valeur = etablissements::findOrFail($id);
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        $valeur['actif'] = 0;
+            $role = $user['role'];
 
-        $modif = $valeur->update();
+            if ($role == "administrateur") {
 
-        return response([
-            'code' => '200',
-            'message' => 'succes',
-            'data' => null
-        ], 201);
+                $valeur = etablissements::findOrFail($id);
+
+                $valeur['actif'] = 0;
+
+                $modif = $valeur->update();
+
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => null
+                ], 201);
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+            
+        }
 
     }
-    
-
     
 }

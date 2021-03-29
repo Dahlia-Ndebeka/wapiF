@@ -13,7 +13,16 @@ class arrondissementsController extends Controller
 
     public function Arrondissements(){
 
-        $arrondissement = arrondissements::all();
+        // $arrondissement = arrondissements::all();
+
+        $arrondissement = arrondissements::join('villes', function($join)
+        {
+            $join->on('villes.id', '=', 'arrondissements.villes_id');
+        })
+        ->select('arrondissements.id',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+        )->get();
 
         if ($arrondissement) {
 
@@ -40,7 +49,17 @@ class arrondissementsController extends Controller
 
     public function getArrondissement($id){
 
-        $arrondissement = arrondissements::find($id);
+        // $arrondissement = arrondissements::find($id);
+
+        $arrondissement = arrondissements::where('arrondissements.id', '=', $id)
+        ->join('villes', function($join)
+        {
+            $join->on('villes.id', '=', 'arrondissements.villes_id');
+        })
+        ->select('arrondissements.id',
+            'arrondissements.libelle_arrondissement', 
+            'villes.libelle_ville', 
+        )->get();
 
         if ($arrondissement) {
             
@@ -67,44 +86,63 @@ class arrondissementsController extends Controller
 
     public function createArrondissement(Request $request){
 
-        $validator = Validator::make($request->all(), [
+        if (Auth::check()) {
             
-            'libelle' => 'required|unique:arrondissements|max:250|regex:/[^0-9.-]/',
-            'villes_id' => 'required'
-        ]);
+            $user = Auth::user();
 
-        if ($validator->fails()) {
+            $role = $user['role'];
 
-            $erreur = $validator->errors();
-            
-            return response([
-                'code' => '001',
-                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                'data' => $erreur
-            ], 201);
+            if ($role == "administrateur") {
 
-        }else {
+                $validator = Validator::make($request->all(), [
+                    'libelle' => 'required|unique:arrondissements|max:250|regex:/[^0-9.-]/',
+                    'villes_id' => 'required'
+                ]);
+        
+                if ($validator->fails()) {
+        
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                        'data' => $erreur
+                    ], 201);
+        
+                }else {
+        
+                    $arrondissement = arrondissements::create($request->all());
+        
+                    if ($arrondissement) {
+                        
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $arrondissement
+                        ], 200);
+        
+                    }else {
+                        
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'opération',
+                            'data' => null
+                        ], 201);
+        
+                    }
+                    
+                }
 
-            $arrondissement = arrondissements::create($request->all());
+            }else{
 
-            if ($arrondissement) {
-                
                 return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $arrondissement
-                ], 200);
-
-            }else {
-                
-                return response([
-                    'code' => '005',
-                    'message' => 'Echec lors de l\'opération',
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
                     'data' => null
                 ], 201);
-
+                
             }
-            
+        
         }
 
     }
@@ -114,65 +152,85 @@ class arrondissementsController extends Controller
 
     public function putArrondissement(Request $request, $id){
 
-        $arrondissement = arrondissements::findOrFail($id);
-
-        if ($arrondissement) {
+        if (Auth::check()) {
             
-            $validator = Validator::make($request->all(), [
-            
-                'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
-                'villes_id' => 'required'
-            ]);
-    
-            if ($validator->fails()) {
-    
-                $erreur = $validator->errors();
-            
-                return response([
-                    'code' => '001',
-                    'message' => 'L\'un des champs est vide ou ne respecte pas le format',
-                    'data' => $erreur
-                ], 200);
-    
-            }else {
-                
-                $modif = $arrondissement->update($request->all());
+            $user = Auth::user();
 
-                if ($modif) {
+            $role = $user['role'];
 
-                    return response([
-                        'code' => '200',
-                        'message' => 'success',
-                        'data' => $arrondissement
-                    ], 200);
+            if ($role == "administrateur") {
+
+                $arrondissement = arrondissements::findOrFail($id);
+
+                if ($arrondissement) {
+                    
+                    $validator = Validator::make($request->all(), [
+                    
+                        'libelle' => 'required|unique:pays|max:250|regex:/[^0-9.-]/',
+                        'villes_id' => 'required'
+                    ]);
+            
+                    if ($validator->fails()) {
+            
+                        $erreur = $validator->errors();
+                    
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 200);
+            
+                    }else {
+                        
+                        $modif = $arrondissement->update($request->all());
+
+                        if ($modif) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $arrondissement
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Erreur lors de l\'operation',
+                                'data' => null
+                            ], 201);
+
+                        }
+                        
+                    }
 
                 }else {
 
                     return response([
-                        'code' => '005',
-                        'message' => 'Erreur lors de l\'operation',
+                        'code' => '004',
+                        'message' => 'Identifiant incorrect',
                         'data' => null
                     ], 201);
 
                 }
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
                 
             }
-
-        }else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
+        
         }
 
     }
 
 
+    
     // Affichage des etablissements a partir de l'arrondissement
-
 
     public function Etablissements($id){
 
@@ -203,7 +261,6 @@ class arrondissementsController extends Controller
             {
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
-        
         ->select('etablissements.id',
             'etablissements.nom_etablissement',
             'etablissements.adresse',
@@ -219,9 +276,8 @@ class arrondissementsController extends Controller
             'etablissements.longitude',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'arrondissements.libelle_arrondissement', 
+            'arrondissements.libelle_arrondissement',
             'villes.libelle_ville', 
-            'departements.id', 
             'departements.libelle_departement',
             'pays.libelle_pays'
         )->get();
@@ -229,6 +285,7 @@ class arrondissementsController extends Controller
         if ($ets) {
             
             return response([
+                'code' => '200',
                 'message' => 'success',
                 'data' => $ets
             ], 200);
@@ -245,53 +302,50 @@ class arrondissementsController extends Controller
         
     }
 
-    // public function Etablissements($id){
-
-    //     $etablissements = arrondissements::find($id)->Etablissements;
-
-    //     if ($etablissements) {
-            
-    //         return response([
-    //             'message' => 'success',
-    //             'data' => $etablissements
-    //         ], 200);
-
-    //     } else {
-
-    //         return response([
-    //             'code' => '004',
-    //             'message' => 'Identifiant incorrect',
-    //             'data' => null
-    //         ], 201);
-
-    //     }
-        
-    // }
-
 
 
     // Supprimer un arrondissement
      
     public function deleteArrondissement($id){
 
-        $delete = arrondissements::findOrFail($id)->delete();
+        if (Auth::check()) {
+            
+            $user = Auth::user();
 
-        if ($delete) {
+            $role = $user['role'];
 
-            return response([
-                'code' => '200',
-                'message' => 'Suppression effectuée avec succes',
-                'data' => null
-            ], 200);
+            if ($role == "administrateur") {
 
-        } else {
+                $delete = arrondissements::findOrFail($id)->delete();
 
-            return response([
-                'code' => '004',
-                'message' => 'L\'identifiant incorrect',
-                'data' => null
-            ], 201);
+                if ($delete) {
 
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+
+                } else {
+
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }else{
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+                
+            }
+        
         }
         
     }

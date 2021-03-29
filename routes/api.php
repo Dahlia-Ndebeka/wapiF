@@ -97,7 +97,6 @@ Route::get('etablissementSousCategories/{id}', [etablissementsController::class,
 Route::get('etablissementCategories/{id}', [etablissementsController::class, 'Categories']);
 Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
 Route::get('etablissementAnnonces/{id}', [etablissementsController::class, 'Annonces']);
-// Route::get('etablissement', [etablissementsController::class, 'ets']);
 Route::get('imageEts/{filename}', [etablissementsController::class, 'image']);
 Route::get('etablissementUtilisateur/{id}', [etablissementsController::class, 'Utilisateur']);
 Route::get('etablissementPlusVisiter', [etablissementsController::class, 'plusVisiter']);
@@ -121,7 +120,6 @@ Route::get('annonce/{id}', [annoncesController::class, 'getAnnonce']);
 Route::get('annonceUtilisateur/{id}', [annoncesController::class, 'Utilisateur']);
 Route::get('annonceCalendrier/{id}', [annoncesController::class, 'Calendrier']);
 Route::get('annonceImages/{id}', [annoncesController::class, 'imageAnnonce']);
-Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
 Route::get('annonceEts/{id}', [annoncesController::class, 'Etablissements']);
 // Route pour afficher l'amge de couverture de l'annonce
 Route::get('imageAnnonce/{filename}', [annoncesController::class, 'image']);
@@ -136,6 +134,7 @@ Route::get('annonceCommentaires/{id}', [annoncesController::class, 'Commentaires
 Route::get('commentaireUtilisateur/{id}', [commentairesController::class, 'Utilisateur']);
 Route::get('commentaires', [commentairesController::class, 'Commentaires']);
 Route::get('commentaire/{id}', [commentairesController::class, 'getCommentaire']);
+Route::get('commentairesAnnonce/{id}', [commentairesController::class, 'CommentaireAnnonces']);
 
 
 
@@ -156,7 +155,6 @@ Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
 
 
 
-
 // Secure routes
 
 Route::group(['middleware'=>['auth:sanctum']], function() {
@@ -169,7 +167,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     //Routes concernanats les comptes 
 
     Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
-    // Route::put('utilisateurAdd/{id}', [utilisateursController::class, 'addUtilisateur']);
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
     // Modifier le mot de passe d'un utilisateur
     Route::put('utilisateur/{id}', [utilisateursController::class, 'putUtilisateurMobile']);
@@ -246,6 +243,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
     Route::put('etablissementActif/{id}', [etablissementsController::class, 'deleteEtablissement']);
+    Route::put('logoEts/{id}', [etablissementsController::class, 'logoEts']);
 
 
 
@@ -260,12 +258,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Routes concernant les annonces
 
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
+    Route::post('annonceAdd', [annoncesController::class, 'createAnnonceEtablissement']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
     Route::get('annoncesPublier', [annoncesController::class, 'AnnoncesPublier']);
     Route::put('annonceActif/{id}', [annoncesController::class, 'deleteAnnonce']);
     // Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
     Route::put('annonceEtat/{id}', [annoncesController::class, 'Publier']);
     Route::put('imgAnnonce/{id}', [annoncesController::class, 'createImageAnnonce']);
+    Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
 
 
 
@@ -287,10 +287,6 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     // Routes concernant les notes
 
-    Route::get('notes', [notesController::class, 'Notes']);
-    Route::get('note/{id}', [notesController::class, 'getNote']);
-    Route::get('noteUtilisateur/{id}', [notesController::class, 'Utilisateur']);
-    Route::get('noteEts/{id}', [notesController::class, 'Etablissements']);
     Route::post('note', [notesController::class, 'createNote']);
     Route::put('note/{id}', [notesController::class, 'putNote']);
     Route::delete('note/{id}', [notesController::class, 'deleteNote']);

@@ -32,11 +32,11 @@ class etablissements extends Model
                                 'nom_sous_categorie', 
                                 'arrondissements_id', 
                                 'utilisateurs_id'
-                                ];
+    ];
 
     protected $hidden = [
         'updated_at',
-        // 'created_at',
+        'created_at',
     ];
 
 

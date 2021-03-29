@@ -29,7 +29,7 @@ class utilisateursController extends Controller
                 
                 // $utilisateurs = Utilisateurs::All();
 
-                $utilisateurs = Utilisateurs::where('utilisateurs.actif', '=', true)->get();
+                $utilisateurs = utilisateurs::where('utilisateurs.actif', '=', true)->get();
         
                 if ($utilisateurs) {
 
@@ -70,7 +70,6 @@ class utilisateursController extends Controller
 
         if (Auth::check()) {
             
-            // utilisateur actuellement authentifie
             $user = Auth::user();
 
             $role = $user['role'];
@@ -78,7 +77,6 @@ class utilisateursController extends Controller
             if ($role == 'administrateur') {
 
                 // $Utilisateur = Utilisateurs::find($id);
-                // where('etablissements.actif', '=', true)
 
                 $Utilisateur = utilisateurs::where('utilisateurs.id', '=', $id)
                 ->where('utilisateurs.actif', '=', true)
@@ -138,7 +136,6 @@ class utilisateursController extends Controller
 
                 $etablissements = utilisateurs::from('utilisateurs')
                 ->where('utilisateurs.id', '=', $id)
-                // ->join('etablissements', 'etablissements.utilisateurs_id', '=', 'utilisateurs.id')
                 ->join('etablissements', function($join)
                     {
                         $join->on('etablissements.utilisateurs_id', '=', 'utilisateurs.id')
@@ -182,8 +179,7 @@ class utilisateursController extends Controller
                     'villes.libelle_ville', 
                     'departements.libelle_departement',
                     'pays.libelle_pays',
-                    'utilisateurs.login',
-                    'utilisateurs.email'
+                    'utilisateurs.login'
                 )->get();
 
                 if ($etablissements) {
@@ -231,7 +227,6 @@ class utilisateursController extends Controller
 
                 $annonces = utilisateurs::from('utilisateurs')
                 ->where('utilisateurs.id', '=', $id)
-                // ->join('annonces', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
                 ->join('annonces', function($join)
                     {
                         $join->on('annonces.utilisateurs_id', '=', 'utilisateurs.id')
@@ -253,15 +248,9 @@ class utilisateursController extends Controller
                     'annonces.latitude',
                     'annonces.longitude',
                     'annonces.nom_etablissement',
-                    'annonces.sous_categories_id',
                     'sous_categories.nom_sous_categorie',
-                    // 'categories.id',
                     'categories.nomCategorie',
-                    'categories.image',
-                    // 'categories.titre',
-                    // 'annonces.utilisateurs_id',
-                    'utilisateurs.login',
-                    // 'utilisateurs.email',
+                    'utilisateurs.login'
                 )->get();
 
                 foreach ($annonces as $annonce) {
@@ -304,7 +293,6 @@ class utilisateursController extends Controller
         $Utilisateur = $request->all();
 
         $validator = Validator::make($request->all(), [
-
             'login' => 'required|unique:utilisateurs|max:100|regex:/[^0-9.-]/',
             'password' => 'required|unique:utilisateurs',
             'email' => 'required|email|unique:utilisateurs',
@@ -353,7 +341,7 @@ class utilisateursController extends Controller
 
 
 
-                    // Creer un administrateur
+            // Creer un administrateur
 
     public function createUtilisateurAdministrateur(Request $request){
 
@@ -765,16 +753,11 @@ class utilisateursController extends Controller
     }
 
 
-    
+
     //Ajouter ou Modifier la photo d'utilisateur(Mobinaute et administrateur)
-
-    public function putImage(Request $request, $id)
-    {
-
+    
+    public function putImage(Request $request, $id){
         if (Auth::check()) {
-
-            // utilisateur actuellement authentifie
-
             $user = Auth::user();
     
             $idAuth = Auth::id();
@@ -782,79 +765,49 @@ class utilisateursController extends Controller
             $donnees = utilisateurs::findOrFail($id);
     
             $idU = $donnees['id'];
-    
             if ($idAuth == $idU) {
-    
-                // Si il existe un champ photo
-
-                if($request->has('photo')) {
-                // Vérification du champ photo: est-il une image ou non
-                     $validator = Validator::make($request->all(), ['photo' =>
-                     'required|image|mimes:jpeg,png,jpg,svg|max:2048']);
-    
-                        // Si photo n'est pas une image
-                    if ($validator->fails()) {
-        
-                        $erreur = $validator->errors();
-        
-                        return response([
-                            'code' => '001',
-                            'message' => "Le champ photo ne contient pas une image",
-                            'data' => $erreur
-                        ], 202);
-        
-                    }else {
-                        $img = $request->file('photo');
-                            // Si photo est une image
-                        if($request->hasFile('photo')){
-        
-                            $fileName = $request->file('photo')->getClientOriginalName();
-        
-                            $path = $img->move(public_path("/utilisateurs/images/"), $fileName);
-        
-                            $photoURL = url('/utilisateurs/images/'.$fileName);
-        
-                            $Utilisateur['photo'] = $fileName;
-        
-                            $update = $donnees->update($Utilisateur);
-        
-                            if ($update) {
-                                return response([
-                                    'code' => '200',
-                                    'message' => 'succes',
-                                    'data' => $donnees
-                                ], 200);
-        
-                            } else {
-        
-                                return response([
-                                    'code' => '005',
-                                    'message' => 'echec lors de la modification',
-                                    'data' => null
-                                ], 200);
-        
-                            }
-        
-                        }else {
-                            return response([
-                                'code' => '001',
-                                'message' => 'Le champ photo ne contient pas en réalité une image',
-                                'data' => null
-                            ], 201);
-        
-                        }
-        
-                    }
-                } else {
+                $validator = Validator::make($request->all(),
+                ['photo' => 'required|mimes:png,jpg,jpeg']);
+                
+                if($validator->fails()) {
+                    $erreur = $validator->errors();
                     return response([
                         'code' => '001',
-                        'message' => "Le champ photo n'existe pas",
-                        'data' => null
-                    ], 202);
+                        'message' => 'erreur lie au champs de saisie',
+                        'data' =>  $erreur
+                    ], 401);
                 }
-    
+                
+                if ($file = $request->file('photo')) {
+                    $fileName = $file->getClientOriginalName();
+                    $path = $file->move(public_path("/utilisateurs/images/"), $fileName);
+                    $photoURL = url('/utilisateurs/images/'.$fileName);
+                    $Utilisateur['photo'] = $fileName;
+                
+                    $update = $donnees->update($Utilisateur);
+                    
+                    if ($update) {
+                        return response([
+                            'code' => '200',
+                            'message' => 'succes',
+                            'data' => $donnees], 
+                            200);
+                    } else {
+                        return response([
+                            'code' => '005',
+                            'message' => 'echec lors de la modification',
+                            'data' => null], 
+                            200);
+                    }
+                }else{
+                    return response()->json([
+                        "code" => '004',
+                        "message" => "Verifiez les données envoyées",
+                        "data" => $file]
+                        );
+                    
+                }
             }else {
-    
                 return response([
                     'code' => '004',
                     'message' => 'Acces non autorise',
@@ -862,10 +815,10 @@ class utilisateursController extends Controller
                 ], 201);
     
             }
-    
         }
-
+        
     }
+
 
 
 
@@ -880,11 +833,11 @@ class utilisateursController extends Controller
             {
                 $join->on('annonces.id', '=', 'commentaires.annonces_id');
             })
-        ->select('commentaires.commentaire',
-            'commentaires.created_at',
+        ->select('commentaires.id',
+            'commentaires.commentaire',
+            'commentaires.date_commentaire',
             'annonces.titre',
-            'utilisateurs.login',
-            'utilisateurs.email',
+            'utilisateurs.login'
         )->get();
 
         if ($commentaires) {
@@ -913,7 +866,18 @@ class utilisateursController extends Controller
 
     public function Notes($id){
 
-        $Notes = utilisateurs::find($id)->Notes;
+        // $Notes = utilisateurs::find($id)->Notes;
+
+        $Notes = utilisateurs::where('utilisateurs.id', '=', $id)
+        ->join('notes', 'notes.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('etablissements', 'notes.etablissements_id', '=', 'etablissements.id')
+        ->select('notes.id',
+            'notes.commentaire',
+            'notes.score',
+            'notes.created_at',
+            'etablissements.nom_etablissement',
+            'utilisateurs.login')
+        ->get();
 
         if ($Notes) {
             
@@ -1001,17 +965,49 @@ class utilisateursController extends Controller
 
     public function deleteUtilisateur($id){
 
-        $valeur = utilisateurs::findOrFail($id);
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+    
+            $role = $user['role'];
+    
+            if ($role == "administrateur") {
+    
+                $valeur = utilisateurs::findOrFail($id);
 
-        $valeur['actif'] = 0;
+                $valeur['actif'] = 0;
 
-        $modif = $valeur->update();
-
-        return response([
-            'code' => '200',
-            'message' => 'succes',
-            'data' => null
-        ], 201);
+                $modif = $valeur->update();
+    
+                if ($modif) {
+    
+                    return response([
+                        'code' => '200',
+                        'message' => 'Suppression effectuée avec succes',
+                        'data' => null
+                    ], 200);
+    
+                } else {
+    
+                    return response([
+                        'code' => '004',
+                        'message' => 'L\'identifiant incorrect',
+                        'data' => null
+                    ], 201);
+    
+                }
+    
+            }else{
+    
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+    
+            }
+            
+        }
 
     }
 
