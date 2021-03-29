@@ -900,6 +900,7 @@ class utilisateursController extends Controller
     }
 
 
+    
     // Rechercher un utilisateur à partir des ces champs
 
     public function rechercheUtilisateur($valeur){
