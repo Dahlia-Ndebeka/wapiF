@@ -22,8 +22,6 @@ class annonces extends Model
                             'lieu',
                             'latitude',
                             'longitude',
-                            'etablissement',
-                            'nom_etablissement',
                             'etat', 
                             'actif', 
                             'utilisateurs_id', 

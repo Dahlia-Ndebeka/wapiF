@@ -29,7 +29,6 @@ class etablissements extends Model
                                 'actif', 
                                 'latitude', 
                                 'longitude',
-                                'nom_sous_categorie', 
                                 'arrondissements_id', 
                                 'utilisateurs_id'
     ];

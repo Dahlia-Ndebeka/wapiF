@@ -126,6 +126,7 @@ Route::get('imageAnnonce/{filename}', [annoncesController::class, 'image']);
 Route::get('annonceSousCats/{id}', [annoncesController::class, 'SousCategories']);
 Route::get('annonceCategories/{id}', [annoncesController::class, 'Categories']);
 Route::get('annonceCommentaires/{id}', [annoncesController::class, 'Commentaires']);
+Route::get('annonceplusVisiter', [annoncesController::class, 'plusVisiter']);
 
 
 
@@ -240,7 +241,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
     Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
     Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
-    Route::post('etablissement', [etablissementsController::class, 'createEtablissement']);
+    Route::middleware('cors:api')->post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
     Route::put('etablissementActif/{id}', [etablissementsController::class, 'deleteEtablissement']);
     Route::put('logoEts/{id}', [etablissementsController::class, 'logoEts']);
@@ -260,13 +261,11 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post('annonce', [annoncesController::class, 'createAnnonce']);
     Route::post('annonceAdd', [annoncesController::class, 'createAnnonceEtablissement']);
     Route::put('annonce/{id}', [annoncesController::class, 'putAnnonce']);
-    Route::get('annoncesPublier', [annoncesController::class, 'AnnoncesPublier']);
     Route::put('annonceActif/{id}', [annoncesController::class, 'deleteAnnonce']);
     // Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
     Route::put('annonceEtat/{id}', [annoncesController::class, 'Publier']);
     Route::put('imgAnnonce/{id}', [annoncesController::class, 'createImageAnnonce']);
     Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
-
 
 
     // Les routes concernant les commentaires

@@ -342,7 +342,6 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie'
         )->get();
@@ -390,7 +389,6 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie'
         )->get();
@@ -471,119 +469,11 @@ class annoncesController extends Controller
 
     public function getAnnonce($id){
 
-        $datas = annonces::findOrFail($id);
+        annonces::find($id)->increment('nombre_visite');
 
-        $etablissement = $datas['nom_etablissement'];
-
-        if ($etablissement == true) {
-            
-            $annonces = annonces::where('annonces.id', '=', $id)
-            ->where('etat', '=', true)
-            ->where('annonces.actif', '=', true)
-            ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-            ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
-            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-            ->join('categories', function($join)
-                {
-                    $join->on('categories.id', '=', 'sous_categories.categories_id');
-                })
-            ->select('annonces.id',
-                'annonces.titre',
-                'annonces.description',
-                'annonces.date',
-                'annonces.type',
-                'annonces.image_couverture',
-                'annonces.lieu',
-                'annonces.latitude',
-                'annonces.longitude',
-                'annonces.nom_etablissement',
-                'sous_categories.nom_sous_categorie',
-                'categories.nomCategorie',
-                'calendriers.date_evenement',
-                'calendriers.heure_debut',
-                'calendriers.heure_fin'
-            )->get();
-
-            if ($annonces) {
-                
-                return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $annonces
-                ], 200);
-
-            }else {
-                
-                return response([
-                    'code' => '004',
-                    'message' => 'Identifiant incorrect',
-                    'data' => null
-                ], 201);
-
-            }
-
-        } else {
-            
-            $annonces = annonces::where('annonces.id', '=', $id)
-            ->where('etat', '=', true)
-            ->where('annonces.actif', '=', true)
-            ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-            ->join('categories', function($join)
-                {
-                    $join->on('categories.id', '=', 'sous_categories.categories_id');
-                })
-            ->select('annonces.id',
-                'annonces.titre',
-                'annonces.description',
-                'annonces.date',
-                'annonces.type',
-                'annonces.image_couverture',
-                'annonces.lieu',
-                'annonces.latitude',
-                'annonces.longitude',
-                'sous_categories.nom_sous_categorie',
-                'categories.nomCategorie'
-            )->get();
-
-            if ($annonces) {
-                
-                return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $annonces
-                ], 200);
-
-            }else {
-                
-                return response([
-                    'code' => '004',
-                    'message' => 'Identifiant incorrect',
-                    'data' => null
-                ], 201);
-
-            }
-
-        }
-
-    }
-
-
-
-    // Rechercher une annonce
-
-    public function rechercheAnnonce($valeur){
-
-        $data = annonces::where('etat', '=', true )
+        $annonces = annonces::where('annonces.id', '=', $id)
+        ->where('etat', '=', true)
         ->where('annonces.actif', '=', true)
-        ->where("annonces.titre", "like", "%".$valeur."%" )
-        ->orWhere("description", "like", "%".$valeur."%" )
-        ->orWhere("etat", "like", "%".$valeur."%" )
-        ->orWhere("date", "like", "%".$valeur."%" )
-        ->orWhere("type", "like", "%".$valeur."%" )
-        ->orWhere("image_couverture", "like", "%".$valeur."%" )
-        ->orWhere("lieu", "like", "%".$valeur."%" )
-        ->orWhere("nom_etablissement", "like", "%".$valeur."%" )
         ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
@@ -599,7 +489,59 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie'
+        )->get();
+
+        foreach ($annonces as $annonce) {
+                    
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonce
+            ], 200);
+
+        }
+            
+        return response([
+            'code' => '004',
+            'message' => 'Identifiant incorrect',
+            'data' => null
+        ], 201);
+
+
+    }
+
+
+
+    // Rechercher une annonce
+
+    public function rechercheAnnonce($valeur){
+
+        $data = annonces::where('annonces.etat', '=', true )
+        ->where('annonces.actif', '=', true)
+        ->where("annonces.titre", "like", "%".$valeur."%" )
+        ->orWhere("description", "like", "%".$valeur."%" )
+        ->orWhere("etat", "like", "%".$valeur."%" )
+        ->orWhere("date", "like", "%".$valeur."%" )
+        ->orWhere("type", "like", "%".$valeur."%" )
+        ->orWhere("image_couverture", "like", "%".$valeur."%" )
+        ->orWhere("lieu", "like", "%".$valeur."%" )
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie')
         ->get();
@@ -820,7 +762,7 @@ class annoncesController extends Controller
                     'titre' => 'required|unique:annonces|max:250|regex:/[^0-9.-]/',
                     'description' => 'required',
                     'type' => 'required',
-                    'nom_etablissement' => 'required',
+                    'etablissements_id' => 'required',
                     'sous_categories_id' => 'required',
                 ]);
 
@@ -856,9 +798,9 @@ class annoncesController extends Controller
         
                         }else {
                             
-                            $nomEts = $data['nom_etablissement'];
+                            $nomEts = $data['etablissements_id'];
 
-                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                            $result = etablissements::where('etablissements.id', '=', $nomEts)->addSelect('id')->first();
 
                             if ($result == true) {
                                 
@@ -866,6 +808,7 @@ class annoncesController extends Controller
 
                                 $id1 = $result->id;
         
+                                
                                 $id2 = $annonces['id'];
             
                                 $EtsAnnonces = annonces_etablissements::firstOrCreate([
@@ -944,9 +887,9 @@ class annoncesController extends Controller
 
                     }else {
                         
-                        $nomEts = $data['nom_etablissement'];
+                        $nomEts = $data['etablissements_id'];
 
-                        $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                        $result = etablissements::where('etablissements.id', '=', $nomEts)->addSelect('id')->first();
 
                         if ($result == true) {
                             
@@ -1294,7 +1237,7 @@ class annoncesController extends Controller
                     'description' => 'required',
                     'date' => 'required|date',
                     'type' => 'required',
-                    'nom_etablissement' => 'required',
+                    'etablissements_id' => 'required',
                     'sous_categories_id' => 'required',
                 ]);
 
@@ -1330,9 +1273,9 @@ class annoncesController extends Controller
         
                         }else {
                             
-                            $nomEts = $data['nom_etablissement'];
+                            $nomEts = $data['etablissements_id'];
 
-                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                            $result = etablissements::where('etablissements.id', '=', $nomEts)->addSelect('id')->first();
 
                             if ($result == true) {
                                 
@@ -1395,9 +1338,9 @@ class annoncesController extends Controller
         
                         }else {
                             
-                            $nomEts = $data['nom_etablissement'];
+                            $nomEts = $data['etablissements_id'];
 
-                            $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                            $result = etablissements::where('etablissements.id', '=', $nomEts)->addSelect('id')->first();
 
                             if ($result == true) {
                                 
@@ -1444,9 +1387,9 @@ class annoncesController extends Controller
 
                     }else {
                         
-                        $nomEts = $data['nom_etablissement'];
+                        $nomEts = $data['etablissements_id'];
 
-                        $result = etablissements::where('nom_etablissement', '=', $nomEts)->addSelect('id')->first();
+                        $result = etablissements::where('etablissements.id', '=', $nomEts)->addSelect('id')->first();
 
                         if ($result == true) {
                             
@@ -1504,6 +1447,56 @@ class annoncesController extends Controller
             }
 
         }
+
+    }
+    
+    
+    
+    
+    // Afficher les annonces les plus visite
+
+    public function plusVisiter(){
+
+        $annonces = annonces::where('annonces.etat', '=', true)
+        ->where('annonces.actif', '=', true)
+        ->orderBy('annonces.nombre_visite', 'desc')->limit(10)
+        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('annonces.id',
+            'annonces.titre',
+            'annonces.description',
+            'annonces.date',
+            'annonces.type',
+            'annonces.image_couverture',
+            'annonces.lieu',
+            'annonces.latitude',
+            'annonces.longitude',
+            'annonces.nombre_visite',
+            'sous_categories.nom_sous_categorie',
+            'categories.nomCategorie'
+        )->get();
+
+        if ($annonces) {
+                    
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $annonces
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
     }
 

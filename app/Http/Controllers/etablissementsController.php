@@ -50,7 +50,7 @@ class etablissementsController extends Controller
                     'latitude'=> 'required|max:100', 
                     'longitude'=> 'required|max:100', 
                     'arrondissements_id'=> 'required',
-                    'nom_sous_categorie' => 'required'
+                    'sous_categories_id' => 'required'
                 ]);
 
                 if ($validator->fails()) {
@@ -79,9 +79,9 @@ class etablissementsController extends Controller
 
                     $etablissement['utilisateurs_id'] = $idUtilisateur;
 
-                    $idSousCat = $etablissement['nom_sous_categorie'];
+                    $idSousCat = $etablissement['sous_categories_id'];
 
-                    $result = sous_categories::where('nom_sous_categorie', '=', $idSousCat)->addSelect('id')->first();
+                    $result = sous_categories::where('sous_categories.id', '=', $idSousCat)->addSelect('id')->first();
 
                     $id2 = $result->id;
 
@@ -161,6 +161,8 @@ class etablissementsController extends Controller
 
                 $imageEts = $request->all();
 
+                $data = etablissements::findOrFail($id);
+
                 $validator = Validator::make($request->all(),[
                     'logo' => 'required|mimes:png,jpg,jpeg'
                 ]);
@@ -186,14 +188,14 @@ class etablissementsController extends Controller
 
                     $imageEts['logo'] = $fileName;
                 
-                    $update = $donnees->update($imageEts);
+                    $update = $data->update($imageEts);
                     
                     if ($update) {
 
                         return response([
                             'code' => '200',
                             'message' => 'success',
-                            'data' => $donnees
+                            'data' => $data
                         ], 200);
 
                     } else {
