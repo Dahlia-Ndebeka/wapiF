@@ -102,7 +102,7 @@ class commentairesController extends Controller
             'commentaires.commentaire',
             'commentaires.date_commentaire',
             'annonces.titre',
-            'utilisateurs.login',
+            'utilisateurs.login'
         )->get();
 
         if ($commentaires) {
@@ -118,7 +118,7 @@ class commentairesController extends Controller
             return response([
                 'code' => '005',
                 'message' => 'La table est vide',
-                'data' => $commentaires
+                'data' => null
             ], 201);
 
         }
@@ -149,26 +149,25 @@ class commentairesController extends Controller
             'commentaires.commentaire',
             'commentaires.date_commentaire',
             'annonces.titre',
-            'utilisateurs.login',
+            'utilisateurs.login'
         )->get();
 
-        if ($commentaires) {
+        foreach ($commentaires as $commentaire) {
 
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $commentaires
+                'data' => $commentaire
             ], 200);
-
-        }else {
-
-            return response([
-                'code' => '005',
-                'message' => 'La table est vide',
-                'data' => $commentaires
-            ], 201);
-
+            
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'identifiant incorrect',
+            'data' => null
+        ], 201);
+
     }
 
 
@@ -192,26 +191,25 @@ class commentairesController extends Controller
             'utilisateurs.date_creation',
             'utilisateurs.nomAdministrateur',
             'utilisateurs.prenomAdministrateur',
-            'utilisateurs.telephoneAdministrateur',
+            'utilisateurs.telephoneAdministrateur'
         )->get();
 
-        if ($utilisateur) {
-            
+
+        foreach ($utilisateur as $utilisateurs) {
+
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $utilisateur
+                'data' => $utilisateurs
             ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
+            
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'identifiant incorrect',
+            'data' => null
+        ], 201);
         
     }
 
@@ -239,7 +237,7 @@ class commentairesController extends Controller
                     'annonces.longitude',
                     'annonces.sous_categories_id',
                     'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie',
+                    'categories.nomCategorie'
                 )->get();
     
             if ($commentaires) {
@@ -255,7 +253,7 @@ class commentairesController extends Controller
                 return response([
                     'code' => '005',
                     'message' => 'La table est vide',
-                    'data' => $commentaires
+                    'data' => null
                 ], 201);
     
             }

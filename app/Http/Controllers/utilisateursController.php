@@ -78,27 +78,25 @@ class utilisateursController extends Controller
 
                 // $Utilisateur = Utilisateurs::find($id);
 
-                $Utilisateur = utilisateurs::where('utilisateurs.id', '=', $id)
+                $Utilisateurs = utilisateurs::where('utilisateurs.id', '=', $id)
                 ->where('utilisateurs.actif', '=', true)
                 ->get();
 
-                if ($Utilisateur) {
-
+                foreach ($Utilisateurs as $Utilisateur) {
+                    
                     return response([
                         'code' => '200',
                         'message' => 'success',
                         'data' => $Utilisateur
                     ], 200);
-        
-                } else {
-        
-                    return response([
-                        'code' => '004',
-                        'message' => 'Identifiant n\'existe pas',
-                        'data' => null
-                    ], 200);
-        
-                } 
+
+                }
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Identifiant incorrect',
+                    'data' => null
+                ], 200);
 
             }else {
 
@@ -230,8 +228,7 @@ class utilisateursController extends Controller
                 ->join('annonces', function($join)
                     {
                         $join->on('annonces.utilisateurs_id', '=', 'utilisateurs.id')
-                        ->where('annonces.actif', '=', true)
-                        ->where('annonces.etat', '=', true);
+                        ->where('annonces.actif', '=', true);
                     })
                 ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
                 ->join('categories', function($join)
@@ -247,13 +244,21 @@ class utilisateursController extends Controller
                     'annonces.lieu',
                     'annonces.latitude',
                     'annonces.longitude',
-                    'annonces.nom_etablissement',
+                    'annonces.etat',
                     'sous_categories.nom_sous_categorie',
                     'categories.nomCategorie',
                     'utilisateurs.login'
                 )->get();
 
-                foreach ($annonces as $annonce) {
+                if(!$annonces) {
+                    
+                    return response([
+                        'code' => '004',
+                        'message' => 'Identifiant incorrect',
+                        'data' => null
+                    ], 201);
+
+                }else {
                     
                     return response([
                         'code' => '200',
@@ -262,12 +267,6 @@ class utilisateursController extends Controller
                     ], 200);
 
                 }
-
-                return response([
-                    'code' => '004',
-                    'message' => 'Identifiant incorrect',
-                    'data' => null
-                ], 201);
 
             }else {
 

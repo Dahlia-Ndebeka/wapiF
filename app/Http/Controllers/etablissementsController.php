@@ -41,12 +41,12 @@ class etablissementsController extends Controller
                     'nom_etablissement'=> 'required|unique:etablissements|max:100|regex:/[^0-9.-]/', 
                     'adresse'=> 'required', 
                     'telephone'=> 'required|unique:etablissements|max:100|regex:/[^a-zA-Z]/', 
-                    'description'=> 'required|unique:etablissements|max:255|regex:/[^0-9.-]/', 
+                    'description'=> 'unique:etablissements|max:255|regex:/[^0-9.-]/', 
                     'heure_ouverture'=> 'required|int', 
                     'heure_fermeture'=> 'required|int', 
                     'email'=> 'required|unique:etablissements|max:200|email', 
-                    'boite_postale'=> 'unique:etablissements|max:100', 
-                    'site_web'=> 'unique:etablissements|max:100|regex:/[^0-9.-]/',
+                    'boite_postale'=> 'unique:etablissements|max:100',
+                    'site_web'=> 'unique:etablissements',
                     'latitude'=> 'required|max:100', 
                     'longitude'=> 'required|max:100', 
                     'arrondissements_id'=> 'required',
@@ -577,13 +577,12 @@ class etablissementsController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'calendriers.date_evenement',
             'calendriers.label',
             'calendriers.heure_debut',
             'calendriers.heure_fin',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie',
+            'categories.nomCategorie'
         )->get();
 
         if ($annonces) {
@@ -628,7 +627,7 @@ class etablissementsController extends Controller
             'utilisateurs.date_creation',
             'utilisateurs.nomAdministrateur',
             'utilisateurs.prenomAdministrateur',
-            'utilisateurs.telephoneAdministrateur',
+            'utilisateurs.telephoneAdministrateur'
         )->get();
 
         if ($utilisateur == true) {
@@ -667,7 +666,7 @@ class etablissementsController extends Controller
                 'notes.commentaire',
                 'notes.score',
                 'notes.created_at',
-                'utilisateurs.login',)
+                'utilisateurs.login')
         ->get();
 
         if ($Notes) {
@@ -706,7 +705,7 @@ class etablissementsController extends Controller
         ->select(
                 'sous_categories.id',
                 'sous_categories.nom_sous_categorie',
-                'categories.nomCategorie',)
+                'categories.nomCategorie')
         ->get();
 
         if ($sousCat) {
@@ -745,7 +744,7 @@ class etablissementsController extends Controller
         ->select('categories.id',
                 'categories.nomCategorie',
                 'categories.image',
-                'categories.titre',)
+                'categories.titre')
         ->get();
 
         if ($sousCat) {

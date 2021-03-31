@@ -390,9 +390,8 @@ class categoriesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie',
+            'categories.nomCategorie'
         )->get();
 
         if ($cats) {

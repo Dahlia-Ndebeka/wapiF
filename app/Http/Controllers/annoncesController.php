@@ -176,7 +176,6 @@ class annoncesController extends Controller
 
         $calendrier = annonces::where('annonces.id', '=', $id)
         ->where('annonces.actif', '=', true)
-        ->where('annonces.etat', '=', true)
         ->join('annonces_etablissements', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
         ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
         ->select(
@@ -213,7 +212,8 @@ class annoncesController extends Controller
 
     public function SousCategories($id){
 
-        $SousCat = annonces::from('annonces')->where('annonces.id', '=', $id)
+        $SousCat = annonces::where('annonces.id', '=', $id)
+        ->where('annonces.actif', '=', true)
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
@@ -252,7 +252,8 @@ class annoncesController extends Controller
 
     public function Categories($id){
 
-        $cat = annonces::from('annonces')->where('annonces.id', '=', $id)
+        $cat = annonces::where('annonces.id', '=', $id)
+        ->where('annonces.actif', '=', true)
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
             {
@@ -291,7 +292,8 @@ class annoncesController extends Controller
 
     public function Commentaires($id){
 
-        $com = annonces::from('annonces')->where('annonces.id', '=', $id)
+        $com = annonces::where('annonces.id', '=', $id)
+        ->where('annonces.actif', '=', true)
         ->join('commentaires', 'commentaires.annonces_id', '=', 'annonces.id')
         ->join('utilisateurs', 'utilisateurs.id', '=', 'commentaires.utilisateurs_id')
         ->select('commentaires.id',
@@ -342,6 +344,7 @@ class annoncesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
+            'annonces.etat',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie'
         )->get();
@@ -444,7 +447,7 @@ class annoncesController extends Controller
 
                 return response([
                     'code' => '200',
-                    'message' => 'succes',
+                    'message' => 'success',
                     'data' => $valeur
                 ], 200);
                 

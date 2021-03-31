@@ -51,23 +51,21 @@ class sous_categoriesController extends Controller
             'categories.nomCategorie'
         )->get();
 
-        if ($sous_categories) {
+        foreach ($sous_categories as $sous_categorie) {
             
             return response([
                 'code' => '200',
                 'message' => 'success',
-                'data' => $sous_categories
+                'data' => $sous_categorie
             ], 200);
 
-        } else {
-            
-            return response([
-                'code' => '004',
-                'message' => 'Indentifiant incorrect',
-                'data' => null
-            ], 201);
-        
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'Indentifiant incorrect',
+            'data' => null
+        ], 201);
          
     }
 
@@ -220,7 +218,7 @@ class sous_categoriesController extends Controller
         ->select('categories.id',
             'categories.nomCategorie',
             'categories.image',
-            'categories.titre',
+            'categories.titre'
         )->get();
 
         if ($categories) {
@@ -352,10 +350,9 @@ class sous_categoriesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'utilisateurs.login',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie',
+            'categories.nomCategorie'
         )->get();
 
         if ($cats) {

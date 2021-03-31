@@ -21,7 +21,7 @@ class arrondissementsController extends Controller
         })
         ->select('arrondissements.id',
             'arrondissements.libelle_arrondissement', 
-            'villes.libelle_ville', 
+            'villes.libelle_ville'
         )->get();
 
         if ($arrondissement) {
@@ -58,7 +58,7 @@ class arrondissementsController extends Controller
         })
         ->select('arrondissements.id',
             'arrondissements.libelle_arrondissement', 
-            'villes.libelle_ville', 
+            'villes.libelle_ville'
         )->get();
 
         if ($arrondissement) {

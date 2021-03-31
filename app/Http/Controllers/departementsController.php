@@ -19,7 +19,7 @@ class departementsController extends Controller
         $departements = departements::join('pays', 'pays.id', '=', 'departements.pays_id')
         ->select('departements.id',
             'departements.libelle_departement', 
-            'pays.libelle_pays', 
+            'pays.libelle_pays'
         )->get();
 
         if($departements){
@@ -55,7 +55,7 @@ class departementsController extends Controller
         })
         ->select('departements.id',
             'departements.libelle_departement', 
-            'pays.libelle_pays', 
+            'pays.libelle_pays' 
         )->get();
 
         if($departements){

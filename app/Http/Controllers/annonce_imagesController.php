@@ -257,7 +257,6 @@ class annonce_imagesController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
-            'annonces.nom_etablissement',
             'sous_categories.nom_sous_categorie',
             'utilisateurs.login',
             'categories.nomCategorie')

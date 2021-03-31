@@ -22,7 +22,7 @@ class notesController extends Controller
             'notes.commentaire',
             'notes.score',
             'utilisateurs.login',
-            'etablissements.nom_etablissement',
+            'etablissements.nom_etablissement'
         )->get();
 
         if ($notes) {
@@ -60,7 +60,7 @@ class notesController extends Controller
             'notes.commentaire',
             'notes.score',
             'utilisateurs.login',
-            'etablissements.nom_etablissement',
+            'etablissements.nom_etablissement'
         )->get();
 
         if ($notes) {
@@ -260,7 +260,7 @@ class notesController extends Controller
             'utilisateurs.date_creation',
             'utilisateurs.nomAdministrateur',
             'utilisateurs.prenomAdministrateur',
-            'utilisateurs.telephoneAdministrateur',
+            'utilisateurs.telephoneAdministrateur'
         )->get();
 
         if ($Utilisateur) {
@@ -332,7 +332,7 @@ class notesController extends Controller
             'villes.libelle_ville', 
             'departements.libelle_departement',
             'pays.libelle_pays',
-            'utilisateurs.login',
+            'utilisateurs.login'
         )->get();
 
         if ($Etablissements) {

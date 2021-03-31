@@ -20,7 +20,7 @@ class villesController extends Controller
         })
         ->select('villes.id',
             'villes.libelle_ville', 
-            'departements.libelle_departement', 
+            'departements.libelle_departement' 
         )->get();
 
         if ($villes) {
@@ -48,33 +48,32 @@ class villesController extends Controller
 
     public function getVille($id){
 
-        $ville = villes::where('villes.id', '=', $id)
+        $villes = villes::where('villes.id', '=', $id)
         ->join('departements', function($join)
         {
             $join->on('departements.id', '=', 'villes.departements_id');
         })
         ->select('villes.id',
             'villes.libelle_ville', 
-            'departements.libelle_departement', 
+            'departements.libelle_departement' 
         )->get();
 
-        if ($ville) {
+
+        foreach ($villes as $ville) {
             
             return response([
                 'code' => '200',
                 'message' => 'success',
                 'data' => $ville
             ], 200);
-            
-        }else {
-            
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
 
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'Identifiant incorrect',
+            'data' => null
+        ], 201);
 
     }
 
@@ -257,7 +256,7 @@ class villesController extends Controller
                 $join->on('categories.id', '=', 'sous_categories.categories_id');
             })
         
-        ->select('etablissements.id as etablissements_id',
+        ->select('etablissements.id',
             'etablissements.nom_etablissement',
             'etablissements.adresse',
             'etablissements.telephone',
@@ -272,8 +271,7 @@ class villesController extends Controller
             'etablissements.longitude',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie',
-            'arrondissements.libelle_arrondissement', 
-            'villes.id as villes_id', 
+            'arrondissements.libelle_arrondissement',  
             'villes.libelle_ville', 
             'departements.libelle_departement',
             'pays.libelle_pays'
