@@ -102,7 +102,8 @@ class commentairesController extends Controller
             'commentaires.commentaire',
             'commentaires.date_commentaire',
             'annonces.titre',
-            'utilisateurs.login'
+            'utilisateurs.login',
+            'utilisateurs.photo',
         )->get();
 
         if ($commentaires) {
@@ -231,13 +232,16 @@ class commentairesController extends Controller
                     'annonces.description',
                     'annonces.date',
                     'annonces.type',
+                    'annonces.prix',
                     'annonces.image_couverture',
                     'annonces.lieu',
                     'annonces.latitude',
                     'annonces.longitude',
                     'annonces.sous_categories_id',
                     'sous_categories.nom_sous_categorie',
-                    'categories.nomCategorie'
+                    'categories.nomCategorie',
+                    'utilisateurs.login',
+                    'utilisateurs.photo'
                 )->get();
     
             if ($commentaires) {

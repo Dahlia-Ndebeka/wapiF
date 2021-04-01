@@ -240,6 +240,7 @@ class utilisateursController extends Controller
                     'annonces.description',
                     'annonces.date',
                     'annonces.type',
+                    'annonces.prix',
                     'annonces.image_couverture',
                     'annonces.lieu',
                     'annonces.latitude',
@@ -247,8 +248,10 @@ class utilisateursController extends Controller
                     'annonces.etat',
                     'sous_categories.nom_sous_categorie',
                     'categories.nomCategorie',
-                    'utilisateurs.login'
-                )->get();
+                    'utilisateurs.login',
+                    'utilisateurs.photo',
+                )
+                ->get();
 
                 if(!$annonces) {
                     
@@ -263,7 +266,7 @@ class utilisateursController extends Controller
                     return response([
                         'code' => '200',
                         'message' => 'success',
-                        'data' => $annonces
+                        'data' => $annonces,
                     ], 200);
 
                 }
@@ -280,6 +283,179 @@ class utilisateursController extends Controller
 
         }
         
+    }
+
+
+    // Afficher le nombre d'annonce d'un utilisateur
+     
+    public function nombreAnnonces($id){
+        
+        $annonces = utilisateurs::where('utilisateurs.id', '=', $id)
+        ->where('utilisateurs.id', '=', true)
+        ->join('annonces', function($join)
+            {
+                $join->on('annonces.utilisateurs_id', '=', 'utilisateurs.id')
+                ->where('annonces.actif', '=', true);
+            })
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->join('commentaires', 'commentaires.utilisateurs_id', '=' , 'utilisateurs.id')
+        ->select('annonces.*'
+        )->get();
+
+        $nb_annonce = count($annonces);
+            
+        return response([
+            'code' => '200',
+            'message' => 'success',
+            'nombre_annonce' => $nb_annonce
+        ], 200);
+
+    }
+
+
+
+    // Affichage des commentaires a partir de l'utilisateur
+
+    public function Commentaires($id){
+
+        $commentaires = utilisateurs::from('utilisateurs')
+        ->where('utilisateurs.id', '=', $id)
+        ->join('commentaires', 'commentaires.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('annonces', function($join)
+            {
+                $join->on('annonces.id', '=', 'commentaires.annonces_id');
+            })
+        ->select('commentaires.id',
+            'commentaires.commentaire',
+            'commentaires.date_commentaire',
+            'annonces.titre',
+            'utilisateurs.login',
+            'utilisateurs.photo'
+        )->get();
+
+        if ($commentaires) {
+            
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $commentaires
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
+    }
+
+
+
+    // Affichage des notes a partir de l'utilisateur
+
+    public function Notes($id){
+
+        // $Notes = utilisateurs::find($id)->Notes;
+
+        $Notes = utilisateurs::where('utilisateurs.id', '=', $id)
+        ->join('notes', 'notes.utilisateurs_id', '=', 'utilisateurs.id')
+        ->join('etablissements', 'notes.etablissements_id', '=', 'etablissements.id')
+        ->select('notes.id',
+            'notes.commentaire',
+            'notes.score',
+            'notes.created_at',
+            'etablissements.nom_etablissement',
+            'utilisateurs.login')
+        ->get();
+
+        if ($Notes) {
+            
+            return response([
+                'code' => '200',
+                'message' => 'success',
+                'data' => $Notes
+            ], 200);
+
+        } else {
+
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        }
+        
+    }
+
+
+    
+    // Rechercher un utilisateur à partir des ces champs
+
+    public function rechercheUtilisateur($valeur){
+
+        if ($valeur == null) {
+
+            return response([
+                'code' => '001',
+                'message' => 'Valeur entree est incorrecte',
+                'data' => null
+            ], 201);
+
+        }else {
+            
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == 'administrateur') {
+                
+                $data = utilisateurs::where('utilisateurs.actif', '=', true)->where("login", "like", "%".$valeur."%" )
+                ->orWhere("email", "like", "%".$valeur."%" )
+                ->orWhere("photo", "like", "%".$valeur."%" )
+                ->orWhere("role", "like", "%".$valeur."%" )
+                ->orWhere("actif", "like", "%".$valeur."%" )
+                ->orWhere("date_creation", "like", "%".$valeur."%" )
+                ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
+                ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
+                ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )
+                ->get(); 
+
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $data
+                ], 200);
+
+            } else {
+
+                return response([
+                    'code' => '004',
+                    'message' => 'Acces nom autorise',
+                    'data' => null
+                ], 201);
+
+            }  
+
+        }                           
+
+    }
+
+    
+    // Acceder aux images
+     
+    public function image($fileName){
+        
+        return response()->download(public_path('/utilisateurs/images/' . $fileName));
+
     }
 
 
@@ -818,147 +994,6 @@ class utilisateursController extends Controller
         
     }
 
-
-
-
-    // Affichage des commentaires a partir de l'utilisateur
-
-    public function Commentaires($id){
-
-        $commentaires = utilisateurs::from('utilisateurs')
-        ->where('utilisateurs.id', '=', $id)
-        ->join('commentaires', 'commentaires.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('annonces', function($join)
-            {
-                $join->on('annonces.id', '=', 'commentaires.annonces_id');
-            })
-        ->select('commentaires.id',
-            'commentaires.commentaire',
-            'commentaires.date_commentaire',
-            'annonces.titre',
-            'utilisateurs.login'
-        )->get();
-
-        if ($commentaires) {
-            
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $commentaires
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
-        }
-        
-    }
-
-
-
-    // Affichage des notes a partir de l'utilisateur
-
-    public function Notes($id){
-
-        // $Notes = utilisateurs::find($id)->Notes;
-
-        $Notes = utilisateurs::where('utilisateurs.id', '=', $id)
-        ->join('notes', 'notes.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('etablissements', 'notes.etablissements_id', '=', 'etablissements.id')
-        ->select('notes.id',
-            'notes.commentaire',
-            'notes.score',
-            'notes.created_at',
-            'etablissements.nom_etablissement',
-            'utilisateurs.login')
-        ->get();
-
-        if ($Notes) {
-            
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $Notes
-            ], 200);
-
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
-        }
-        
-    }
-
-
-    
-    // Rechercher un utilisateur à partir des ces champs
-
-    public function rechercheUtilisateur($valeur){
-
-        if ($valeur == null) {
-
-            return response([
-                'code' => '001',
-                'message' => 'Valeur entree est incorrecte',
-                'data' => null
-            ], 201);
-
-        }else {
-            
-            $user = Auth::user();
-
-            $role = $user['role'];
-
-            if ($role == 'administrateur') {
-                
-                $data = utilisateurs::where('utilisateurs.actif', '=', true)->where("login", "like", "%".$valeur."%" )
-                ->orWhere("email", "like", "%".$valeur."%" )
-                ->orWhere("photo", "like", "%".$valeur."%" )
-                ->orWhere("role", "like", "%".$valeur."%" )
-                ->orWhere("actif", "like", "%".$valeur."%" )
-                ->orWhere("date_creation", "like", "%".$valeur."%" )
-                ->orWhere("nomAdministrateur", "like", "%".$valeur."%" )
-                ->orWhere("prenomAdministrateur", "like", "%".$valeur."%" )
-                ->orWhere("telephoneAdministrateur", "like", "%".$valeur."%" )
-                ->get(); 
-
-                return response([
-                    'code' => '200',
-                    'message' => 'success',
-                    'data' => $data
-                ], 200);
-
-            } else {
-
-                return response([
-                    'code' => '004',
-                    'message' => 'Acces nom autorise',
-                    'data' => null
-                ], 201);
-
-            }  
-
-        }                           
-
-    }
-
-    
-    // Acceder aux images
-     
-    public function image($fileName){
-        
-        return response()->download(public_path('/utilisateurs/images/' . $fileName));
-
-    }
 
 
     // supprimer un utilisateur

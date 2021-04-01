@@ -36,12 +36,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::post('utilisateur', [utilisateursController::class, 'createUtilisateur']);
+Route::get('utilisateurNombreAnnonces/{id}', [utilisateursController::class, 'nombreAnnonces']);
 Route::get('imageUtilisateur/{filename}', [utilisateursController::class, 'image']);
 Route::post('utilisateurAdmin', [utilisateursController::class, 'createUtilisateurAdministrateur']);
 Route::post("login", [authentificationsController::class, 'login']);
 
 
-//Routes concernanats les Categories 
+//Routes concernant les Categories 
 
 Route::get('categories', [categoriesController::class, 'Categories']);
 Route::get('categorieSousCategorie/{id}', [categoriesController::class, 'Souscategories']);
@@ -51,7 +52,7 @@ Route::get('categorieAnnonces/{id}', [categoriesController::class, 'Annonces']);
 Route::get('imageCategorie/{filename}', [categoriesController::class, 'image']);
 
 
-//Routes concernanats les sous Categories 
+//Routes concernant les sous Categories 
 
 Route::get('sousCategorieEts/{id}', [sous_categoriesController::class, 'Etablissements']);
 Route::get('sousCategorie/{id}', [sous_categoriesController::class, 'sousCategorie']);
@@ -61,13 +62,13 @@ Route::get('sousCategorieCategorie/{id}', [sous_categoriesController::class, 'so
 Route::get('sousCategorieAnnonces/{id}', [sous_categoriesController::class, 'Annonces']);
 
 
-//Routes concernanats les pays 
+//Routes concernant les pays 
 
 Route::get('pays/{id}', [paysController::class, 'getPays']);
 Route::get('pays', [paysController::class, 'Pays']);
 
 
-//Routes concernanats les departements
+//Routes concernant les departements
 
 Route::get('departement/{id}', [departementsController::class, 'getDepartement']);
 Route::get('departementEts/{id}', [departementsController::class, 'Etablissements']);
@@ -80,14 +81,14 @@ Route::get('villeEts/{id}', [villesController::class, 'Etablissements']);
 Route::get('ville/{id}', [villesController::class, 'getVille']);
 
 
-//Routes concernanat les arrondissements
+//Routes concernant les arrondissements
 
 Route::get('arrondissements', [arrondissementsController::class, 'Arrondissements']);
 Route::get('arrondissementEts/{id}', [arrondissementsController::class, 'Etablissements']);
 Route::get('arrondissement/{id}', [arrondissementsController::class, 'getArrondissement']);
 
 
-//Routes concernanat les etablissements
+//Routes concernant les etablissements
 
 Route::get('etablissements', [etablissementsController::class, 'Etablissements']);
 Route::get('etablissement/{id}', [etablissementsController::class, 'Etablissement']);
@@ -165,7 +166,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::post("logOut", [authentificationsController::class, 'logOut']);
 
 
-    //Routes concernanats les comptes 
+    //Routes concernant les comptes 
 
     Route::get('utilisateurs', [utilisateursController::class, 'Utilisateurs']);
     Route::get('utilisateur/{id}', [utilisateursController::class, 'getUtilisateur']);
@@ -174,7 +175,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('utilisateurdel/{id}', [utilisateursController::class, 'deleteUtilisateur']);
     Route::get("utilisateurRecherche/{valeur}", [utilisateursController::class, 'rechercheUtilisateur']);
     Route::get("utilisateurEts/{id}", [utilisateursController::class, 'Etablissements']);
-    Route::put("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
+    Route::post("utilisateurImg/{id}", [utilisateursController::class, 'putImage']);
     Route::put("utilisateurPwd/{id}", [utilisateursController::class, 'putPassword']);
     // Route::post("utilisateurImg", [utilisateursController::class, 'imageUtilisateur']);
     Route::get("utilisateurAnnonces/{id}", [utilisateursController::class, 'Annonce']);
@@ -187,7 +188,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanats les Categories 
+    //Routes concernant les Categories 
 
     Route::post('categorie', [categoriesController::class, 'createCategorie']);
     Route::put('categorie/{id}', [categoriesController::class, 'putCategorie']);
@@ -195,7 +196,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanats les sous Categories 
+    //Routes concernant les sous Categories 
 
     Route::post('sousCategorie', [sous_categoriesController::class, 'createSousCategorie']);
     Route::put('sousCategorie/{id}', [sous_categoriesController::class, 'putSousCategorie']);
@@ -204,7 +205,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanats les pays
+    //Routes concernant les pays
 
     Route::post('pays', [paysController::class, 'createPays']);
     Route::put('pays/{id}', [paysController::class, 'putPays']);
@@ -212,7 +213,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanats les departements
+    //Routes concernant les departements
 
     Route::post('departement', [departementsController::class, 'createDepartement']);
     Route::put('departement/{id}', [departementsController::class, 'putDepartement']);
@@ -221,7 +222,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanats les villes
+    //Routes concernant les villes
 
     Route::post('ville', [villesController::class, 'createVille']);
     Route::put('ville/{id}', [villesController::class, 'putVille']);
@@ -229,7 +230,7 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanat les arrondissements
+    //Routes concernant les arrondissements
 
     Route::post('arrondissement', [arrondissementsController::class, 'createArrondissement']);
     Route::put('arrondissement/{id}', [arrondissementsController::class, 'putArrondissement']);
@@ -237,14 +238,25 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
 
 
 
-    //Routes concernanat les etablissements
+    //Routes concernant les etablissements
 
     Route::get('etablissementVilles/{id}', [etablissementsController::class, 'Villes']);
     Route::get('etablissementCategories', [etablissementsController::class, 'CategoriesAp']);
     Route::middleware('cors:api')->post('etablissement', [etablissementsController::class, 'createEtablissement']);
     Route::put('etablissement/{id}', [etablissementsController::class, 'putEtablissement']);
     Route::put('etablissementActif/{id}', [etablissementsController::class, 'deleteEtablissement']);
-    Route::put('logoEts/{id}', [etablissementsController::class, 'logoEts']);
+    Route::post('logoEts/{id}', [etablissementsController::class, 'logoEts']);
+    
+    Route::put('etablissementNom/{id}', [etablissementsController::class, 'putEtablissementNom']);
+    Route::put('etablissementAdresse/{id}', [etablissementsController::class, 'putEtablissementAdresse']);
+    Route::put('etablissementTel/{id}', [etablissementsController::class, 'putEtablissementTel']);
+    Route::put('etablissementDescription/{id}', [etablissementsController::class, 'putEtablissementDescription']);
+    Route::put('etablissementHeure/{id}', [etablissementsController::class, 'putEtablissementHeure']);
+    Route::put('etablissementEmail/{id}', [etablissementsController::class, 'putEtablissementEmail']);
+    Route::put('etablissementBoitePostale/{id}', [etablissementsController::class, 'putEtablissementBoitePostale']);
+    Route::put('etablissementSiteWeb/{id}', [etablissementsController::class, 'putEtablissementSiteWeb']);
+    Route::put('etablissementMaps/{id}', [etablissementsController::class, 'putEtablissementLatiLong']);
+    Route::put('etablissementArrondissement/{id}', [etablissementsController::class, 'putEtablissementArrondi']);
 
 
 
@@ -264,8 +276,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     Route::put('annonceActif/{id}', [annoncesController::class, 'deleteAnnonce']);
     // Route::delete('annonce/{id}', [annoncesController::class, 'deleteAnnonce']);
     Route::put('annonceEtat/{id}', [annoncesController::class, 'Publier']);
-    Route::put('imgAnnonce/{id}', [annoncesController::class, 'createImageAnnonce']);
+    Route::post('imgAnnonce/{id}', [annoncesController::class, 'createImageAnnonce']);
     Route::get('publierAnnonce/{id}', [annoncesController::class, 'publier']);
+
+    Route::put('annonceType/{id}', [annoncesController::class, 'putAnnonceType']);
+    Route::put('annonceDescription/{id}', [annoncesController::class, 'putAnnonceDescription']);
+    Route::put('annoncePrix/{id}', [annoncesController::class, 'putAnnoncePrix']);
+    Route::put('annonceSousCat/{id}', [annoncesController::class, 'putAnnonceSousCategorie']);
+    Route::put('annonceTitre/{id}', [annoncesController::class, 'putAnnonceTitre']);
 
 
     // Les routes concernant les commentaires
@@ -279,16 +297,14 @@ Route::group(['middleware'=>['auth:sanctum']], function() {
     // Routes concernant annonce_image 
 
     Route::post('imageAnnonce', [annonce_imagesController::class, 'createImageAnnonce']);
-    Route::put('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
+    Route::post('imageAnnonce/{id}', [annonce_imagesController::class, 'putImageAnnonce']);
     Route::delete('imageAnnonce/{id}', [annonce_imagesController::class, 'deleteAnnonceImage']);
     
-
 
     // Routes concernant les notes
 
     Route::post('note', [notesController::class, 'createNote']);
     Route::put('note/{id}', [notesController::class, 'putNote']);
     Route::delete('note/{id}', [notesController::class, 'deleteNote']);
-
 
 });

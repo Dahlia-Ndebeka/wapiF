@@ -41,14 +41,7 @@ class CreateAnnoncesTable extends Migration
             ->on('sous_categories')
             ->onDelete('restrict')
             ->onUpdate('restrict');
-
-            $table->unsignedBigInteger('calendriers_id');
-            $table->foreign('calendriers_id')
-            ->references('id')
-            ->on('calendriers')
-            ->onDelete('restrict')
-            ->onUpdate('restrict')->nullable();
-
+            
             $table->timestamps();
         });
     }

@@ -15,10 +15,17 @@ class CreateCalendriersTable extends Migration
     {
         Schema::create('calendriers', function (Blueprint $table) {
             $table->id();
-            $table->string('label', 150);
+            $table->string('label', 150)->nullable();
             $table->date('date');
             $table->string('heure_debut');
             $table->string('heure_fin');
+
+            $table->unsignedBigInteger('annonces_id')->index();
+            $table->foreign('annonces_id')
+            ->references('id')
+            ->on('annonces')
+            ->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

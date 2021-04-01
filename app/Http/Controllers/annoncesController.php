@@ -8,6 +8,8 @@ use App\Models\annonces;
 use App\Models\annonces_etablissements;
 use App\Models\etablissements;
 use App\Models\utilisateurs;
+use App\Models\calendriers;
+use App\Models\commentaires;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -44,7 +46,6 @@ class annoncesController extends Controller
         }
         
     }
-
 
 
 
@@ -100,7 +101,9 @@ class annoncesController extends Controller
             'arrondissements.libelle_arrondissement',
             'villes.libelle_ville', 
             'departements.libelle_departement',
-            'pays.libelle_pays')
+            'pays.libelle_pays',
+            'utilisateurs.login',
+            'utilisateurs.photo')
         ->get();
 
         if ($ets) {
@@ -174,35 +177,34 @@ class annoncesController extends Controller
 
     public function Calendrier($id){
 
-        $calendrier = annonces::where('annonces.id', '=', $id)
+        $calendriers = annonces::where('annonces.id', '=', $id)
         ->where('annonces.actif', '=', true)
         ->join('annonces_etablissements', 'annonces_etablissements.annonces_id', '=', 'annonces.id')
-        ->join('calendriers', 'annonces.calendriers_id', '=', 'calendriers.id')
+        ->join('calendriers', 'calendriers.annonces_id', '=', 'annonces.id')
         ->select(
             'calendriers.id',
             'calendriers.label',
             'calendriers.date_evenement',
             'calendriers.heure_debut',
-            'calendriers.heure_fin'
+            'calendriers.heure_fin',
+            'annonces.titre'
         )->get();
 
-        if ($calendrier) {
-            
+        foreach ($calendriers as $calendrier) {
+
             return response([
                 'code' => '200',
                 'message' => 'success',
                 'data' => $calendrier
             ], 200);
 
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'Identifiant incorrect',
+            'data' => null
+        ], 201);
         
     }
 
@@ -222,7 +224,8 @@ class annoncesController extends Controller
         ->select(
             'sous_categories.id',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie'
+            'categories.nomCategorie',
+            'annonces.titre'
         )->get();
 
         if ($SousCat) {
@@ -263,7 +266,8 @@ class annoncesController extends Controller
             'categories.id',
             'categories.nomCategorie',
             'categories.image',
-            'categories.titre'
+            'categories.titre',
+            'annonces.titre'
         )->get();
 
         if ($cat == true) {
@@ -299,7 +303,9 @@ class annoncesController extends Controller
         ->select('commentaires.id',
             'commentaires.commentaire',
             'commentaires.date_commentaire',
-            'utilisateurs.login'
+            'annonces.titre',
+            'utilisateurs.login',
+            'utilisateurs.photo'
         )->get();
 
         if ($com == true) {
@@ -340,32 +346,32 @@ class annoncesController extends Controller
             'annonces.description',
             'annonces.date',
             'annonces.type',
+            'annonces.prix',
             'annonces.image_couverture',
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
             'annonces.etat',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie'
+            'categories.nomCategorie',
+            'utilisateurs.login',
+            'utilisateurs.photo',
         )->get();
 
-        if ($annonces) {
-            
+        foreach ($annonces as $annonce) {
+
             return response([
                 'code' => '200',
                 'message' => 'success',
                 'data' => $annonces
             ], 200);
-
-        }else {
-            
-            return response([
-                'code' => '004',
-                'message' => 'Identifiant incorrect',
-                'data' => null
-            ], 201);
-
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'Table vide',
+            'data' => null
+        ], 201);
 
     }
 
@@ -388,32 +394,259 @@ class annoncesController extends Controller
             'annonces.description',
             'annonces.date',
             'annonces.type',
+            'annonces.prix',
             'annonces.image_couverture',
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie'
+            'categories.nomCategorie',
+            'utilisateurs.login',
+            'utilisateurs.photo'
         )->get();
 
-        if ($annonces) {
-            
+        foreach ($annonces as $annonce) {
+
             return response([
                 'code' => '200',
                 'message' => 'success',
                 'data' => $annonces
             ], 200);
+        }
 
-        }else {
+        return response([
+            'code' => '004',
+            'message' => 'Table vide',
+            'data' => null
+        ], 201);
+
+    }
+
+
+
+    // Consulter ou afficher une annonce
+
+    public function getAnnonce($id){
+
+        $calendriers = calendriers::where('annonces_id', '=', $id)->addSelect('id')->first();
+
+        $commentraire = commentaires::where('annonces_id', '=', $id)->addSelect('id')->first();
+
+        if ($calendriers == true &&  $commentraire == true) {
             
+            annonces::find($id)->increment('nombre_visite');
+
+            $annonces = annonces::where('annonces.id', '=', $id)
+            ->where('annonces.actif', '=', true)
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->join('utilisateurs', function($join)
+                {
+                    $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
+                })
+            // ->join('calendriers', function($join)
+            //     {
+            //         $join->on('calendriers.annonces_id', '=', 'annonces.id');
+            //     })
+            ->join('calendriers', 'calendriers.annonces_id', '=', 'annonces.id')
+            ->join('commentaires', 'commentaires.annonces_id', '=', 'annonces.id')
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.prix',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.etat',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'utilisateurs.login',
+                'utilisateurs.photo',
+                'calendriers.label',
+                'calendriers.date_evenement',
+                'calendriers.heure_debut',
+                'calendriers.heure_fin',
+                'commentaires.commentaire',
+                'commentaires.date_commentaire'
+            )->get();
+
+            foreach ($annonces as $annonce) {
+                        
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonce
+                ], 200);
+
+            }
+                
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+            
+        } elseif ($calendriers == true) {
+
+            annonces::find($id)->increment('nombre_visite');
+
+            $annonces = annonces::where('annonces.id', '=', $id)
+            ->where('annonces.actif', '=', true)
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->join('utilisateurs', function($join)
+                {
+                    $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
+                })
+            ->join('calendriers', 'calendriers.annonces_id', '=', 'annonces.id')
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.prix',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.etat',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'utilisateurs.login',
+                'utilisateurs.photo',
+                'calendriers.label',
+                'calendriers.date_evenement',
+                'calendriers.heure_debut',
+                'calendriers.heure_fin'
+            )
+            ->get();
+
+            foreach ($annonces as $annonce) {
+                        
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonce
+                ], 200);
+
+            }
+                
             return response([
                 'code' => '004',
                 'message' => 'Identifiant incorrect',
                 'data' => null
             ], 201);
 
-        }
+        } elseif ($commentraire) {
 
+            annonces::find($id)->increment('nombre_visite');
+
+            $annonces = annonces::where('annonces.id', '=', $id)
+            ->where('annonces.actif', '=', true)
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->join('utilisateurs', function($join)
+                {
+                    $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
+                })
+            ->join('commentaires', 'commentaires.annonces_id', '=', 'annonces.id')
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.prix',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.etat',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'utilisateurs.login',
+                'utilisateurs.photo',
+                'commentaires.commentaire',
+                'commentaires.date_commentaire'
+            )
+            ->get();
+
+            foreach ($annonces as $annonce) {
+                        
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonce
+                ], 200);
+
+            }
+                
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+
+        } else {
+
+            annonces::find($id)->increment('nombre_visite');
+
+            $annonces = annonces::where('annonces.id', '=', $id)
+            ->where('annonces.actif', '=', true)
+            ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+            ->join('categories', function($join)
+                {
+                    $join->on('categories.id', '=', 'sous_categories.categories_id');
+                })
+            ->join('utilisateurs', function($join)
+                {
+                    $join->on('utilisateurs.id', '=', 'annonces.utilisateurs_id');
+                })
+            ->select('annonces.id',
+                'annonces.titre',
+                'annonces.description',
+                'annonces.date',
+                'annonces.type',
+                'annonces.prix',
+                'annonces.image_couverture',
+                'annonces.lieu',
+                'annonces.latitude',
+                'annonces.longitude',
+                'annonces.etat',
+                'sous_categories.nom_sous_categorie',
+                'categories.nomCategorie',
+                'utilisateurs.login',
+                'utilisateurs.photo'
+            )->get();
+    
+            foreach ($annonces as $annonce) {
+                        
+                return response([
+                    'code' => '200',
+                    'message' => 'success',
+                    'data' => $annonce
+                ], 200);
+    
+            }
+                
+            return response([
+                'code' => '004',
+                'message' => 'Identifiant incorrect',
+                'data' => null
+            ], 201);
+            
+        }
 
     }
 
@@ -467,56 +700,6 @@ class annoncesController extends Controller
 
 
 
-
-    // Consulter ou afficher une annonce
-
-    public function getAnnonce($id){
-
-        annonces::find($id)->increment('nombre_visite');
-
-        $annonces = annonces::where('annonces.id', '=', $id)
-        ->where('etat', '=', true)
-        ->where('annonces.actif', '=', true)
-        ->join('utilisateurs', 'annonces.utilisateurs_id', '=', 'utilisateurs.id')
-        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
-        ->join('categories', function($join)
-            {
-                $join->on('categories.id', '=', 'sous_categories.categories_id');
-            })
-        ->select('annonces.id',
-            'annonces.titre',
-            'annonces.description',
-            'annonces.date',
-            'annonces.type',
-            'annonces.image_couverture',
-            'annonces.lieu',
-            'annonces.latitude',
-            'annonces.longitude',
-            'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie'
-        )->get();
-
-        foreach ($annonces as $annonce) {
-                    
-            return response([
-                'code' => '200',
-                'message' => 'success',
-                'data' => $annonce
-            ], 200);
-
-        }
-            
-        return response([
-            'code' => '004',
-            'message' => 'Identifiant incorrect',
-            'data' => null
-        ], 201);
-
-
-    }
-
-
-
     // Rechercher une annonce
 
     public function rechercheAnnonce($valeur){
@@ -541,15 +724,18 @@ class annoncesController extends Controller
             'annonces.description',
             'annonces.date',
             'annonces.type',
+            'annonces.prix',
             'annonces.image_couverture',
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie')
+            'categories.nomCategorie',
+            'utilisateurs.login',
+            'utilisateurs.photo')
         ->get();
 
-        if ($data) {
+        foreach ($data as $datas) {
             
             return response([
                 'code' => '200',
@@ -557,15 +743,13 @@ class annoncesController extends Controller
                 'data' => $data
             ], 200);
 
-        } else {
-
-            return response([
-                'code' => '004',
-                'message' => 'Aucun resultat ne correspond a votre recherche',
-                'data' => null
-            ], 201);
-
         }
+
+        return response([
+            'code' => '004',
+            'message' => 'Aucun resultat ne correspond a votre recherche',
+            'data' => null
+        ], 201);
                                     
     }
 
@@ -624,7 +808,7 @@ class annoncesController extends Controller
                     if ($type == "evenement") {
 
                         $validator = Validator::make($data, [
-                            'calendriers_id' => 'required',
+                            // 'calendriers_id' => 'required',
                         ]);
 
                         if ($validator->fails()) {
@@ -741,6 +925,7 @@ class annoncesController extends Controller
     }
 
 
+    
     // Creer une annonce liée à un établissement
 
     public function createAnnonceEtablissement(Request $request){
@@ -786,7 +971,7 @@ class annoncesController extends Controller
                     if ($type == "evenement") {
 
                         $validator = Validator::make($data, [
-                            'calendriers_id' => 'required',
+                            // 'calendriers_id' => 'required',
                         ]);
 
                         if ($validator->fails()) {
@@ -811,7 +996,6 @@ class annoncesController extends Controller
 
                                 $id1 = $result->id;
         
-                                
                                 $id2 = $annonces['id'];
             
                                 $EtsAnnonces = annonces_etablissements::firstOrCreate([
@@ -1058,7 +1242,7 @@ class annoncesController extends Controller
 
             $annonce = annonces::findOrFail($id);
 
-            $donnees = utilisateurs::where('utilisateurs.id', '=', $idUser)->addSelect('id')->first();
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
 
             $idU = $donnees['id'];
 
@@ -1092,7 +1276,7 @@ class annoncesController extends Controller
                     if ($type == "evenement") {
 
                         $validator = Validator::make($data, [
-                            'calendriers_id' => 'required',
+                            // 'calendriers_id' => 'required',
                         ]);
 
                         if ($validator->fails()) {
@@ -1452,8 +1636,461 @@ class annoncesController extends Controller
         }
 
     }
+
+
+
+    /************ Modifier champs par champs de l'annonce*************/ 
+
     
+    // Modifier le titre de l'annonce
+
+    public function putAnnonceTitre(Request $request, $id){
     
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $validator = Validator::make($data, [
+                    'titre' => 'required|max:250|regex:/[^0-9.-]/',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+                        
+                    $annonces = $annonce->update($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonce
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+        
+    }
+    
+
+
+    // Modifier la sous categorie de l'annonce
+
+    public function putAnnonceSousCategorie(Request $request, $id){
+        
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $validator = Validator::make($data, [
+                    'sous_categories_id' => 'required|int',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+                        
+                    $annonces = $annonce->update($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonce
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+        
+    }
+
+
+
+    // Modifier le prix de l'annonce
+
+    public function putAnnoncePrix(Request $request, $id){
+        
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $validator = Validator::make($data, [
+                    'prix' => 'required|int',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+                        
+                    $annonces = $annonce->update($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonce
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+        
+    }
+
+
+
+
+    // Modifier la description de l'annonce
+
+    public function putAnnonceDescription(Request $request, $id){
+        
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $validator = Validator::make($data, [
+                    'description' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+                        
+                    $annonces = $annonce->update($data);
+
+                    if ($annonces) {
+
+                        return response([
+                            'code' => '200',
+                            'message' => 'success',
+                            'data' => $annonce
+                        ], 200);
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Echec lors de l\'operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+        
+    }
+
+
+
+
+    // Modifier le type de l'annonce
+
+    public function putAnnonceType(Request $request, $id){
+        
+        if (Auth::check()) {
+            
+            $user = Auth::user();
+
+            $idUser = Auth::id();
+
+            $role = $user['role'];
+
+            $annonce = annonces::findOrFail($id);
+
+            $donnees = annonces::where('utilisateurs_id', '=', $idUser)->addSelect('id')->first();
+
+            $idU = $donnees['id'];
+
+            if ( ($idUser == $idU) || $role == "administrateur") {
+
+                $data = $request->all();
+
+                $validator = Validator::make($data, [
+                    'type' => 'required',
+                ]);
+
+                if ($validator->fails()) {
+
+                    $erreur = $validator->errors();
+                    
+                    return response([
+                        'code' => '001',
+                        'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                        'data' => $erreur
+                    ], 201);
+
+                }else {
+                        
+                    $type = $data['type'];
+
+                    if ($type == "evenement") {
+                            
+                        $annonces = $annonce->update($data);
+
+                        if ($annonces) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonce
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+
+                        }
+
+                    }elseif ($type == "vente") {
+
+                        $validator = Validator::make($data, [
+                            'prix' => 'required|int',
+                        ]);
+
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
+                            
+                            return response([
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas au format',
+                                'data' => $erreur
+                            ], 201);
+        
+                        }else {
+                            
+                            $annonces = $annonce->update($data);
+
+                            if ($annonces) {
+
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $annonce
+                                ], 200);
+
+                            }else {
+
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'Echec lors de l\'operation',
+                                    'data' => null
+                                ], 201);
+
+                            }
+
+                        }
+
+                    } else {
+                        
+                        $annonces = $annonce->update($data);
+
+                        if ($annonces) {
+
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $annonce
+                            ], 200);
+
+                        }else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+
+                        }
+
+                    }
+
+                }
+
+            }else {
+
+                return response([
+                    'code' => '005',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }
+
+        }
+        
+    }
+
+
     
     
     // Afficher les annonces les plus visite
@@ -1474,13 +2111,16 @@ class annoncesController extends Controller
             'annonces.description',
             'annonces.date',
             'annonces.type',
+            'annonces.prix',
             'annonces.image_couverture',
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
             'annonces.nombre_visite',
             'sous_categories.nom_sous_categorie',
-            'categories.nomCategorie'
+            'categories.nomCategorie',
+            'utilisateurs.login',
+            'utilisateurs.photo'
         )->get();
 
         if ($annonces) {

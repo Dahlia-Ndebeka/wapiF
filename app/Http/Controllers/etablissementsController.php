@@ -508,6 +508,20 @@ class etablissementsController extends Controller
 
                     }else {
 
+                        $heure_ouverture = $etablissement['heure_ouverture'];
+
+                        $heure_fermeture = $etablissement['heure_fermeture'];
+
+                        $valeur_ouverture = ($heure_ouverture * 3600);
+
+                        $valeur_fermeture = ($heure_fermeture * 3600);
+
+                        $etablissement['heure_ouverture'] = $valeur_ouverture;
+
+                        $etablissement['heure_fermeture'] = $valeur_fermeture;
+
+                        $etablissement['utilisateurs_id'] = $idUtilisateur;
+
                         $ets = $identif->update($etablissement);
 
                         if ($ets) {
@@ -548,6 +562,863 @@ class etablissementsController extends Controller
 
 
 
+    // Modifier le nom d'un etablissement
+
+    public function putEtablissementNom(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [
+                        
+                        'nom_etablissement'=> 'required|max:100|regex:/[^0-9.-]/',  
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+    
+    
+    
+    
+    // Modifier l'adresse d'un etablissement
+
+    public function putEtablissementAdresse(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [
+                        'adresse'=> 'required|max:100', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+    
+    
+    
+    // Modifier le telephone d'un etablissement
+
+        public function putEtablissementTel(Request $request, $id){
+
+            if (Auth::check()) {
+                
+                // utilisateur actuellement authentifie
+
+                $user = Auth::user();
+
+                $role = $user['role'];
+
+                if ($role == null) {
+
+                    return response([
+                        'code' => '001',
+                        'message' => 'Acces non autorise',
+                        'data' => null
+                    ], 201);
+
+                }else {
+
+                    if ($role == 'administrateur') {
+
+                        $identif = etablissements::findOrFail($id);
+
+                        $etablissement = $request->all();
+
+                        $validator = Validator::make($request->all(), [ 
+                            'telephone'=> 'max:100|regex:/[^a-zA-Z]/' 
+                        ]);
+
+                        if ($validator->fails()) {
+
+                            $erreur = $validator->errors();
+                            
+                            return response([
+                                'code' => '001',
+                                'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                                'data' => $erreur
+                            ], 201);
+
+                        }else {
+
+                            $ets = $identif->update($etablissement);
+
+                            if ($ets) {
+                                
+                                return response([
+                                    'code' => '200',
+                                    'message' => 'success',
+                                    'data' => $identif
+                                ], 200);
+
+                            } else {
+
+                                return response([
+                                    'code' => '005',
+                                    'message' => 'Echec lors de l\'operation',
+                                    'data' => null
+                                ], 201);
+                                
+                            }
+                            
+                        }
+
+                    }else {
+
+                        return response([
+                            'code' => '005',
+                            'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                            'data' => null
+                        ], 201);
+
+                    }
+
+                }
+        
+            }   
+
+        }
+    
+    
+    // Modifier la description d'un etablissement
+
+    public function putEtablissementDescription(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [ 
+                        'description'=> 'required|max:255|regex:/[^0-9.-]/', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+    
+
+    // Modifier l'heure d'ouverture et fermeture d'un etablissement
+
+    public function putEtablissementHeure(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [ 
+                        'heure_ouverture'=> 'required', 
+                        'heure_fermeture'=> 'required'
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $heure_ouverture = $etablissement['heure_ouverture'];
+
+                        $heure_fermeture = $etablissement['heure_fermeture'];
+
+                        $valeur_ouverture = ($heure_ouverture * 3600);
+
+                        $valeur_fermeture = ($heure_fermeture * 3600);
+
+                        $etablissement['heure_ouverture'] = $valeur_ouverture;
+
+                        $etablissement['heure_fermeture'] = $valeur_fermeture;
+
+                        $etablissement['utilisateurs_id'] = $idUtilisateur;
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+
+
+
+    // Modifier l'email d'un etablissement
+
+    public function putEtablissementEmail(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [ 
+                        'email'=> 'required|max:200|email', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+
+
+
+    // Modifier la boite postale d'un etablissement
+
+    public function putEtablissementBoitePostale(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [ 
+                        'boite_postale'=> 'required|max:100', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+
+
+
+    // Modifier le site web d'un etablissement
+
+    public function putEtablissementSiteWeb(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [
+                        'site_web'=> 'required|max:100|regex:/[^0-9.-]/',
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+
+
+
+    // Modifier la latitude et la longitude d'un etablissement
+
+    public function putEtablissementLatiLong(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [
+                        'latitude'=> 'required|max:100', 
+                        'longitude'=> 'required|max:100', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+
+
+
+    // Modifier l'arrondissement d'un etablissement
+
+    public function putEtablissementArrondi(Request $request, $id){
+
+        if (Auth::check()) {
+            
+            // utilisateur actuellement authentifie
+
+            $user = Auth::user();
+
+            $role = $user['role'];
+
+            if ($role == null) {
+
+                return response([
+                    'code' => '001',
+                    'message' => 'Acces non autorise',
+                    'data' => null
+                ], 201);
+
+            }else {
+
+                if ($role == 'administrateur') {
+
+                    $identif = etablissements::findOrFail($id);
+
+                    $etablissement = $request->all();
+
+                    $validator = Validator::make($request->all(), [ 
+                        'arrondissements_id'=> 'required', 
+                    ]);
+
+                    if ($validator->fails()) {
+
+                        $erreur = $validator->errors();
+                        
+                        return response([
+                            'code' => '001',
+                            'message' => 'L\'un des champs est vide ou ne respecte pas le format',
+                            'data' => $erreur
+                        ], 201);
+
+                    }else {
+
+                        $ets = $identif->update($etablissement);
+
+                        if ($ets) {
+                            
+                            return response([
+                                'code' => '200',
+                                'message' => 'success',
+                                'data' => $identif
+                            ], 200);
+
+                        } else {
+
+                            return response([
+                                'code' => '005',
+                                'message' => 'Echec lors de l\'operation',
+                                'data' => null
+                            ], 201);
+                            
+                        }
+                        
+                    }
+
+                }else {
+
+                    return response([
+                        'code' => '005',
+                        'message' => 'Vous n\'avez pas le droit d\'effectue cette operation',
+                        'data' => null
+                    ], 201);
+
+                }
+
+            }
+    
+        }   
+
+    }
+    
+    
+    
+    
     // Affichage des annonces a partir de l'etablissement
 
     public function Annonces($id){

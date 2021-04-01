@@ -17,7 +17,8 @@ class calendriersController extends Controller
         $validator = Validator::make($request->all(), [
             'date_evenement' => 'required',
             'heure_debut' => 'required',
-            'heure_fin' => 'required'
+            'heure_fin' => 'required',
+            'annonces_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -64,7 +65,8 @@ class calendriersController extends Controller
         $annonces = calendriers::where('calendriers.id', '=', $id)
         ->join('annonces', function($join)
             {
-                $join->on('calendriers.id', '=', 'annonces.calendriers_id');
+                $join->on('calendriers.annonces_id', '=', 'annonces.id')
+                ->where('annonces.actif', '=', true);
             })
         ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
         ->join('categories', function($join)
@@ -80,6 +82,7 @@ class calendriersController extends Controller
             'annonces.lieu',
             'annonces.latitude',
             'annonces.longitude',
+            'annonces.etat',
             'sous_categories.nom_sous_categorie',
             'categories.nomCategorie'
         )->get();
@@ -106,11 +109,27 @@ class calendriersController extends Controller
 
     
 
-    //Afficher les programmes
+    //Afficher les calendriers
 
     public function Calendriers(){
 
-        $calendriers = calendriers::all();
+        $calendriers = calendriers::join('annonces', function($join)
+            {
+                $join->on('calendriers.annonces_id', '=', 'annonces.id');
+            })
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('calendriers.id',
+            'calendriers.labelel',
+            'calendriers.date_evenement',
+            'calendriers.heure_debut',
+            'calendriers.heure_fin',
+            'annonces.titre',
+            'annonces.description'
+        )->get();
 
         if ($calendriers) {
 
@@ -125,7 +144,7 @@ class calendriersController extends Controller
             return response([
                 'code' => '005',
                 'message' => 'La table est vide',
-                'data' => $calendriers
+                'data' => null
             ], 201);
 
         }
@@ -137,7 +156,24 @@ class calendriersController extends Controller
 
     public function getCalendriers($id){
 
-        $calendriers = calendriers::find($id);
+        $calendriers = calendriers::where('calendriers.id', '=', $id)
+        ->join('annonces', function($join)
+            {
+                $join->on('calendriers.annonces_id', '=', 'annonces.id');
+            })
+        ->join('sous_categories', 'annonces.sous_categories_id', '=', 'sous_categories.id')
+        ->join('categories', function($join)
+            {
+                $join->on('categories.id', '=', 'sous_categories.categories_id');
+            })
+        ->select('calendriers.id',
+            'calendriers.labelel',
+            'calendriers.date_evenement',
+            'calendriers.heure_debut',
+            'calendriers.heure_fin',
+            'annonces.titre',
+            'annonces.description'
+        )->get();
 
         if ($calendriers) {
             

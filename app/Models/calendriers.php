@@ -10,7 +10,7 @@ class calendriers extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['label','date_evenement', 'heure_debut', 'heure_fin'];
+    protected $fillable = ['label','date_evenement', 'heure_debut', 'heure_fin', 'annonces_id'];
 
     protected $hidden = [
         'updated_at',
